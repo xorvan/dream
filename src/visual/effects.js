@@ -1,0 +1,4 @@
+/**
+ * 
+ */
+dream.visual.effects = {};
