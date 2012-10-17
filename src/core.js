@@ -70,7 +70,6 @@ dream.Screen = function(canvas, width, height, frameRate){
 };
 
 dream.Screen.prototype.init = function(scene){
-	this.currentScene = scene;
 	scene.redrawRegions.add(this.viewport);
 	this.render();
 };
@@ -84,11 +83,12 @@ dream.Screen.prototype.resume = function(){
 	this.render();
 };
 
+// TODO removing old render function (without redraw region) 
 dream.Screen.prototype.render = function(){
 	this.fc++;
 	//console.log("salam:"+this.fc);
 
-	for(var i = 0, g; g = this.currentScene.assets.items[i]; i++ )
+	for(var i = 0, g; g = this.scene.current.assets.items[i]; i++ )
 		g.draw(this.context, new dream.Rect(g.left, g.top, g.width, g.height));
 	
 	var screen = this, raf = this.requestAnimationFrameFunction; 
@@ -115,6 +115,18 @@ dream.Screen.prototype.calcScaleFactor = function() {
 	this.scaleFactor = sf;
 };
 
+dream.Screen.prototype.highlite = function(rect) {
+	this.context.setStrokeColor(0xff0000);this.context.strokeRect(rect.left, rect.top, rect.width, rect.height)
+}
+
+/**
+ * @constructor
+ */
+dream.Point = function(left, top){
+	this.left = left || 0;
+	this.top = top || 0;
+};
+
 /**
  * @constructor
  */
@@ -134,9 +146,17 @@ Object.defineProperty(dream.Rect.prototype, "bottom", {
 	get : function () { return this.top + this.height;}
 });
 
+// TODO Select one implementation
 dream.Rect.prototype.hasIntersectWith = function(rect){
 	return ( ((this.left>=rect.left && this.left<=rect.right) || (this.right>=rect.left && this.right<=rect.right) || (this.left<=rect.left && this.right>=rect.right)) &&
 		((this.top>=rect.top && this.top<=rect.bottom) || (this.bottom>=rect.top && this.bottom<=rect.bottom) || (this.top<=rect.top && this.bottom>=rect.bottom)) );
+};
+
+dream.Rect.prototype.hasIntersectWith = function(rect){
+	return !(this.left < rect.left && this.right < rect.left) && 
+		!(this.right > rect.right && this.left > rect.right) && 
+		!(this.top < rect.top && this.bottom < rect.top) && 
+		!(this.bottom > rect.bottom && this.top > rect.bottom);
 };
 
 dream.Rect.prototype.add = function(rect){
@@ -147,5 +167,5 @@ dream.Rect.prototype.add = function(rect){
 };
 
 dream.Rect.prototype.clone = function(){
-	return new dream.util.Rect(this.left, this.top, this.width, this.height);
+	return new dream.Rect(this.left, this.top, this.width, this.height);
 };

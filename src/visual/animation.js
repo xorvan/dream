@@ -18,8 +18,9 @@ dream.visual.animation.Timeline = function() {
 /**
  * @constructor
  */
-dream.visual.animation.Step = function(fn, duration) {
+dream.visual.animation.Step = function(fn, duration, interval) {
 	this.fn = fn;
+	this.interval = interval || 1;
 	this.isPlaying = true;
 	this.startFrame = dream.fc;
 	this.lastFrame = dream.fc;
@@ -41,3 +42,10 @@ dream.visual.animation.Step.prototype.pause = function() {
 		this.lastFrame = dream.fc - this.startFrame;
 	}
 };
+
+dream.visual.animation.Step.prototype.rewind = function() {
+	this.endFrame = dream.fc + this.endFrame - this.startFrame;
+	this.startFrame = dream.fc;
+	this.isPlaying = true;
+};
+

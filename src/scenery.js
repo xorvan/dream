@@ -39,7 +39,7 @@ dream.scenery.Scene.prototype.drawImage = function(ctx, rect) {
 		if(rg.hasIntersectWith(rect)){
 			rgCount++;
 			scene.renderList.items.forEach(function(g){
-				if(rg.hasIntersectWith(g.rect)){
+				if(rg.hasIntersectWith(g.viewRect)){
 					g.draw(rb.context, new dream.Rect(g.rect.left - rg.left, g.rect.top - rg.top, g.rect.width, g.rect.height));
 					redrawCount++;
 				}
@@ -47,10 +47,10 @@ dream.scenery.Scene.prototype.drawImage = function(ctx, rect) {
 			ctx.clearRect(rg.left, rg.top, rg.width, rg.height);
 			ctx.drawImage(rb.canvas, 0, 0, rg.width, rg.height, rg.left, rg.top, rg.width, rg.height);
 		}
-		
+		//exp.highlite(rg);
 	});
 	scene.redrawRegions.clear();
-	if(redrawCount) console.log(redrawCount + " objects has been redrawned in "+rgCount +" redraw regions." );
+	//if(redrawCount) console.log(redrawCount + " objects has been redrawned in "+rgCount +" redraw regions." );
 };
 
 /**

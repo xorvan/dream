@@ -23,7 +23,6 @@ dream.preload.Loader = function(resources){
 dream.event.create(dream.preload.Loader.prototype, "onLoad");
 dream.event.create(dream.preload.Loader.prototype, "onProgress");
 
-
 dream.preload.Loader.prototype.load = function(resources){
 	if(resources){
 		dream.preload.Loader.call(this, resources);
@@ -88,6 +87,8 @@ dream.preload.Resource = function(url){
 	this.dependencies = [];
 	this.isLoaded = false;
 	this.isLoading = false;
+	
+	return dream.preload.cache[url] || this;
 };
 
 dream.event.create(dream.preload.Resource.prototype, "onLoad");
@@ -104,7 +105,7 @@ dream.preload.Resource.prototype.load = function(){
  * @extends dream.preload.Resource
  */
 dream.preload.AudioResource = function(url){
-	this.constructor._superClass.call(this, url);
+	return this.constructor._superClass.call(this, url);
 }.inherits(dream.preload.Resource);
 
 /**
@@ -112,7 +113,7 @@ dream.preload.AudioResource = function(url){
  * @extends dream.preload.Resource
  */
 dream.preload.ImageResource = function(url){
-	dream.preload.ImageResource._superClass.call(this, url);
+	return dream.preload.ImageResource._superClass.call(this, url);
 }.inherits(dream.preload.Resource);
 
 dream.preload.ImageResource.prototype.reload = function(){
@@ -130,7 +131,7 @@ dream.preload.ImageResource.prototype.reload = function(){
  * @extends dream.preload.Resource
  */
 dream.preload.XmlResource = function(url){
-	dream.preload.XmlResource._superClass.call(this, url);
+	return dream.preload.XmlResource._superClass.call(this, url);
 }.inherits(dream.preload.Resource);
 
 /**
@@ -138,7 +139,7 @@ dream.preload.XmlResource = function(url){
  * @extends dream.preload.Resource
  */
 dream.preload.MapResource = function(url){
-	dream.preload.MapResource._superClass.call(this, url);
+	return dream.preload.MapResource._superClass.call(this, url);
 }.inherits(dream.preload.XmlResource);
 
 dream.preload.MapResource.prototype.reload = function(){

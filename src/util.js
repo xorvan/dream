@@ -36,6 +36,14 @@ dream.util.ArrayList.prototype.add = function(object, id){
 	return object;
 };
 
+dream.util.ArrayList.prototype.indexOf = function(object){
+	if(object instanceof Object){
+		return this.keys[this._index[dream.util.getId(object)]];
+	}else{
+		return this.keys[object];	
+	}
+};
+
 dream.util.ArrayList.prototype.removeByIndex = function(index){
 	var r = this.items.splice(index, 1)[0];
 	dream.util.assert(r);
@@ -51,14 +59,12 @@ dream.util.ArrayList.prototype.removeByIndex = function(index){
 };
 
 dream.util.ArrayList.prototype.remove = function(object){
-	var i;
-	if(object instanceof Object){
-		var id = this._index[dream.util.getId(object)];
-		i = this.keys[id];
+	if(typeof object == "number"){
+		return this.removeByIndex(i);
 	}else{
-		i = this.keys[object];
+		return this.removeByIndex(this.indexOf(object));
 	}
-	return this.removeByIndex(i);
+	
 };
 
 dream.util.ArrayList.prototype.replace = function(object, newObject, id){
@@ -100,19 +106,31 @@ dream.event.create(dream.util.Selector.prototype, "onDeselect");
 dream.event.create(dream.util.Selector.prototype, "onSelect");
 
 dream.util.Selector.prototype.selectObject = function(obj){
-	dream.event.dispatch(this, "onDeselect");
+	dream.util.assert(obj != undefined);
+	dream.event.dispatch(this, "onDeselect", this._current);
 	this._current = obj;
-	dream.event.dispatch(this, "onSelect");			
+	dream.event.dispatch(this, "onSelect", obj);
+	return obj;
 };
 
 dream.util.Selector.prototype.select = function(obj){
 	if(typeof obj == "string"){
-		this.selectObject(this[obj]);
+		return this.selectObject(this[obj]);
 	}else if(typeof obj == "number"){
-		this.selectObject(this.items[obj]);
+		return this.selectObject(this.items[obj]);
 	}else{
-		this.selectObject(this[obj]);
+		return this.selectObject(obj);
 	}
+};
+
+dream.util.Selector.prototype.next = function(step){
+	var i = this.indexOf(this.current) + (step || 1);
+	this.select(i >= this.items.length ? 0 : i);
+};
+
+dream.util.Selector.prototype.previous = function(step){
+	var i = this.indexOf(this.current) - (step || 1);
+	this.select(i < 0 ? this.items.length -1  : i);
 };
 
 Object.defineProperty(dream.util.Selector.prototype, "current", {

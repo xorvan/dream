@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="net.vtst.ow.eclipse.js.closure.launching.compiler">
+<booleanAttribute key="acceptConstKeyword" value="false"/>
+<stringAttribute key="checkLevels" value=""/>
+<stringAttribute key="closureBasePath" value=""/>
+<stringAttribute key="compilationLevel" value="WHITESPACE_ONLY"/>
+<listAttribute key="externs"/>
+<booleanAttribute key="formattingPrettyPrint" value="false"/>
+<booleanAttribute key="formattingPrintInputDelimiter" value="false"/>
+<booleanAttribute key="generateExports" value="false"/>
+<listAttribute key="inputResources">
+<listEntry value="/DreamJS/src/core.js"/>
+<listEntry value="/DreamJS/src/scenery.js"/>
+<listEntry value="/DreamJS/src/visual.js"/>
+<listEntry value="/DreamJS/src/visual/animation.js"/>
+</listAttribute>
+<stringAttribute key="languageIn" value="ECMASCRIPT3"/>
+<booleanAttribute key="manageClosureDependencies" value="true"/>
+<booleanAttribute key="org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND" value="false"/>
+<booleanAttribute key="org.eclipse.ui.externaltools.ATTR_TRIGGERS_CONFIGURED" value="true"/>
+<listAttribute key="otherLibraries"/>
+<stringAttribute key="outputFile" value="\DreamJS\build\dream.js"/>
+<booleanAttribute key="processClosurePrimitives" value="true"/>
+<booleanAttribute key="processJQueryPrimitives" value="false"/>
+<booleanAttribute key="thirdParty" value="false"/>
+<booleanAttribute key="useDefaultClosureBasePath" value="true"/>
+<booleanAttribute key="useDefaultOutputFile" value="false"/>
+<booleanAttribute key="useOnlyCustomExterns" value="false"/>
+<booleanAttribute key="useProjectPropertiesForChecks" value="true"/>
+<booleanAttribute key="useProjectPropertiesForIncludes" value="true"/>
+<stringAttribute key="warningLevel" value="DEFAULT"/>
+</launchConfiguration>
