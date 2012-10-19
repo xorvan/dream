@@ -22,6 +22,20 @@ dream.visual.Graphic = function(left, top, width, height){
 	this.visible = true;
 	
 	this.steps = new dream.util.ArrayList();
+	this.tweens = new dream.util.ArrayList();
+	
+	var graphic = this;
+	this.tweens.onAdd.add(function(tween){
+		tween.host = graphic; 
+		graphic.steps.add(tween.step);
+		tween.onEnd.add(function(){
+			graphic.tweens.remove(tween);
+		});
+	});
+	
+	this.tweens.onRemove.add(function(tween){
+		graphic.steps.remove(tween.step);
+	});
 	
 }.inherits(dream.scenery.Asset);
 
@@ -33,16 +47,14 @@ dream.visual.Graphic.prototype.draw = function(ctx, rect) {
 	if (this._checkRs()) {
 		ctx.save();
 		ctx.globalAlpha = this.alpha;
-		var tx = rect.left;// + this.ax;
-		var ty = rect.top;// + this.ay;
+		var tx = rect.left;
+		var ty = rect.top;
 		ctx.translate(tx, ty);
 		ctx.rotate(this.r);
 		ctx.scale(this.sx, this.sy);
 		this.drawImage(ctx, new dream.Rect(this.ax*-1, this.ay*-1, rect.width, rect.height));
 		ctx.restore();
-	} // end draw
-
-	else
+	}else
 		this.drawImage(ctx, new dream.Rect(rect.left - this.ax, rect.top - this.ay, rect.width, rect.height));
 };
 
@@ -56,8 +68,6 @@ dream.visual.Graphic.prototype.calcBoundary = function() {
 	var ny = -1 * this.ay  * this.sy;
 	var ny1 = (this.rect.height - this.ay) * this.sy;
 	
-	var xc = this.rect.left + this.ax | 0;
-	var yc = this.rect.top + this.ay | 0;
 	var xs = [];
 	var ys = [];
 	xs[0] = (nx * csn - ny * sn) | 0;
@@ -96,8 +106,8 @@ dream.visual.Graphic.prototype.step = function (){
 			step.fn.call(this);
 		}
 		if (step.endFrame == dream.fc && step.isPlaying){
-			dream.event.dispatch(step, "onEnd");
-			this.steps.remove(step);
+			dream.event.dispatch(step, "onEnd");			
+			if(!step._persistent) this.steps.remove(step);
 		}
 	}
 }; 
@@ -107,6 +117,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "left", {
 		return this.rect.left;
 	},
 	set : function(v) {
+		var v = v | 0;
 		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
 		var d = v - this.rect.left;
 		this.rect.left = v;
@@ -120,6 +131,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "top", {
 		return this.rect.top;
 	},
 	set : function(v) {
+		var v = v | 0;
 		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
 		var d = v - this.rect.top;
 		this.rect.top = v;
@@ -145,6 +157,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "width", {
 		return this.rect.width;
 	},
 	set : function(v) {
+		var v = v | 0;
 		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
 		this.rect.width = v;
 		this.calcBoundary();
@@ -157,6 +170,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "height", {
 		return this.rect.height;
 	},
 	set : function(v) {
+		var v = v | 0;
 		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
 		this.rect.height = v;
 		this.calcBoundary();

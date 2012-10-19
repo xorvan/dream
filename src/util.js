@@ -45,12 +45,14 @@ dream.util.ArrayList.prototype.indexOf = function(object){
 };
 
 dream.util.ArrayList.prototype.removeByIndex = function(index){
+	dream.util.assert(typeof index == "number");
 	var r = this.items.splice(index, 1)[0];
 	dream.util.assert(r);
 	var gid = dream.util.getId(r);
 	var id = this._index[gid];
 	delete this.keys[id];
-	delete this._index[gid];	
+	delete this._index[gid];
+	delete this[id];
 	for (var i=index, o; o = this.items[i]; i++ ){
 		this.keys[this._index[dream.util.getId(o)]] --;		
 	}
@@ -62,7 +64,12 @@ dream.util.ArrayList.prototype.remove = function(object){
 	if(typeof object == "number"){
 		return this.removeByIndex(i);
 	}else{
-		return this.removeByIndex(this.indexOf(object));
+		var i = this.indexOf(object);
+		if(typeof i == "number"){
+			return this.removeByIndex(i);
+		}else{
+			return false;
+		}
 	}
 	
 };
@@ -88,6 +95,10 @@ dream.util.ArrayList.prototype.replace = function(object, newObject, id){
 };
 
 dream.util.ArrayList.prototype.clear = function(){
+	for(var i=0, o; o = this.items[i]; i++){		
+		dream.event.dispatch(this, "onRemove", o);
+		delete this[this._index[dream.util.getId(o)]];
+	}
 	this.items = [];
 	this.keys = [];
 	this._index = [];

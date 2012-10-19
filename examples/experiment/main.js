@@ -29,10 +29,11 @@ function init(){
 	//world.assets.add(boat1, "boat1");
 	
 	for(var i=1; i<=10; i++){
-		var s = world.assets.add(new Star(i*30, i*30), "star" + i);
-		s.alpha = 0.3;
-		s.rotation = Math.random()*360 | 0;
-		s.steps.add(new dream.visual.animation.Step(function(){this.rotation+=2;}));
+		with(world.assets.add(new Star(i*30, i*30), "star" + i)){
+			alpha = 0.3;
+			rotation = Math.random()*360 | 0;
+			steps.add(new dream.visual.animation.Step(function(){this.rotation+=2;}));
+		}
 	}
 	
 	for(var i=1; i<=10; i++){
@@ -45,8 +46,8 @@ function init(){
 	with(enemy){
 		anchorX = width /2; 
 		anchorY = height /2;
-		rotation = 15;
-		steps.add(new dream.visual.animation.Step(function(){this.scale+=.02;},50));
+		left = top = 200;
+		tween1 = tweens.add(new dream.visual.animation.Tween({scale:2,left:400,top:400,alpha:0.2, rotation:360}, 200, dream.visual.animation.interpolators.sine, true));
 	}
 	
 	

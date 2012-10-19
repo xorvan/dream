@@ -28,7 +28,7 @@ dream.scenery.Scene.prototype.drawImage = function(ctx, rect) {
 	var redrawCount = 0;
 	var rgCount = 0;
 	
-	scene.renderList.items.forEach(function(g){
+	this.renderList.items.forEach(function(g){
 		g.step();
 	});
 	
@@ -47,9 +47,8 @@ dream.scenery.Scene.prototype.drawImage = function(ctx, rect) {
 			ctx.clearRect(rg.left, rg.top, rg.width, rg.height);
 			ctx.drawImage(rb.canvas, 0, 0, rg.width, rg.height, rg.left, rg.top, rg.width, rg.height);
 		}
-		//exp.highlite(rg);
 	});
-	scene.redrawRegions.clear();
+	this.redrawRegions.clear();
 	//if(redrawCount) console.log(redrawCount + " objects has been redrawned in "+rgCount +" redraw regions." );
 };
 
