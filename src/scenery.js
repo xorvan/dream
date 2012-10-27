@@ -10,8 +10,21 @@ dream.scenery.Scene = function(){
 	var scene = this;
 	this.assets = new dream.scenery.AssetLibrary();
 	this.assets.onAdd.add(function(obj){
-		obj.scene = scene;
-		if(obj instanceof dream.visual.Graphic) scene.renderList.add(obj);
+		if(obj instanceof dream.visual.Graphic){
+			scene.renderList.add(obj);
+			obj.onImageChange.add(function(){
+				scene.redrawRegions.add(obj.viewRect.clone());
+			});
+			
+			obj.onViewRectChange.add(function(oldRect){
+				if(oldRect.hasIntersectWith(obj.viewRect)){
+					scene.redrawRegions.add(oldRect.add(obj.viewRect));
+				}else{
+					scene.redrawRegions.add(oldRect.clone());
+					scene.redrawRegions.add(obj.viewRect.clone());
+				}
+			});
+		}
 	});
 	
 	/**

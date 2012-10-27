@@ -12,6 +12,14 @@ Enemy = function(left, top){
 	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/enemies.png", 0, 0, 100, 75, 4, 5,[0,1,2,3,2,3,2,1,2,1,0,1]), left, top, 100, 75);
 }.inherits(dream.visual.Sprite);
 
+CompositeEnemy = function(left, top){
+	dream.visual.Composite.call(this, left, top);
+	
+	this.e1 = this.children.add(new Enemy(0,0));
+	this.e2 = this.children.add(new Enemy(20,0));
+	this.s = this.children.add(new Star(10,10));
+}.inherits(dream.visual.Composite);
+
 function init(){
 	exp = new dream.Screen(document.getElementById("mainCanvas"));
 	
@@ -49,6 +57,8 @@ function init(){
 		left = top = 200;
 		tween1 = tweens.add(new dream.visual.animation.Tween({scale:2,left:400,top:400,alpha:0.2, rotation:360}, 200, dream.visual.animation.interpolators.sine, true));
 	}
+	
+	ce = world.assets.add(new CompositeEnemy(300,300));
 	
 	
 	

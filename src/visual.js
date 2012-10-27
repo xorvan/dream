@@ -39,6 +39,9 @@ dream.visual.Graphic = function(left, top, width, height){
 	
 }.inherits(dream.scenery.Asset);
 
+dream.event.create(dream.visual.Graphic.prototype, "onImageChange");
+dream.event.create(dream.visual.Graphic.prototype, "onViewRectChange");
+
 dream.visual.Graphic.prototype._checkRs = function() {
 	return !(this.r == 0 && this.sx == 1 && this.sy == 1 && this.a == 1);
 };
@@ -118,11 +121,11 @@ Object.defineProperty(dream.visual.Graphic.prototype, "left", {
 	},
 	set : function(v) {
 		var v = v | 0;
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		var oldRect = this.viewRect.clone();
 		var d = v - this.rect.left;
 		this.rect.left = v;
 		this.viewRect.left += d;
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		dream.event.dispatch(this, "onViewRectChange", oldRect);
 	}
 });
 
@@ -132,11 +135,11 @@ Object.defineProperty(dream.visual.Graphic.prototype, "top", {
 	},
 	set : function(v) {
 		var v = v | 0;
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		var oldRect = this.viewRect.clone();
 		var d = v - this.rect.top;
 		this.rect.top = v;
 		this.viewRect.top += d;
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		dream.event.dispatch(this, "onViewRectChange", oldRect);
 	}
 });
 
@@ -145,10 +148,10 @@ Object.defineProperty(dream.visual.Graphic.prototype, "rotation", {
 		return this.r * 180 / Math.PI;
 	},
 	set : function(v) {
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		var oldRect = this.viewRect.clone();
 		this.r = (Math.PI / 180 * v) % (Math.PI * 2);
 		this.calcBoundary();
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		dream.event.dispatch(this, "onViewRectChange", oldRect);
 	}
 });
 
@@ -158,10 +161,10 @@ Object.defineProperty(dream.visual.Graphic.prototype, "width", {
 	},
 	set : function(v) {
 		var v = v | 0;
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		var oldRect = this.viewRect.clone();
 		this.rect.width = v;
 		this.calcBoundary();
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		dream.event.dispatch(this, "onViewRectChange", oldRect);
 	}
 });
 
@@ -171,10 +174,10 @@ Object.defineProperty(dream.visual.Graphic.prototype, "height", {
 	},
 	set : function(v) {
 		var v = v | 0;
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		var oldRect = this.viewRect.clone();
 		this.rect.height = v;
 		this.calcBoundary();
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		dream.event.dispatch(this, "onViewRectChange", oldRect);
 	}
 });
 
@@ -184,6 +187,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "alpha", {
 	},
 	set : function(v) {
 		this.a = v;
+		dream.event.dispatch(this, "onImageChange");
 	}
 });
 
@@ -192,10 +196,10 @@ Object.defineProperty(dream.visual.Graphic.prototype, "scaleX", {
 		return this.sx;
 	},
 	set : function(v) {
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		var oldRect = this.viewRect.clone();
 		this.sx = v;
 		this.calcBoundary();
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		dream.event.dispatch(this, "onViewRectChange", oldRect);
 	}
 });
 
@@ -204,10 +208,10 @@ Object.defineProperty(dream.visual.Graphic.prototype, "scaleY", {
 		return this.sy;
 	},
 	set : function(v) {
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		var oldRect = this.viewRect.clone();
 		this.sy = v;
 		this.calcBoundary();
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		dream.event.dispatch(this, "onViewRectChange", oldRect);
 	}
 });
 
@@ -216,11 +220,11 @@ Object.defineProperty(dream.visual.Graphic.prototype, "scale", {
 		return this.sy > this.sy ? this.sy : this.sx ;
 	},
 	set : function(v) {
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		var oldRect = this.viewRect.clone();
 		this.sy = v;
 		this.sx = v;
 		this.calcBoundary();
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		dream.event.dispatch(this, "onViewRectChange", oldRect);
 	}
 });
 
@@ -229,10 +233,10 @@ Object.defineProperty(dream.visual.Graphic.prototype, "anchorX", {
 		return this.ax;
 	},
 	set : function(v) {
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		var oldRect = this.viewRect.clone();
 		this.ax = v;
 		if(this._checkRs()) this.calcBoundary();
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		dream.event.dispatch(this, "onViewRectChange", oldRect);
 	}
 });
 
@@ -241,10 +245,10 @@ Object.defineProperty(dream.visual.Graphic.prototype, "anchorY", {
 		return this.ay;
 	},
 	set : function(v) {
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		var oldRect = this.viewRect.clone();
 		this.ay = v;
 		if(this._checkRs()) this.calcBoundary();
-		if(this.scene) this.scene.redrawRegions.add(this.viewRect.clone());
+		dream.event.dispatch(this, "onViewRectChange", oldRect);
 	}
 });
 
@@ -261,6 +265,48 @@ Object.defineProperty(dream.visual.Graphic.prototype, "imageData", {
 /**
  * @constructor
  */
+dream.visual.Composite = function(left, top){
+	dream.visual.Composite._superClass.call(this, left, top);
+	var composite = this;
+	
+	this.actualRect = new dream.Rect(left, top);
+	
+	var checkActualRect = function(g){
+		if(g.viewRect.left < composite.actualRect.left)
+			composite.actualRect.left = g.viewRect.left;
+		if(g.viewRect.top < composite.actualRect.top)
+			composite.actualRect.top = g.viewRect.top;
+		if(g.viewRect.right > composite.actualRect.right)
+			composite.actualRect.width = g.viewRect.right - composite.actualRect.width;
+		if(g.viewRect.bottom > composite.actualRect.bottom)
+			composite.actualRect.height = g.viewRect.bottom - composite.actualRect.height;		
+	};
+	
+	var reCalcActualRect = function(){
+		composite.actualRect.left = composite.rect.left;
+		composite.actualRect.top = composite.rect.top;
+		composite.children.items.forEach(checkActualRect);
+	};
+	
+	this.children = new dream.util.ArrayList();
+	this.children.onAdd.add(function(g){
+		checkActualRect(g);
+		g.onViewRectChange.add(reCalcActualRect);
+	});
+	this.children.onRemove.add(function(g){
+		reCalcActualRect();
+	});
+}.inherits(dream.visual.Graphic);
+
+dream.visual.Composite.prototype.drawImage = function(ctx, rect) {
+	this.children.items.forEach(function(g){
+		g.draw(ctx, new dream.Rect(rect.left + g.rect.left, rect.top + g.rect.top, g.rect.width, g.rect.height));
+	});
+};
+
+/**
+ * @constructor
+ */
 dream.visual.Sprite = function(frameSet, left, top, width, height){
 	dream.visual.Sprite._superClass.call(this, left, top, width, height);
 	
@@ -273,7 +319,7 @@ dream.visual.Sprite = function(frameSet, left, top, width, height){
 		}
 		
 		if(fs.frames.items.length > 1)
-			sprite.animStep = sprite.steps.add(new dream.visual.animation.Step(function(){fs.frames.next();sprite.scene.redrawRegions.add(sprite.viewRect);}, -1, fs.interval));
+			sprite.animStep = sprite.steps.add(new dream.visual.animation.Step(function(){fs.frames.next();dream.event.dispatch(sprite, "onImageChange");}, -1, fs.interval));
 	});
 	
 	if(frameSet){
