@@ -17,14 +17,22 @@ dream.visual.animation.Tween = function(valueMap, duration, interpolator, loop, 
 dream.event.create(dream.visual.animation.Tween.prototype, "onEnd");
 dream.event.create(dream.visual.animation.Tween.prototype, "onCycle");
 
+dream.visual.animation.Tween.prototype.getHostValue = function(i){
+	return i.indexOf(".") > -1 ? eval("this.host."+ i) : this.host[i];
+};
+
+dream.visual.animation.Tween.prototype.setHostValue = function(i, v){
+	return i.indexOf(".") > -1 ? eval("this.host."+ i + " = " + v) : this.host[i] = v;
+};
+
 Object.defineProperty(dream.visual.animation.Tween.prototype, "step", {
 	get : function(){
 		if(this._step) return this._step;
 		var diffMap = {};
 		var initialMap = this.initialMap = {};
 		for(var i in this.valueMap){
-			diffMap[i] = this.valueMap[i] - this.host[i];
-			initialMap[i] = this.host[i];
+			diffMap[i] = this.valueMap[i] - this.getHostValue(i);
+			initialMap[i] = this.getHostValue(i);
 		}
 		
 		var tween = this;
@@ -32,7 +40,7 @@ Object.defineProperty(dream.visual.animation.Tween.prototype, "step", {
 		var stepFunc = function() {
 			var multiplier = tween.interpolator( (dream.fc - step.startFrame) / tween.duration );
 			for(var i in diffMap){
-				tween.host[i] = initialMap[i] + diffMap[i] * multiplier; 
+				tween.setHostValue(i, initialMap[i] + diffMap[i] * multiplier); 
 			};
 		};
 		

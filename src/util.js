@@ -7,11 +7,12 @@ dream.util = {};
  * @author Ehsan
  * @constructor
  */
-dream.util.ArrayList = function(){
+dream.util.ArrayList = function(items){
 	this.items = [];
 	this.keys = {};
 	this._index = {};
 	
+	if(items) this.addArray(items);
 };
 
 dream.event.create(dream.util.ArrayList.prototype, "onAdd");	
@@ -104,12 +105,40 @@ dream.util.ArrayList.prototype.clear = function(){
 	this._index = [];
 };
 
+dream.util.ArrayList.prototype.addArray = function(items){
+	for(var i in items) 
+		this.add(items[i]);
+};
+
 /**
  * @author Ehsan
  * @constructor
  */
-dream.util.Selector = function(){
-	dream.util.Selector._superClass.call(this);	
+dream.util.IndexedArrayList = function(indexes, items){	
+	this.indexes = indexes;	
+	this.index = [];
+	for(var i=0, index; index = this.indexes[i]; i++){
+		this.index[index] = {};
+	}
+	
+	dream.util.IndexedArrayList._superClass.call(this, items);	
+	
+}.inherits(dream.util.ArrayList);
+
+dream.util.IndexedArrayList.prototype.add = function(object, id){
+	for(var i=0, index; index = this.indexes[i]; i++){
+		var a = this.index[index][object[index]] || (this.index[index][object[index]] = []);  
+		a.push(object);
+	}
+	return dream.util.IndexedArrayList._superClass.prototype.add.call(this, object, id);
+};
+
+/**
+ * @author Ehsan
+ * @constructor
+ */
+dream.util.Selector = function(items){
+	dream.util.Selector._superClass.call(this, items);	
 	
 }.inherits(dream.util.ArrayList);
 
@@ -157,12 +186,33 @@ Object.defineProperty(dream.util.Selector.prototype, "current", {
  * @author Ehsan
  * @constructor
  */
-dream.util.EventDispatcher = function(obj){
+dream.util.EventDispatcher = function(obj, name){
 	dream.util.EventDispatcher._superClass.call(this);
 	
 	this.obj = obj;	
+	this.name = name;
+	
+	this.listeners = {};
 	
 }.inherits(dream.util.ArrayList);
+
+dream.util.EventDispatcher.prototype.add = function(object, owner){
+	var h = dream.util.EventDispatcher._superClass.prototype.add.call(this, object, typeof owner == "string" ? owner : null);
+	if(owner){
+		var oid = dream.util.getId(owner);
+		var l = this.listeners[oid] || (this.listeners[oid] = []);
+		l.push(h);
+	}
+	return h;
+};
+
+dream.util.EventDispatcher.prototype.removeByOwner = function(owner){
+	var oid = dream.util.getId(owner), l;
+	if(l = this.listeners[oid]){
+		l.forEach(this.remove, this);
+		delete this.listeners[oid];
+	}
+};
 
 dream.util.EventDispatcher.prototype.dispatch = function(){
 	var obj = this.obj;
@@ -170,6 +220,67 @@ dream.util.EventDispatcher.prototype.dispatch = function(){
 	this.items.forEach(function(l){
 		l.apply(obj, args);
 	});
+};
+
+dream.util.EventDispatcher.prototype.propagate = function(target, event){
+	var e = event || this.name;
+	var maps = arguments;
+	return this.add(function(){
+		var args = [target, e];
+		if(maps.length>2)
+			for(var i = 2, m; m = maps[i]; i++)
+				arguments[i-2] = m instanceof Function ? m(arguments[i-2]) : m;
+		if(arguments.length < maps.length - 2) arguments.length = maps.length - 2; 
+		Array.prototype.forEach.call(arguments, args.push, args);		
+		dream.event.dispatch.apply(null, args);
+	}, target);
+};
+
+/**
+ * @constructor
+ */
+dream.util.AssetLibrary = function(){
+	dream.util.AssetLibrary._superClass.call(this);
+	
+	this.loader = new dream.preload.Loader();
+}.inherits(dream.util.ArrayList);
+
+dream.util.AssetLibrary.prototype.prepare = function(callBack){ 	
+	if(callBack) 
+		this.loader.onLoad.add(function(){
+			callBack();
+			//remove
+		});
+
+	this.loader.load(this.requiredResources);
+};
+
+Object.defineProperty(dream.util.AssetLibrary.prototype, "requiredResources", {
+	get : function () {
+		var r = [];
+		for(var i=0,asset; asset=this.items[i]; i++ )
+			r = r.concat(asset.requiredResources);
+		return r;
+	}
+});
+
+/**
+ * @author Ehsan
+ * @constructor
+ */
+dream.util.RedrawRegionList = function(){
+	dream.util.ArrayList.call(this);
+}.inherits(dream.util.ArrayList);
+
+dream.util.RedrawRegionList.prototype.add = function(rect){
+	var list = this;
+	if(rect.width <=0 || rect.height <= 0) return false;
+	for(var i = 0, r; r = this.items[i]; i++){
+		if(rect.hasIntersectWith(r)){
+			return list.replace(r, r.add(rect));
+		}
+	}
+	return dream.util.RedrawRegionList._superClass.prototype.add.call(this, rect);
 };
 
 /**
@@ -224,3 +335,4 @@ dream.util.objCount = 0;
 dream.util.getId = function(obj){
 	return obj.__GID || (obj.__GID = ++dream.util.objCount);
 };
+

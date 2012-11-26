@@ -21,103 +21,86 @@ Function.prototype.inherits = function(base){
 /**
  * @namespace This is DreamJS root package.
  */
-dream = {};
+if(!window.dream) dream = {};
 
 dream.fc = 0;
 
 dream.DEBUG = false;
 
+
 /**
  * @constructor
  */
-dream.Screen = function(canvas, width, height, frameRate){
+dream.Asset = function(){	
+	this.requiredResources = [];
+};
 
-	var screen = this;
+/**
+ * @constructor
+ */
+dream.VisualAsset = function(){
 	
-	var SceneList = function(){
-		dream.util.Selector.call(this);
-	}.inherits(dream.util.Selector);
+}.inherits(dream.Asset);
 
-	
-	SceneList.prototype.selectObject = function(scene){
-		SceneList._superClass.prototype.selectObject.call(this, scene);
+dream.event.create(dream.VisualAsset.prototype, "onMouseOver");
+dream.event.create(dream.VisualAsset.prototype, "onMouseOut");
+dream.event.create(dream.VisualAsset.prototype, "onMouseMove");
+dream.event.create(dream.VisualAsset.prototype, "onMouseDown");
+dream.event.create(dream.VisualAsset.prototype, "onMouseUp");
+dream.event.create(dream.VisualAsset.prototype, "onClick");
+dream.event.create(dream.VisualAsset.prototype, "onDrag");
+dream.event.create(dream.VisualAsset.prototype, "onDragStart");
+dream.event.create(dream.VisualAsset.prototype, "onDragStop");
+dream.event.create(dream.VisualAsset.prototype, "onDrop");
+dream.event.create(dream.VisualAsset.prototype, "onKeyDown");
+dream.event.create(dream.VisualAsset.prototype, "onKeyUp");
+
+dream.VisualAsset.prototype.raiseMouseDown = function(mouse){
+	if(this.hovered) this.hovered.raiseMouseDown(this.translateIn(mouse));
+	dream.event.dispatch(this, "onMouseDown", mouse);
+	this.isMouseDown = true;
+};
+
+dream.VisualAsset.prototype.raiseMouseUp = function(mouse){
+	if(this.hovered) this.hovered.raiseMouseUp(this.translateIn(mouse));
+	dream.event.dispatch(this, "onMouseUp", mouse);
+	if(this.isMouseDown){
+		dream.event.dispatch(this, "onClick", mouse);
+		this.isMouseDown = false;
+	}
+};
+
+dream.VisualAsset.prototype.raiseMouseMove = function(mouse){
+	if(this.hovered) this.hovered.raiseMouseMove(this.translateIn(mouse));
+	dream.event.dispatch(this, "onMouseMove", mouse);
+	if(this.isMouseDown){
+		if(!this.isDragging){
+			dream.event.dispatch(this, "onDragStart", mouse);
+			this.isDragging = true;
+			if(this.hovered) this.dragging = this.hovered;
+		}
 		
-		scene.assets.prepare(function(){
-			screen.init(scene);
-		});
-	};
-
-	this.fc = 0;
-	
-	this.canvas = canvas;
-	
-	this.canvas.width = this.canvas.offsetWidth;
-	this.canvas.height = this.canvas.offsetHeight;
-	
-	this.context = this.canvas.getContext("2d");
-	
-	this.viewport = new dream.Rect(0, 0, width || this.canvas.width, height || this.canvas.height);
-
-	this.calcScaleFactor();
-	
-	this.buffer = new dream.util.BufferCanvas(this.viewport.width, this.viewport.height);
-	
-	this.input = new dream.input.InputHandler(this);
-	this.scenes = new SceneList;
-	
-	this.requestAnimationFrameFunction = dream.util.getRequestAnimationFrame(frameRate);
-	this.cancelRequestAnimationFrameFunction = dream.util.getCancelRequestAnimationFrame(frameRate);
+	}
 };
 
-dream.Screen.prototype.init = function(scene){
-	scene.redrawRegions.add(this.viewport);
-	this.render();
+dream.VisualAsset.prototype.raiseMouseOut = function(mouse){
+	if(this.hovered) this.hovered.raiseMouseOut(this.translateIn(mouse));
+	this.isHovered = false;
+	this.hovered = null;	
+	dream.event.dispatch(this, "onMouseOut", mouse);
 };
 
-dream.Screen.prototype.pause = function(){
-	var craf = this.cancelRequestAnimationFrameFunction;
-	craf(this._AFID);
+dream.VisualAsset.prototype.raiseDrag = function(mouse){
+	if(this.dragging) this.dragging.raiseDrag(this.translateIn(mouse));
+	dream.event.dispatch(this, "onDrag", mouse);
 };
 
-dream.Screen.prototype.resume = function(){
-	this.render();
+dream.VisualAsset.prototype.raiseDragStop = function(mouse){
+	if(this.dragging) this.dragging.raiseDragStop(this.translateIn(mouse));
+	this.dragging = false;
+	this.isDragging = false;
+	dream.event.dispatch(this, "onDragStop", mouse);
 };
-
-// TODO removing old render function (without redraw region) 
-dream.Screen.prototype.render = function(){
-	this.fc++;
-	//console.log("salam:"+this.fc);
-
-	for(var i = 0, g; g = this.scene.current.assets.items[i]; i++ )
-		g.draw(this.context, new dream.Rect(g.left, g.top, g.width, g.height));
-	
-	var screen = this, raf = this.requestAnimationFrameFunction; 
-	this._AFID = raf(function(){screen.render();});
-};
-
-dream.Screen.prototype.render = function(){
-	this.fc++;
-	dream.fc ++;
-	//console.log("salam:"+this.fc);
-
-	this.scenes.current.drawImage(this.context, this.viewport);
-	
-	var screen = this, raf = this.requestAnimationFrameFunction; 
-	this._AFID = raf(function(){screen.render();});
-};
-
-dream.Screen.prototype.calcScaleFactor = function() {
-	var xf = this.canvas.offsetWidth / this.viewport.width;
-	var yf = this.canvas.offsetHeight / this.viewport.height;
-	var sf = xf;
-	if (yf < xf)
-		sf = yf;
-	this.scaleFactor = sf;
-};
-
-dream.Screen.prototype.highlite = function(rect) {
-	this.context.setStrokeColor(0xff0000);this.context.strokeRect(rect.left, rect.top, rect.width, rect.height)
-}
 
 /**
  * @constructor
@@ -125,6 +108,17 @@ dream.Screen.prototype.highlite = function(rect) {
 dream.Point = function(left, top){
 	this.left = left || 0;
 	this.top = top || 0;
+};
+
+dream.Point.prototype.toString = function(){return this.left+", "+this.top;};
+
+dream.Point.prototype.isIn = function(rect){
+	return this.left >= rect.left && this.left <= rect.right && 
+		this.top >= rect.top && this.top <= rect.bottom;
+};
+
+dream.Point.prototype.clone = function(){
+	return new dream.Point(this.left, this.top);
 };
 
 /**
@@ -159,6 +153,24 @@ dream.Rect.prototype.hasIntersectWith = function(rect){
 		!(this.bottom > rect.bottom && this.top > rect.bottom);
 };
 
+dream.Rect.prototype.getIntersectWith = function(rect){
+	if(this.hasIntersectWith(rect)){
+		var l = Math.max(rect.left, this.left);
+		var t = Math.max(rect.top, this.top);
+		var r = Math.min(rect.right, this.right);
+		var b = Math.min(rect.bottom, this.bottom);
+		
+		return new dream.Rect(l, t, r - l + 1, b - t + 1);
+	}else{
+		return false;
+	}
+};
+
+dream.Rect.prototype.covers = function(rect){
+	return this.left <= rect.left && this.right >= rect.right &&
+		this.top <= rect.top && this.bottom >= rect.bottom;
+};
+
 dream.Rect.prototype.add = function(rect){
 	var r = new dream.Rect(this.left<rect.left?this.left:rect.left, this.top<rect.top?this.top:rect.top);
 	r.width = (this.right>rect.right?this.right:rect.right) - r.left;
@@ -169,3 +181,7 @@ dream.Rect.prototype.add = function(rect){
 dream.Rect.prototype.clone = function(){
 	return new dream.Rect(this.left, this.top, this.width, this.height);
 };
+
+dream.Rect.prototype.toString = function(){return this.left+", "+this.top+", "+this.width+", "+this.height;};
+
+

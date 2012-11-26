@@ -7,109 +7,46 @@ dream.scenery = {};
  * @constructor
  */
 dream.scenery.Scene = function(){
-	var scene = this;
-	this.assets = new dream.scenery.AssetLibrary();
-	this.assets.onAdd.add(function(obj){
-		if(obj instanceof dream.visual.Graphic){
-			scene.renderList.add(obj);
-			obj.onImageChange.add(function(){
-				scene.redrawRegions.add(obj.viewRect.clone());
-			});
-			
-			obj.onViewRectChange.add(function(oldRect){
-				if(oldRect.hasIntersectWith(obj.viewRect)){
-					scene.redrawRegions.add(oldRect.add(obj.viewRect));
-				}else{
-					scene.redrawRegions.add(oldRect.clone());
-					scene.redrawRegions.add(obj.viewRect.clone());
-				}
-			});
-		}
-	});
+	dream.scenery.Scene._superClass.call(this);
 	
-	/**
-	 * @private
-	 */
-	this.renderList = new dream.util.ArrayList();
-	
-	this.redrawRegions = new dream.scenery.RedrawRegionList();
-	this.redrawBuffer = new dream.util.BufferCanvas(0, 0);
-};
+	this.camera = new dream.scenery.Camera(this);
+}.inherits(dream.visual.Composite);
 
-dream.scenery.Scene.prototype.drawImage = function(ctx, rect) {
-	var scene = this;
-	var redrawCount = 0;
-	var rgCount = 0;
-	
-	this.renderList.items.forEach(function(g){
-		g.step();
-	});
-	
-	this.redrawRegions.items.forEach(function(rg){
-		var rb = scene.redrawBuffer;
-		rb.canvas.width = rg.width;
-		rb.canvas.height = rg.height;		
-		if(rg.hasIntersectWith(rect)){
-			rgCount++;
-			scene.renderList.items.forEach(function(g){
-				if(rg.hasIntersectWith(g.viewRect)){
-					g.draw(rb.context, new dream.Rect(g.rect.left - rg.left, g.rect.top - rg.top, g.rect.width, g.rect.height));
-					redrawCount++;
-				}
-			});
-			ctx.clearRect(rg.left, rg.top, rg.width, rg.height);
-			ctx.drawImage(rb.canvas, 0, 0, rg.width, rg.height, rg.left, rg.top, rg.width, rg.height);
-		}
-	});
-	this.redrawRegions.clear();
-	//if(redrawCount) console.log(redrawCount + " objects has been redrawned in "+rgCount +" redraw regions." );
-};
+dream.event.create(dream.scenery.Scene.prototype, "onResize");
+
 
 /**
  * @constructor
  */
-dream.scenery.Asset = function(){	
-	this.requiredResources = [];
-};
-
-/**
- * @constructor
- */
-dream.scenery.AssetLibrary = function(){
-	dream.scenery.AssetLibrary._superClass.call(this);
+dream.scenery.Camera = function(scene){
+	this.scene = scene;
 	
-	this.loader = new dream.preload.Loader();
-}.inherits(dream.util.ArrayList);
+}.inherits(dream.Rect);
 
-dream.scenery.AssetLibrary.prototype.prepare = function(callBack){ 	
-	if(callBack) 
-		this.loader.onLoad.add(function(){
-			callBack();
-			//remove
-		});
-
-	this.loader.load(this.requiredResources);
-};
-
-Object.defineProperty(dream.scenery.AssetLibrary.prototype, "requiredResources", {
-	get : function () {
-		var r = [];
-		for(var i=0,asset; asset=this.items[i]; i++ )
-			r = r.concat(asset.requiredResources);
-		return r;
-	}
+Object.defineProperty(dream.scenery.Camera.prototype, "left", {
+	set : function(v){this.scene.left = v * -1;},
+	get : function(){ return this.scene.left * -1;}
 });
 
-dream.scenery.RedrawRegionList = function(){
-	dream.util.ArrayList.call(this);
-}.inherits(dream.util.ArrayList);
+Object.defineProperty(dream.scenery.Camera.prototype, "top", {
+	set : function(v){this.scene.top = v * -1;},
+	get : function(){ return this.scene.top * -1;}
+});
 
-dream.scenery.RedrawRegionList.prototype.add = function(rect){
-	var list = this;
-	for(var i = 0, r; r = this.items[i]; i++){
-		if(rect.hasIntersectWith(r)){
-			return list.replace(r, r.add(rect));
-		}
-	}
-	return dream.scenery.RedrawRegionList._superClass.prototype.add.call(this, rect);
-};
+Object.defineProperty(dream.scenery.Camera.prototype, "width", {
+	get : function(){ return this.scene.width;}
+});
+
+Object.defineProperty(dream.scenery.Camera.prototype, "height", {
+	get : function(){ return this.scene.height;}
+});
+
+Object.defineProperty(dream.scenery.Camera.prototype, "scale", {
+	set : function(v){this.scene.scale = v;},
+	get : function(){ return this.scene.scale;}
+});
+
+Object.defineProperty(dream.scenery.Camera.prototype, "rotation", {
+	set : function(v){this.scene.rotation = v * -1;},
+	get : function(){ return this.scene.rotation * -1;}
+});
