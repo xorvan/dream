@@ -53,22 +53,51 @@ dream.visual.Composite.prototype.step = function (){
 	dream.visual.Composite._superClass.prototype.step.call(this);
 }; 
 
-dream.visual.Composite.prototype.drawImage = function(ctx, rect) {
+dream.visual.Composite.prototype.drawImage = function(ctx, rect, drawRect) {
 	this.renderList.items.forEach(function(g){
-		g.draw(ctx, new dream.Rect(rect.left + g.rect.left, rect.top + g.rect.top, g.rect.width, g.rect.height));
+		if(g.viewRect.hasIntersectWith(drawRect))
+			g.draw(ctx, new dream.Rect(rect.left + g.rect.left, rect.top + g.rect.top, g.rect.width, g.rect.height), g.translateInRect(drawRect));
 	});
 };
 
-dream.visual.Composite.prototype.translateIn = function(p){
-	var x = p.left - this.rect.left;
-	var y = p.top - this.rect.top;
+dream.visual.Composite.prototype.translateOutRect = function(rect){
 	
-	var c = Math.cos(this.r);
-	var s = Math.sin(this.r);
-	var r = p.clone();
-	r.left = (this.anchorX + (x * c + y * s)  / this.scaleX) | 0;
-	r.top = (this.anchorY +  (y * c - x * s) / this.scaleY) | 0;
-	return r;
+	if(this.rotation){
+		var c = Math.cos(this.r * -1);
+		var s = Math.sin(this.r * -1);
+	
+		var x = rect.left - this.anchorX;
+		var y = rect.top - this.anchorY;
+	
+		var x1 = rect.right - this.anchorX;
+		var y1 = rect.bottom - this.anchorY;
+	
+		var tps = [
+		          new dream.Point((this.rect.left + (x * c + y * s)  * this.scaleX) | 0, (this.rect.top +  (y * c - x * s) * this.scaleY) | 0),
+		          new dream.Point((this.rect.left + (x1 * c + y * s)  * this.scaleX) | 0, (this.rect.top +  (y * c - x1 * s) * this.scaleY) | 0),
+		          new dream.Point((this.rect.left + (x * c + y1 * s)  * this.scaleX) | 0, (this.rect.top +  (y1 * c - x * s) * this.scaleY) | 0),
+		          new dream.Point((this.rect.left + (x1 * c + y1 * s)  * this.scaleX) | 0, (this.rect.top +  (y1 * c - x1 * s) * this.scaleY) | 0),
+		          ];
+		
+		var tp = tps[0].clone();
+		var tp1 = tps[0].clone();
+		for ( var i = 0; i < 4; i++) {
+			if (tps[i].left < tp.left)
+				tp.left = tps[i].left;
+			if (tps[i].left > tp1.left)
+				tp1.left = tps[i].left;
+			if (tps[i].top < tp.top)
+				tp.top = tps[i].top;
+			if (tps[i].top > tp1.top)
+				tp1.top = tps[i].top;
+		}
+		
+		return new dream.Rect(tp.left, tp.top, tp1.left - tp.left, tp1.top - tp.top);
+	}else if(this.scale){
+		return new dream.Rect(((rect.left - this.anchorX) * this.scaleX) | 0, ((rect.top - this.anchorY) * this.scaleY) | 0, rect.width, rect.height);
+	}else{
+		return new dream.Rect(rect.left - this.anchorX, rect.top - this.anchorY, rect.width, rect.height);
+	}
 };
 
 dream.visual.Composite.prototype.translateOut = function(p){
@@ -83,37 +112,14 @@ dream.visual.Composite.prototype.translateOut = function(p){
 	return r;
 };
 
-dream.visual.Composite.prototype.translateOutRect = function(rect){
+//TODO: Select One Implementation
+dream.visual.Composite.prototype.translateOutRectOld = function(rect){
 	var tps = [
 	          this.translateOut(new dream.Point(rect.left, rect.top)),
 	          this.translateOut(new dream.Point(rect.right, rect.top)),
 	          this.translateOut(new dream.Point(rect.left, rect.bottom)),
 	          this.translateOut(new dream.Point(rect.right, rect.bottom))
 	          ];
-	
-	var tp = tps[0].clone();
-	var tp1 = tps[0].clone();
-	for ( var i = 0; i < 4; i++) {
-		if (tps[i].left < tp.left)
-			tp.left = tps[i].left;
-		if (tps[i].left > tp1.left)
-			tp1.left = tps[i].left;
-		if (tps[i].top < tp.top)
-			tp.top = tps[i].top;
-		if (tps[i].top > tp1.top)
-			tp1.top = tps[i].top;
-	}
-	
-	return new dream.Rect(tp.left, tp.top, tp1.left - tp.left, tp1.top - tp.top);
-};
-
-dream.visual.Composite.prototype.translateInRect = function(rect){
-	var tps = [
-	           this.translateIn(new dream.Point(rect.left, rect.top)),
-	           this.translateIn(new dream.Point(rect.right, rect.top)),
-	           this.translateIn(new dream.Point(rect.left, rect.bottom)),
-	           this.translateIn(new dream.Point(rect.right, rect.bottom))
-	           ];
 	
 	var tp = tps[0].clone();
 	var tp1 = tps[0].clone();

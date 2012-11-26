@@ -277,7 +277,8 @@ dream.util.RedrawRegionList.prototype.add = function(rect){
 	if(rect.width <=0 || rect.height <= 0) return false;
 	for(var i = 0, r; r = this.items[i]; i++){
 		if(rect.hasIntersectWith(r)){
-			return list.replace(r, r.add(rect));
+			list.remove(r);
+			return list.add(r.add(rect));
 		}
 	}
 	return dream.util.RedrawRegionList._superClass.prototype.add.call(this, rect);

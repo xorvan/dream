@@ -52,6 +52,30 @@ dream.visual.Graphic.prototype.translateIn = function(p){
 	return r;
 };
 
+dream.visual.Graphic.prototype.translateInRect = function(rect){
+	var tps = [
+	           this.translateIn(new dream.Point(rect.left, rect.top)),
+	           this.translateIn(new dream.Point(rect.right, rect.top)),
+	           this.translateIn(new dream.Point(rect.left, rect.bottom)),
+	           this.translateIn(new dream.Point(rect.right, rect.bottom))
+	           ];
+	
+	var tp = tps[0].clone();
+	var tp1 = tps[0].clone();
+	for ( var i = 0; i < 4; i++) {
+		if (tps[i].left < tp.left)
+			tp.left = tps[i].left;
+		if (tps[i].left > tp1.left)
+			tp1.left = tps[i].left;
+		if (tps[i].top < tp.top)
+			tp.top = tps[i].top;
+		if (tps[i].top > tp1.top)
+			tp1.top = tps[i].top;
+	}
+	
+	return new dream.Rect(tp.left, tp.top, tp1.left - tp.left, tp1.top - tp.top);
+};
+
 
 dream.visual.Graphic.prototype._checkRs = function() {
 	return !(this.r == 0 && this.sx == 1 && this.sy == 1 && this.a == 1);

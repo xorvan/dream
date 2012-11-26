@@ -68,8 +68,8 @@ function init(){
 		}
 	}
 	
-	for(var i=1; i<=10; i++){
-		var s = world.assets.add(new Enemy(Math.random() * 500 | 0, Math.random() * 500 | 0), "enemy" + i);
+	for(var i=1; i<=500; i++){
+		var s = world.assets.add(new Enemy(Math.random() * 2000 | 0, Math.random() * 2000 | 0), "enemy" + i);
 		//s.steps.add(new dream.visual.animation.Step(function(){this.rotation += 5;}));
 	}
 	
