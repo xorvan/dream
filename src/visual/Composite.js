@@ -93,10 +93,10 @@ dream.visual.Composite.prototype.translateOutRect = function(rect){
 		}
 		
 		return new dream.Rect(tp.left, tp.top, tp1.left - tp.left, tp1.top - tp.top);
-	}else if(this.scale){
-		return new dream.Rect(((rect.left - this.anchorX) * this.scaleX) | 0, ((rect.top - this.anchorY) * this.scaleY) | 0, rect.width, rect.height);
+	}else if(this.scale != 1){
+		return new dream.Rect(this.rect.left +((rect.left - this.anchorX) * this.scaleX) | 0, this.rect.top +((rect.top - this.anchorY) * this.scaleY) | 0, (rect.width * this.scaleX) | 0, (rect.height * this.scaleY) | 0);
 	}else{
-		return new dream.Rect(rect.left - this.anchorX, rect.top - this.anchorY, rect.width, rect.height);
+		return new dream.Rect(this.rect.left + rect.left - this.anchorX, this.rect.top + rect.top - this.anchorY, rect.width, rect.height);
 	}
 };
 
