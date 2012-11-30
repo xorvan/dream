@@ -47,14 +47,14 @@ dream.visual.Composite = function(left, top){
 }.inherits(dream.visual.Graphic);
 
 dream.visual.Composite.prototype.step = function (){
-	this.renderList.items.forEach(function(g){
+	this.renderList.forEach(function(g){
 		g.step();
 	});
 	dream.visual.Composite._superClass.prototype.step.call(this);
 }; 
 
 dream.visual.Composite.prototype.drawImage = function(ctx, rect, drawRect) {
-	this.renderList.items.forEach(function(g){
+	this.renderList.forEach(function(g){
 		if(g.viewRect.hasIntersectWith(drawRect))
 			g.draw(ctx, new dream.Rect(rect.left + g.rect.left, rect.top + g.rect.top, g.rect.width, g.rect.height), g.translateInRect(drawRect));
 	});
@@ -140,7 +140,7 @@ dream.visual.Composite.prototype.translateOutRectOld = function(rect){
 dream.visual.Composite.prototype.checkHover = function (p){
 	if(p.isIn(this.viewRect)){
 		var pr = this.translateIn(p);
-		for(var i = this.renderList.items.length -1 , g; g = this.renderList.items[i]; i--){
+		for(var i = this.renderList.length -1 , g; g = this.renderList[i]; i--){
 			if(g.checkHover(pr)){
 				if(this.hovered && this.hovered != g){
 					dream.event.dispatch(this.hovered, "onMouseOut");

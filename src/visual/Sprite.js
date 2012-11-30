@@ -12,7 +12,7 @@ dream.visual.Sprite = function(frameSet, left, top, width, height){
 			delete sprite.animStep;
 		}
 		
-		if(fs.frames.items.length > 1)
+		if(fs.frames.length > 1)
 			sprite.animStep = sprite.steps.add(new dream.visual.animation.Step(function(){fs.frames.next();dream.event.dispatch(sprite, "onImageChange", [this.viewRect.clone()]);}, -1, fs.interval));
 	});
 	
@@ -39,7 +39,7 @@ dream.visual.Sprite.prototype.drawImage = function(ctx, rect) {
 Object.defineProperty(dream.visual.Sprite.prototype, "requiredResources", {
 	get : function () {
 		var r = [];
-		for(var i=0, fs; fs = this.frameSets.items[i]; i++){
+		for(var i=0, fs; fs = this.frameSets[i]; i++){
 			r.push(new dream.preload.ImageResource(fs.spriteSheetUrl));
 		}
 		return r;

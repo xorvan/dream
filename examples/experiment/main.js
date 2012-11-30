@@ -73,6 +73,7 @@ function init(){
 			steps.add(new dream.visual.animation.Step(function(){this.rotation+=2;}));
 		}
 	}
+
 	enemy = world.assets.add(new Enemy(100,10));
 	//|enemy = world.assets.add(new dream.visual.Sprite(new dream.visual.SpriteFrameSet("res/enemies.png", 0, 0, 100, 75, 4), 50, 50, 100, 75));
 	with(enemy){
@@ -99,8 +100,8 @@ function init(){
 			scale:1.5,
 			rotation:-15,
 			alpha:0.8,*/
-			"fillStyle.colorStops.items[0].position":.5, 
-			"fillStyle.colorStops.items[1].position":.5
+			"fillStyle.colorStops[0].position":.5, 
+			"fillStyle.colorStops[1].position":.5
 		}, 200, dream.visual.animation.interpolators.sine, true));
 		onMouseOut.add(function(){console.log("r1mo");});
 		onMouseOver.add(function(){console.log("r1mi");});

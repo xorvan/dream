@@ -196,7 +196,7 @@ dream.visual.Graphic.prototype.raiseDragStop = function(mouse){
 	dream.event.dispatch(this, "onDragStop", mouse);
 };
 dream.visual.Graphic.prototype.step = function (){
-	for(var i = 0, step; step = this.steps.items[i]; i++){
+	for(var i = 0, step; step = this.steps[i]; i++){
 		if(step.isPlaying && !((dream.fc - step.startFrame) % step.interval) ){
 			step.fn.call(this);
 		}
