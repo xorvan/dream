@@ -9,7 +9,7 @@ Star = function(left, top){
 }.inherits(dream.visual.Sprite);
 
 Enemy = function(left, top){
-	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/enemies.png", 0, 0, 100, 75, 4, 5,[0,1,2,3,2,3,2,1,2,1,0,1]), left, top, 100, 75);
+	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/enemies.png", 0, 0, 100, 75, 4, 5,[0/*,1,2,3,2,3,2,1,2,1,0,1*/]), left, top, 100, 75);
 	//this.anchorX = this.anchorY = 50;
 	var exo, eyo;
 	this.onDragStart.add(function(mouse){
@@ -60,19 +60,19 @@ function init(){
 	boat1 = new Boat;
 	//world.assets.add(boat1, "boat1");
 	
+	
+	for(var i=1; i<=2000; i++){
+		var s = world.assets.add(new Enemy(Math.random() * 5000 | 0, Math.random() * 5000 | 0), "enemy" + i);
+		//s.steps.add(new dream.visual.animation.Step(function(){this.rotation += 5;}));
+	}
+	
 	for(var i=0; i<=15; i++){
 		with(world.assets.add(new Star(i*90, i*60), "star" + i)){
-			alpha = 0.3;
+			alpha = 0.8;
 			rotation = Math.random()*360 | 0;
 			steps.add(new dream.visual.animation.Step(function(){this.rotation+=2;}));
 		}
 	}
-	
-	for(var i=1; i<=500; i++){
-		var s = world.assets.add(new Enemy(Math.random() * 2000 | 0, Math.random() * 2000 | 0), "enemy" + i);
-		//s.steps.add(new dream.visual.animation.Step(function(){this.rotation += 5;}));
-	}
-	
 	enemy = world.assets.add(new Enemy(100,10));
 	//|enemy = world.assets.add(new dream.visual.Sprite(new dream.visual.SpriteFrameSet("res/enemies.png", 0, 0, 100, 75, 4), 50, 50, 100, 75));
 	with(enemy){
@@ -145,4 +145,13 @@ function init(){
 	exp.keyBindings.add(new dream.input.KeyBinding(function(i){paper.rotation += i;}, dream.input.key.Q));
 	exp.keyBindings.add(new dream.input.KeyBinding(function(i){paper.rotation -= i;}, dream.input.key.W));
 
+	
+	stats=new Stats();
+	stats.getDomElement().style.position = 'absolute';
+	stats.getDomElement().style.left = '0px';
+	stats.getDomElement().style.top = '0px';
+	document.getElementById("container").appendChild(stats.getDomElement() );
+	var stp=new dream.visual.animation.Step(function(){stats.update();});
+	enemy.steps.add(stp);
 };
+

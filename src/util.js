@@ -298,7 +298,7 @@ dream.util.BufferCanvas = function(width, height){
 dream.util.getRequestAnimationFrame = function(fps) {
 	if(fps){
 		return function(callback, element) {
-			window.setTimeout(callback, 1000 / fps);
+			return window.setTimeout(callback, 1000 / fps);
 		};
 	}else{
 		return window.requestAnimationFrame
@@ -307,16 +307,14 @@ dream.util.getRequestAnimationFrame = function(fps) {
 			|| window.oRequestAnimationFrame
 			|| window.msRequestAnimationFrame
 			|| function(callback, element) {
-				window.setTimeout(callback, 1000 / 60);
+				return window.setTimeout(callback, 1000 / 60);
 			};
 	}
 };
 
 dream.util.getCancelRequestAnimationFrame = function(fps) {
 	if(fps){
-		return function(callback, element) {
-			window.clearTimeout;
-		};
+		return window.clearTimeout;
 	}else{
 		return window.cancelRequestAnimationFrame
 			|| window.webkitCancelRequestAnimationFrame

@@ -44,8 +44,8 @@ Object.defineProperty(dream.visual.drawing.Shape.prototype, "strokeStyle", {
 });
 
 dream.visual.drawing.Shape.prototype.drawImage = function(context, rect){
-	context.fillStyle = this._fs instanceof dream.visual.drawing.Gradient ? this._fs.createStyle(context, rect) : this._fs;
-	context.strokeStyle = this._ss instanceof dream.visual.drawing.Gradient ? this._ss.createStyle(context, rect) : this._ss;
+	if(this._fs) context.fillStyle = this._fs instanceof dream.visual.drawing.Gradient ? this._fs.createStyle(context, rect) : this._fs;
+	if(this._ss) context.strokeStyle = this._ss instanceof dream.visual.drawing.Gradient ? this._ss.createStyle(context, rect) : this._ss;
 };
 
 /**
@@ -60,6 +60,24 @@ dream.visual.drawing.Rect.prototype.drawImage = function(context, rect){
 	dream.visual.drawing.Rect._superClass.prototype.drawImage.call(this, context, rect);
 	if(this.fillStyle) context.fillRect(rect.left, rect.top, rect.width, rect.height);
 	if(this.strokeStyle) context.strokeRect(rect.left, rect.top, rect.width, rect.height);
+};
+
+/**
+ * @constructor
+ */
+dream.visual.drawing.Circle = function(left, top, diameter){
+	this.diameter=this.width=this.height=diameter;
+	dream.visual.drawing.Shape._superClass.call(this, left, top, diameter, diameter);
+	
+}.inherits(dream.visual.drawing.Shape);
+
+dream.visual.drawing.Circle.prototype.drawImage = function(context, rect){
+	dream.visual.drawing.Rect._superClass.prototype.drawImage.call(this, context, rect);
+	context.beginPath();
+	context.arc(rect.left + rect.width / 2, rect.top + rect.width/2, rect.width / 2, 0, Math.PI * 2, true);
+	context.closePath();
+	if(this.fillStyle) context.fill();
+	if(this.strokeStyle) context.stroke();
 };
 
 /**

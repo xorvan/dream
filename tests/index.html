@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>DreamJS Experimental Sandbox</title>
+<style type="text/css">
+html,body {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.content {
+	height: 99%;
+}
+
+#mainCanvas {
+	width: 100%;
+	height: 100%;
+}
+
+
+</style>
+</head>
+<body onload="init()">
+	<script type="text/javascript" src="../src/event.js"></script>
+	<script type="text/javascript" src="../src/core.js"></script>
+	<script type="text/javascript" src="../src/Screen.js"></script>
+	<script type="text/javascript" src="../src/util.js"></script>
+	<script type="text/javascript" src="../src/preload.js"></script>
+	<script type="text/javascript" src="../src/input.js"></script>
+	<script type="text/javascript" src="../src/visual.js"></script>
+	<script type="text/javascript" src="../src/visual/Graphic.js"></script>
+	<script type="text/javascript" src="../src/visual/Composite.js"></script>
+	<script type="text/javascript" src="../src/visual/Sprite.js"></script>
+	<script type="text/javascript" src="../src/scenery.js"></script>
+	<script type="text/javascript" src="../src/visual/animation.js"></script>
+	<script type="text/javascript" src="../src/visual/drawing.js"></script>
+	<script type="text/javascript" src="../src/visual/Map.js"></script>
+	<script type="text/javascript" src="Stats.js"></script>
+	
+	<script type="text/javascript" src="model.js"></script>
+	<script type="text/javascript">
+		function init(){
+			test = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 800, 600);
+			
+			scene = new dream.scenery.Scene;
+			
+			aj = new Aj(40,60);
+			aj.frameSets.select("run");
+			scene.assets.add(aj);
+
+			fire = new Fire(140,160);
+			scene.assets.add(fire);
+			
+			
+			for(var i = 0; i < 5; i++ ){
+				cr = new CompositeRect(Math.random() * 500, Math.random() * 500, Math.random() * 200, Math.random() * 200);
+				scene.assets.add(cr, "cr"+i);
+			}
+			
+			for(var i = 0; i < 200; i++ ){
+				var c = new Cube(Math.random() * 500, Math.random() * 500);
+				scene.assets.add(c, "c"+i);
+			}
+
+			test.scenes.current = scene;
+			
+			
+			stats=new Stats();
+			stats.getDomElement().style.position = 'absolute';
+			stats.getDomElement().style.left = '0px';
+			stats.getDomElement().style.top = '0px';
+			document.body.appendChild(stats.getDomElement() );
+			var stp=new dream.visual.animation.Step(function(){stats.update();});
+			scene.steps.add(stp);
+		}
+	</script>
+
+	<div class="content" id="container">
+		<canvas id="mainCanvas"></canvas>
+	</div>
+</body>
+</html>

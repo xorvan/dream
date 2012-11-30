@@ -36,8 +36,7 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 		
 		dream.event.dispatch(scene, "onResize");
 		
-		screen.redrawRegions.add(new dream.Rect(0,0, this.width, this.height));
-		
+		screen.redrawRegions.add(new dream.Rect(0,0, screen.width, screen.height));
 		scene.onViewRectChange.add(function(oldRect){
 			//console.log("vc");
 			screen.redrawRegions.add(new dream.Rect(0,0, this.width, this.height));//screen.scenes.current.viewport);
@@ -104,7 +103,6 @@ dream.Screen.prototype.drawImageWithClippingRedrawRegion = function(ctx, rect, d
 	
 	var scene = this.scenes.current;
 	scene.step();
-	
 	var rg;
 	this.redrawRegions.items.forEach(function(rr){
 		if(rg = rr.getIntersectWith(drawRect)){
@@ -225,7 +223,7 @@ dream.Screen.prototype.translateIn = function(p){
 
 
 dream.Screen.prototype.highlite = function(rect) {
-	this.context.setStrokeColor(0xff0000);this.context.strokeRect(rect.left, rect.top, rect.width, rect.height);
+	this.context.strokeStyle = "#f00";this.context.strokeRect(rect.left, rect.top, rect.width, rect.height);
 };
 
 Object.defineProperty(dream.Screen.prototype, "frameRate", {
