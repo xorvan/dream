@@ -68,7 +68,7 @@ function init(){
 		}
 	}
 	
-	for(var i=1; i<=500; i++){
+	for(var i=1; i<=1000; i++){
 		var s = world.assets.add(new Enemy(Math.random() * 2000 | 0, Math.random() * 2000 | 0), "enemy" + i);
 		//s.steps.add(new dream.visual.animation.Step(function(){this.rotation += 5;}));
 	}
@@ -99,8 +99,8 @@ function init(){
 			scale:1.5,
 			rotation:-15,
 			alpha:0.8,*/
-			"fillStyle.colorStops.items[0].position":.5, 
-			"fillStyle.colorStops.items[1].position":.5
+			"fillStyle.colorStops[0].position":.5, 
+			"fillStyle.colorStops[1].position":.5
 		}, 200, dream.visual.animation.interpolators.sine, true));
 		onMouseOut.add(function(){console.log("r1mo");});
 		onMouseOver.add(function(){console.log("r1mi");});

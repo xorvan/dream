@@ -110,7 +110,7 @@ dream.Point = function(left, top){
 	this.top = top || 0;
 };
 
-dream.Point.prototype.toString = function(){return this.left+", "+this.top;};
+dream.Point.prototype.toString = function(){return "Point["+this.left+", "+this.top+"]";};
 
 dream.Point.prototype.isIn = function(rect){
 	return this.left >= rect.left && this.left <= rect.right && 
@@ -182,6 +182,6 @@ dream.Rect.prototype.clone = function(){
 	return new dream.Rect(this.left, this.top, this.width, this.height);
 };
 
-dream.Rect.prototype.toString = function(){return this.left+", "+this.top+", "+this.width+", "+this.height;};
+dream.Rect.prototype.toString = function(){return "Rect["+this.left+", "+this.top+", "+this.width+", "+this.height+"]";};
 
 

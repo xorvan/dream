@@ -4,16 +4,15 @@
 dream.util = {};
 
 /**
- * @author Ehsan
+ * @param items
  * @constructor
  */
 dream.util.ArrayList = function(items){
-	this.items = [];
 	this.keys = {};
 	this._index = {};
 	
 	if(items) this.addArray(items);
-};
+}.inherits(Array);
 
 dream.event.create(dream.util.ArrayList.prototype, "onAdd");	
 dream.event.create(dream.util.ArrayList.prototype, "onRemove");
@@ -31,7 +30,7 @@ dream.util.ArrayList.prototype.add = function(object, id){
 	if(this.keys[nid] != undefined) {console.log(nid+" replaced!");this.remove(nid);};
 	
 	this._index[gid] = nid;
-	this.keys[nid] = this.items.push(object) -1;
+	this.keys[nid] = this.push(object) -1;
 	this[nid] = object;
 	dream.event.dispatch(this, "onAdd", object);
 	return object;
@@ -47,14 +46,14 @@ dream.util.ArrayList.prototype.indexOf = function(object){
 
 dream.util.ArrayList.prototype.removeByIndex = function(index){
 	dream.util.assert(typeof index == "number");
-	var r = this.items.splice(index, 1)[0];
+	var r = this.splice(index, 1)[0];
 	dream.util.assert(r);
 	var gid = dream.util.getId(r);
 	var id = this._index[gid];
 	delete this.keys[id];
 	delete this._index[gid];
 	delete this[id];
-	for (var i=index, o; o = this.items[i]; i++ ){
+	for (var i=index, o; o = this[i]; i++ ){
 		this.keys[this._index[dream.util.getId(o)]] --;		
 	}
 	dream.event.dispatch(this, "onRemove", r);
@@ -88,7 +87,7 @@ dream.util.ArrayList.prototype.replace = function(object, newObject, id){
 	var index = this.keys[pid];
 	this.keys[nid] = index;
 	delete this.keys[pid];
-	this.items[index] = newObject;
+	this[index] = newObject;
 	
 	dream.event.dispatch(this, "onRemove", object);
 	dream.event.dispatch(this, "onAdd", newObject);
@@ -96,11 +95,12 @@ dream.util.ArrayList.prototype.replace = function(object, newObject, id){
 };
 
 dream.util.ArrayList.prototype.clear = function(){
-	for(var i=0, o; o = this.items[i]; i++){		
+	for(var i=0, o; o = this[i]; i++){		
 		dream.event.dispatch(this, "onRemove", o);
 		delete this[this._index[dream.util.getId(o)]];
+		delete this[i];
 	}
-	this.items = [];
+	this.splice(0, this.length);
 	this.keys = [];
 	this._index = [];
 };
@@ -157,7 +157,7 @@ dream.util.Selector.prototype.select = function(obj){
 	if(typeof obj == "string"){
 		return this.selectObject(this[obj]);
 	}else if(typeof obj == "number"){
-		return this.selectObject(this.items[obj]);
+		return this.selectObject(this[obj]);
 	}else{
 		return this.selectObject(obj);
 	}
@@ -165,12 +165,12 @@ dream.util.Selector.prototype.select = function(obj){
 
 dream.util.Selector.prototype.next = function(step){
 	var i = this.indexOf(this.current) + (step || 1);
-	this.select(i >= this.items.length ? 0 : i);
+	this.select(i >= this.length ? 0 : i);
 };
 
 dream.util.Selector.prototype.previous = function(step){
 	var i = this.indexOf(this.current) - (step || 1);
-	this.select(i < 0 ? this.items.length -1  : i);
+	this.select(i < 0 ? this.length -1  : i);
 };
 
 Object.defineProperty(dream.util.Selector.prototype, "current", {
@@ -217,23 +217,33 @@ dream.util.EventDispatcher.prototype.removeByOwner = function(owner){
 dream.util.EventDispatcher.prototype.dispatch = function(){
 	var obj = this.obj;
 	var args = arguments;
-	this.items.forEach(function(l){
+	this.forEach(function(l){
 		l.apply(obj, args);
 	});
 };
 
 dream.util.EventDispatcher.prototype.propagate = function(target, event){
 	var e = event || this.name;
-	var maps = arguments;
-	return this.add(function(){
-		var args = [target, e];
-		if(maps.length>2)
-			for(var i = 2, m; m = maps[i]; i++)
-				arguments[i-2] = m instanceof Function ? m(arguments[i-2]) : m;
-		if(arguments.length < maps.length - 2) arguments.length = maps.length - 2; 
-		Array.prototype.forEach.call(arguments, args.push, args);		
-		dream.event.dispatch.apply(null, args);
-	}, target);
+	var maps = Array.prototype.splice.call(arguments, 2, arguments.length);
+	return this.add( maps.length ? 
+		function(){
+			for(var i = 0, m; m = maps[i]; i++)
+				arguments[i] = m.call(target, arguments[i]);			
+				
+			if(arguments.length < maps.length) arguments.length = maps.length;
+			
+			var dispatcher;
+			if(target.__events && (dispatcher = target.__events[e]))
+				dispatcher.dispatch.apply(dispatcher, arguments);
+				
+		} : 
+		function(){
+			var dispatcher;
+			if(target.__events && (dispatcher = target.__events[e]))
+				dispatcher.dispatch.apply(dispatcher, arguments);
+			
+		},
+	target);
 };
 
 /**
@@ -258,7 +268,7 @@ dream.util.AssetLibrary.prototype.prepare = function(callBack){
 Object.defineProperty(dream.util.AssetLibrary.prototype, "requiredResources", {
 	get : function () {
 		var r = [];
-		for(var i=0,asset; asset=this.items[i]; i++ )
+		for(var i=0,asset; asset=this[i]; i++ )
 			r = r.concat(asset.requiredResources);
 		return r;
 	}
@@ -269,19 +279,21 @@ Object.defineProperty(dream.util.AssetLibrary.prototype, "requiredResources", {
  * @constructor
  */
 dream.util.RedrawRegionList = function(){
-	dream.util.ArrayList.call(this);
-}.inherits(dream.util.ArrayList);
+}.inherits(Array);
 
 dream.util.RedrawRegionList.prototype.add = function(rect){
-	var list = this;
 	if(rect.width <=0 || rect.height <= 0) return false;
-	for(var i = 0, r; r = this.items[i]; i++){
-		if(rect.hasIntersectWith(r)){
-			list.remove(r);
-			return list.add(r.add(rect));
-		}
-	}
-	return dream.util.RedrawRegionList._superClass.prototype.add.call(this, rect);
+	for(var i = 0, r; r = this[i]; i++)
+		if(rect.hasIntersectWith(r))
+			return this.add(this.splice(i,1)[0].add(rect));
+	
+	return this.push(rect);
+};
+
+dream.util.RedrawRegionList.prototype.addArray = dream.util.ArrayList.prototype.addArray;
+
+dream.util.RedrawRegionList.prototype.clear = function(){
+	this.splice(0, this.length);
 };
 
 /**

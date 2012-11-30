@@ -21,9 +21,9 @@ Object.defineProperty(dream.visual.drawing.Shape.prototype, "fillStyle", {
 
 		this._fs = v;
 		dream.event.dispatch(this, "onImageChange", [this.viewRect.clone()]);
-		var shape = this
+		
 		if(this._fs instanceof dream.visual.drawing.Gradient)
-			this._fs.onChange.propagate(this, "onImageChange", function(){return [shape.viewRect.clone()]});
+			this._fs.onChange.propagate(this, "onImageChange", function(){return [this.viewRect.clone()];});
 	}
 });
 
@@ -39,7 +39,7 @@ Object.defineProperty(dream.visual.drawing.Shape.prototype, "strokeStyle", {
 		dream.event.dispatch(this, "onImageChange", [this.viewRect.clone()]);
 		
 		if(this._ss instanceof dream.visual.drawing.Gradient)
-			this._ss.onChange.propagate(this, "onImageChange", [this.viewRect.clone()]);
+			this._ss.onChange.propagate(this, "onImageChange", function(){return [this.viewRect.clone()];});
 	}
 });
 
@@ -140,7 +140,7 @@ dream.visual.drawing.LinearGradient = function(colorStops, startX, startY, endX,
 
 dream.visual.drawing.LinearGradient.prototype.createStyle = function(context, rect){
 	var gr = context.createLinearGradient(rect.left + rect.width * this.startX, rect.top + rect.height * this.startY, rect.left + rect.width * this.endX, rect.top + rect.height * this.endY);
-	for ( var i = 0, cs; cs = this.colorStops.items[i]; i++)
+	for ( var i = 0, cs; cs = this.colorStops[i]; i++)
 		gr.addColorStop(cs.position, cs.color);
 	return gr;
 };

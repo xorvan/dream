@@ -106,7 +106,7 @@ dream.Screen.prototype.drawImageWithClippingRedrawRegion = function(ctx, rect, d
 	scene.step();
 	
 	var rg;
-	this.redrawRegions.items.forEach(function(rr){
+	this.redrawRegions.forEach(function(rr){
 		if(rg = rr.getIntersectWith(drawRect)){
 			ctx.save();
 			ctx.beginPath();
@@ -131,7 +131,7 @@ dream.Screen.prototype.drawImageWithBufferdRedrawRegion = function(ctx, rect, dr
 	scene.step();
 		
 	var rg;
-	this.redrawRegions.items.forEach(function(rr){
+	this.redrawRegions.forEach(function(rr){
 		if(rg = rr.getIntersectWith(drawRect)){
 			var rb = this.redrawBuffer;
 			rb.canvas.width = rg.width;
