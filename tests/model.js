@@ -5,13 +5,22 @@ Aj = function(left, top){
 
 
 Fire = function(left, top){
-	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/fire.png", 230, 0, 70, 90, 3, 4), left, top, 90, 160);
+	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/fire.png", 0, 0, 64, 64, 16, 4), left, top, 64, 64);
 }.inherits(dream.visual.Sprite);
 
 Cube = function(left, top){
-	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/cube.png", 0, 0, 60, 60, 30, 5), left, top, 60, 60);
+	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/cube.png", 0, 0, 60, 60, 30, 3), left, top, 60, 60);
 }.inherits(dream.visual.Sprite);
 
+Poly1 = function(left, top){
+	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/poly1.png", 0, 0, 489, 454), left, top, 150, 150);
+}.inherits(dream.visual.Sprite);
+
+Star1 = function(left, top){
+	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/star1.png", 0, 0, 581, 518), left, top, 80, 80);
+	this.anchorX = this.anchorY = 40;
+	this.steps.add(new dream.visual.animation.Step(function(){this.rotation += 5;}));
+}.inherits(dream.visual.Sprite);
 
 RotatingCircles = function(left, top, d1, d2){
 	dream.visual.Composite.call(this, left, top);
@@ -29,6 +38,8 @@ RotatingCircles = function(left, top, d1, d2){
 	c2.steps.add(new dream.visual.animation.Step(function(){this.rotation += 10;},-1,2));
 	
 }.inherits(dream.visual.Composite);
+
+
 
 ThreeCircles = function(left, top, d1, d2, d3){
 	dream.visual.Composite.call(this, left, top);
@@ -63,5 +74,53 @@ CompositeRect = function(left, top, width, height){
 	r.fillStyle = "#f0f";
 	
 	this.tweens.add(new dream.visual.animation.Tween({rotation:90}, 90, dream.visual.animation.interpolators.sine, true));
+	
+}.inherits(dream.visual.Composite);
+
+Enemy = function(left, top){
+	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/enemies.png", 0, 0, 100, 75, 4, 5), left, top, 100, 75);
+	this.onDragStart.add(function(mouse){
+		var lm = this.translateIn(mouse);
+		this.anchorX = lm.left;
+		this.anchorY = lm.top;	
+		this.steps.add(new dream.visual.animation.Step(function(){this.rotation+=5;}), 'main');
+	});
+	
+	this.onDrag.add(function(mouse){
+		this.left = mouse.left;
+		this.top = mouse.top;
+	});
+	
+	this.onDragStop.add(function(mouse){
+		this.steps.remove('main');
+	});
+}.inherits(dream.visual.Sprite);
+
+
+Paper1 = function(left, top){
+	var rect1
+	with(rect1 = this.assets.add(new dream.visual.drawing.Rect(left,top,150,150))){
+
+		fillStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0.25, "#00aaaa"), new dream.visual.drawing.ColorStop(0.75, "#aa0000")], 0, 0, 1, 1);
+		rotation = 0;
+		strokeStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0, "#330000"), new dream.visual.drawing.ColorStop(1, "#008888")], 0, 0, 0, 1);
+		tr = tweens.add(new dream.visual.animation.Tween({
+			"fillStyle.colorStops[0].position":.5, 
+			"fillStyle.colorStops[1].position":.5
+		}, 200, dream.visual.animation.interpolators.sine, true));
+
+	};
+	
+	
+}.inherits(dream.visual.Composite);
+
+
+Paper2 = function(left, top){
+	dream.visual.Composite.call(this, left, top);
+	this.assets.add(new Paper1(0, 0));
+	this.assets.add(new Star1(0,0));
+	this.assets.add(new Star1(0,150));
+	this.assets.add(new Star1(150,0));
+	this.assets.add(new Star1(150,150));
 	
 }.inherits(dream.visual.Composite);

@@ -163,6 +163,16 @@ dream.visual.Composite.prototype.checkHover = function (p){
 	return false;
 };
 
+Object.defineProperty(dream.visual.Composite.prototype, "requiredResources", {
+	get : function () {
+		var r = [];
+		for(var i=0,asset; asset=this.assets[i]; i++ )
+			r = r.concat(asset.requiredResources);
+		return r;
+	}
+});
+
+
 dream.visual.Composite.prototype.raiseMouseDown = dream.VisualAsset.prototype.raiseMouseDown;
 dream.visual.Composite.prototype.raiseMouseUp = dream.VisualAsset.prototype.raiseMouseUp;
 dream.visual.Composite.prototype.raiseMouseMove = dream.VisualAsset.prototype.raiseMouseMove;

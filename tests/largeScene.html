@@ -45,27 +45,57 @@ html,body {
 			test = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 800, 600);
 			
 			scene = new dream.scenery.Scene;
-			
-			aj = new Aj(40,60);
-			aj.frameSets.select("run");
-			scene.assets.add(aj);
 
-			fire = new Fire(140,160);
-			scene.assets.add(fire);
 			
 			
-			for(var i = 0; i < 5; i++ ){
-				cr = new CompositeRect(Math.random() * 500, Math.random() * 500, Math.random() * 200, Math.random() * 200);
-				scene.assets.add(cr, "cr"+i);
+			for(var i = 0; i < 3000; i++ ){
+				var c = new Poly1(Math.random() * 6000, Math.random() * 6000);
+				scene.assets.add(c, "p"+i);
 			}
 			
+			for(var i = 0; i < 50; i++ ){
+				var cr = new Aj(Math.random() * 6000, Math.random() * 6000 - 200);
+				scene.assets.add(cr, "aj"+i);
+			}
+			
+			
 			for(var i = 0; i < 200; i++ ){
-				var c = new Cube(Math.random() * 500, Math.random() * 500);
+				var c = new Cube(Math.random() * 6000 + 100, Math.random() * 6000);
 				scene.assets.add(c, "c"+i);
+			}
+
+			for(var i = 0; i < 250; i++ ){
+				var cr = new Fire(Math.random() * 6000, Math.random() * 6000 - 200);
+				scene.assets.add(cr, "fi"+i);
+			}
+
+			for(var i = 0; i < 1; i++ ){
+				var cr = new Paper2(Math.random() * 6000, Math.random() * 6000 - 200);
+				scene.assets.add(cr, "pp"+i);
+			}
+
+			for(var i = 0; i < 10; i++ ){
+				var cr = new CompositeRect(Math.random() * 6000, Math.random() * 6000 - 200, 150, 150);
+				scene.assets.add(cr, "cr"+i);
+			}
+
+			for(var i = 0; i < 100; i++ ){
+				var cr = new Enemy(Math.random() * 6000, Math.random() * 6000);
+				scene.assets.add(cr, "en"+i);
 			}
 
 			test.scenes.current = scene;
 			
+			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.anchorX += Math.min(i,10);}, dream.input.key.RIGHT));
+			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.anchorX -= Math.min(i,10);}, dream.input.key.LEFT));
+			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.anchorY -= Math.min(i,10);}, dream.input.key.UP));
+			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.anchorY += Math.min(i,10);}, dream.input.key.DOWN));
+			
+			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.camera.rotation += Math.min(i,5);}, dream.input.key.SLASH));
+			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.camera.rotation -= Math.min(i,5);}, dream.input.key.ASTERISK));
+			
+			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.camera.scale += i/100;}, dream.input.key.PLUS));
+			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.camera.scale -= i/100;}, dream.input.key.MINUS));
 			
 			stats=new Stats();
 			stats.getDomElement().style.position = 'absolute';
