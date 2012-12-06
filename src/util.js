@@ -115,8 +115,8 @@ dream.util.ArrayList.prototype.addArray = function(items){
  */
 dream.util.IndexedArrayList = function(indexes, items){	
 	this.indexes = indexes;	
-	this.index = [];
-	for(var i=0, index; index = this.indexes[i]; i++){
+	this.index = {};
+	for(var index in this.indexes){
 		this.index[index] = {};
 	}
 	
@@ -125,9 +125,21 @@ dream.util.IndexedArrayList = function(indexes, items){
 }.inherits(dream.util.ArrayList);
 
 dream.util.IndexedArrayList.prototype.add = function(object, id){
-	for(var i=0, index; index = this.indexes[i]; i++){
-		var a = this.index[index][object[index]] || (this.index[index][object[index]] = []);  
+	for(var index in this.indexes){
+		var a = this.index[index][object[index]] || (this.index[index][object[index]] = []);
 		a.push(object);
+
+		var ar = this;
+		
+		if (this.indexes[index])
+			object[this.indexes[index]].add(function(oldValue){
+				var a = ar.index[index][oldValue];
+				a.splice(a.indexOf(object),1);
+				if(!a.length) delete ar.index[index][oldValue];
+				var n = ar.index[index][this[index]] || (ar.index[index][this[index]] = []);
+				n.push(object);
+			});
+		
 	}
 	return dream.util.IndexedArrayList._superClass.prototype.add.call(this, object, id);
 };
@@ -346,8 +358,8 @@ dream.util.getCancelRequestAnimationFrame = function(fps) {
 	}
 };
 
-dream.util.assert = function(assertion){
-	if(!assertion) throw new Error("Assertion failed!");
+dream.util.assert = function(assertion, message){
+	if(!assertion) throw new Error("Assertion failed! " + (message || ""));
 };
 
 dream.util.objCount = 0;

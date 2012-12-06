@@ -18,7 +18,7 @@ dream.visual.Composite = function(left, top){
 	};
 
 	this.assets = new dream.util.AssetLibrary();
-	this.renderList = new dream.util.ArrayList();
+	this.renderList = new dream.util.IndexedArrayList({"z": "onZChange"});
 	
 	this.redrawRegions = new dream.util.RedrawRegionList();
 	
@@ -63,10 +63,12 @@ dream.visual.Composite.prototype.step = function (){
 }; 
 
 dream.visual.Composite.prototype.drawImage = function(ctx, rect, drawRect) {
-	this.renderList.forEach(function(g){
-		if(g.viewRect.hasIntersectWith(drawRect))
-			g.draw(ctx, new dream.Rect(rect.left + g.rect.left, rect.top + g.rect.top, g.rect.width, g.rect.height), g.translateInRect(drawRect));
-	});
+	for(var zi in scene.renderList.index.z){
+		this.renderList.index.z[zi].forEach(function(g){
+			if(g.viewRect.hasIntersectWith(drawRect))
+				g.draw(ctx, new dream.Rect(rect.left + g.rect.left, rect.top + g.rect.top, g.rect.width, g.rect.height), g.translateInRect(drawRect));
+		});		
+	} 
 };
 
 dream.visual.Composite.prototype.translateOutRect = function(rect){

@@ -10,6 +10,8 @@ dream.visual.Graphic = function(left, top, width, height){
 	this.ax = 0;
 	this.ay = 0;
 	
+	this._z = 0;
+	
 	this.anchor = new dream.Point();
 	this.rect = new dream.Rect(left || 0, top || 0, width || 0, height || 0);
 	this.viewRect = new dream.Rect(this.rect.left - this.ax | 0, this.rect.top - this.ay | 0, this.rect.width, this.rect.height);
@@ -41,6 +43,7 @@ dream.visual.Graphic = function(left, top, width, height){
 
 dream.event.create(dream.visual.Graphic.prototype, "onImageChange");
 dream.event.create(dream.visual.Graphic.prototype, "onViewRectChange");
+dream.event.create(dream.visual.Graphic.prototype, "onZChange");
 
 dream.visual.Graphic.prototype.selctionThreshold = 4;
 
@@ -356,6 +359,21 @@ Object.defineProperty(dream.visual.Graphic.prototype, "anchorY", {
 		this.ay = v;
 		this.isImageChanged = true;
 		this.calcBoundary();
+	}
+});
+
+Object.defineProperty(dream.visual.Graphic.prototype, "z", {
+	get : function() {
+		return this._z;
+	},
+	set : function(v) {
+		dream.util.assert(v >= 0, "Z Index couldn't be negative!");
+		var oldZ = this._z;  
+		this._z = v|0;
+		if(oldZ != v){
+			this.isImageChanged = true;
+			dream.event.dispatch(this, "onZChange", oldZ);
+		}
 	}
 });
 
