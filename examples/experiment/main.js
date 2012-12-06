@@ -9,7 +9,7 @@ Star = function(left, top){
 }.inherits(dream.visual.Sprite);
 
 Enemy = function(left, top){
-	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/enemies.png", 0, 0, 100, 75, 4, 5,[0,1,2,3,2,3,2,1,2,1,0,1]), left, top, 100, 75);
+	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/enemies.png", 0, 0, 100, 75, 4, 1,[0,1,2,3,2,3,2,1,2,1,0,1]), left, top, 100, 75);
 	//this.anchorX = this.anchorY = 50;
 	var exo, eyo;
 	this.onDragStart.add(function(mouse){

@@ -20,21 +20,24 @@ dream.visual.Composite = function(left, top){
 	this.assets = new dream.util.AssetLibrary();
 	this.renderList = new dream.util.ArrayList();
 	
+	this.redrawRegions = new dream.util.RedrawRegionList();
+	
 	this.assets.onAdd.add(function(a){
 		if(a instanceof dream.visual.Graphic){
+			
 			composite.renderList.add(a);
 			checkActuallRect(a);
-			//TODO: Mapping Rects
-			a.onViewRectChange.add(function(){checkActuallRect(this);}, composite);
-			a.onViewRectChange.propagate(composite, "onImageChange", function(r){
-				return r.hasIntersectWith(a.viewRect) ? [composite.translateOutRect(r.add(a.viewRect))] : [r, a.viewRect.clone()].map(composite.translateOutRect, composite);
-			});
-			a.onImageChange.propagate(composite, "onImageChange", function(rects){
-				return rects.map(composite.translateOutRect, composite);
-			});
-	
+			a.isImageChanged = true;
 			composite.calcBoundary();
-			dream.event.dispatch(composite, "onImageChange", [a.viewRect]);
+			
+			a.onViewRectChange.add(function(){
+				checkActuallRect(this);
+			}, composite);
+			
+			a.onImageChange.add(function(rects){
+				composite.redrawRegions.addArray(rects);
+			}, composite);
+					
 		};
 	});
 	this.assets.onRemove.add(function(a){
@@ -50,6 +53,12 @@ dream.visual.Composite.prototype.step = function (){
 	this.renderList.forEach(function(g){
 		g.step();
 	});
+	
+	if(this.redrawRegions.length){
+		dream.event.dispatch(this, "onImageChange", this.redrawRegions.map(this.translateOutRect, this) );
+		this.redrawRegions.clear();
+	}
+	
 	dream.visual.Composite._superClass.prototype.step.call(this);
 }; 
 
@@ -165,10 +174,7 @@ dream.visual.Composite.prototype.checkHover = function (p){
 
 Object.defineProperty(dream.visual.Composite.prototype, "requiredResources", {
 	get : function () {
-		var r = [];
-		for(var i=0,asset; asset=this.assets[i]; i++ )
-			r = r.concat(asset.requiredResources);
-		return r;
+		return this.assets.requiredResources;
 	}
 });
 

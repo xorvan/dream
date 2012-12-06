@@ -35,7 +35,8 @@ RotatingCircles = function(left, top, d1, d2){
 	c1.fillStyle = "#0f0";
 	c2.fillStyle = "#00f";
 	
-	c2.steps.add(new dream.visual.animation.Step(function(){this.rotation += 10;},-1,2));
+	c2.tweens.add(new dream.visual.animation.Tween({left:20, top:20, scale:1.3, rotation:360}, 200, dream.visual.animation.interpolators.sine, true));
+	//c2.steps.add(new dream.visual.animation.Step(function(){this.rotation += 10;},-1,2));
 	
 }.inherits(dream.visual.Composite);
 
@@ -73,7 +74,7 @@ CompositeRect = function(left, top, width, height){
 	
 	r.fillStyle = "#f0f";
 	
-	this.tweens.add(new dream.visual.animation.Tween({rotation:90}, 90, dream.visual.animation.interpolators.sine, true));
+	this.tweens.add(new dream.visual.animation.Tween({rotation:90, scale:1.5, left:left+200}, 90, dream.visual.animation.interpolators.sine, true));
 	
 }.inherits(dream.visual.Composite);
 

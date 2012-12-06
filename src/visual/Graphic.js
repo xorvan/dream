@@ -14,8 +14,12 @@ dream.visual.Graphic = function(left, top, width, height){
 	this.rect = new dream.Rect(left || 0, top || 0, width || 0, height || 0);
 	this.viewRect = new dream.Rect(this.rect.left - this.ax | 0, this.rect.top - this.ay | 0, this.rect.width, this.rect.height);
 	this.actuallRect = this.rect;
+	this.oldViewRect = this.viewRect.clone();
 	
 	this.visible = true;
+	
+	this.isImageChanged = true;
+	this.isViewRectChanged = true;
 	
 	this.steps = new dream.util.ArrayList();
 	this.tweens = new dream.util.ArrayList();
@@ -139,7 +143,7 @@ dream.visual.Graphic.prototype.calcBoundary = function() {
 	this.viewRect.width = vx1 - vx + 2;
 	this.viewRect.height = vy1 - vy + 2;
 	
-	dream.event.dispatch(this, "onViewRectChange", oldRect);
+	this.isViewRectChanged = true;
 };
 
 dream.visual.Graphic.prototype.checkHover = function (p){
@@ -195,7 +199,22 @@ dream.visual.Graphic.prototype.raiseDragStop = function(mouse){
 	this.isMouseDown = false;
 	dream.event.dispatch(this, "onDragStop", mouse);
 };
+
 dream.visual.Graphic.prototype.step = function (){
+	if(this.isViewRectChanged){
+		if(this.isImageChanged){
+			dream.event.dispatch(this, "onImageChange", this.viewRect.hasIntersectWith(this.oldViewRect) ? [this.viewRect.add(this.oldViewRect)] : [this.viewRect, this.oldViewRect]);
+			this.isImageChanged = false;
+		}
+		dream.event.dispatch(this, "onViewRectChange", this.oldViewRect);
+		this.oldViewRect = this.viewRect.clone();
+		this.isViewRectChanged = false;
+	}else if(this.isImageChanged){
+		dream.event.dispatch(this, "onImageChange", [this.viewRect]);
+		this.isImageChanged = false;
+	}
+	
+	
 	for(var i = 0, step; step = this.steps[i]; i++){
 		if(step.isPlaying && !((dream.fc - step.startFrame) % step.interval) ){
 			step.fn.call(this);
@@ -217,7 +236,9 @@ Object.defineProperty(dream.visual.Graphic.prototype, "left", {
 		var d = v - this.rect.left;
 		this.rect.left = v;
 		this.viewRect.left += d;
-		dream.event.dispatch(this, "onViewRectChange", oldRect);
+		
+		this.isImageChanged = true;
+		this.isViewRectChanged = true;
 	}
 });
 
@@ -231,7 +252,9 @@ Object.defineProperty(dream.visual.Graphic.prototype, "top", {
 		var d = v - this.rect.top;
 		this.rect.top = v;
 		this.viewRect.top += d;
-		dream.event.dispatch(this, "onViewRectChange", oldRect);
+		
+		this.isImageChanged = true;
+		this.isViewRectChanged = true;
 	}
 });
 
@@ -241,6 +264,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "rotation", {
 	},
 	set : function(v) {
 		this.r = (Math.PI / 180 * v) % (Math.PI * 2);
+		this.isImageChanged = true;
 		this.calcBoundary();
 	}
 });
@@ -252,6 +276,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "width", {
 	set : function(v) {
 		var v = v | 0;
 		this.rect.width = v;
+		this.isImageChanged = true;
 		this.calcBoundary();
 	}
 });
@@ -263,6 +288,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "height", {
 	set : function(v) {
 		var v = v | 0;
 		this.rect.height = v;
+		this.isImageChanged = true;
 		this.calcBoundary();
 	}
 });
@@ -273,7 +299,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "alpha", {
 	},
 	set : function(v) {
 		this.a = v;
-		dream.event.dispatch(this, "onImageChange", [this.viewRect.clone()]);
+		this.isImageChanged = true;
 	}
 });
 
@@ -283,6 +309,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "scaleX", {
 	},
 	set : function(v) {
 		this.sx = v;
+		this.isImageChanged = true;
 		this.calcBoundary();
 	}
 });
@@ -293,6 +320,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "scaleY", {
 	},
 	set : function(v) {
 		this.sy = v;
+		this.isImageChanged = true;
 		this.calcBoundary();
 	}
 });
@@ -304,6 +332,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "scale", {
 	set : function(v) {
 		this.sy = v;
 		this.sx = v;
+		this.isImageChanged = true;
 		this.calcBoundary();
 	}
 });
@@ -314,6 +343,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "anchorX", {
 	},
 	set : function(v) {
 		this.ax = v;
+		this.isImageChanged = true;
 		this.calcBoundary();
 	}
 });
@@ -324,6 +354,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "anchorY", {
 	},
 	set : function(v) {
 		this.ay = v;
+		this.isImageChanged = true;
 		this.calcBoundary();
 	}
 });

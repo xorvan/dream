@@ -88,7 +88,7 @@ dream.preload.Resource = function(url){
 	this.isLoaded = false;
 	this.isLoading = false;
 	
-	return dream.preload.cache[url] || this;
+	if(url) return dream.preload.cache[url] || (dream.preload.cache[url] = this);
 };
 
 dream.event.create(dream.preload.Resource.prototype, "onLoad");

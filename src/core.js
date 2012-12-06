@@ -27,7 +27,7 @@ dream.fc = 0;
 
 dream.DEBUG = false;
 
-
+dream.hiwc = 0;
 /**
  * @constructor
  */
@@ -140,17 +140,11 @@ Object.defineProperty(dream.Rect.prototype, "bottom", {
 	get : function () { return this.top + this.height;}
 });
 
-// TODO Select one implementation
 dream.Rect.prototype.hasIntersectWith = function(rect){
-	return ( ((this.left>=rect.left && this.left<=rect.right) || (this.right>=rect.left && this.right<=rect.right) || (this.left<=rect.left && this.right>=rect.right)) &&
-		((this.top>=rect.top && this.top<=rect.bottom) || (this.bottom>=rect.top && this.bottom<=rect.bottom) || (this.top<=rect.top && this.bottom>=rect.bottom)) );
-};
-
-dream.Rect.prototype.hasIntersectWith = function(rect){
-	return !(this.left < rect.left && this.right < rect.left) && 
-		!(this.right > rect.right && this.left > rect.right) && 
-		!(this.top < rect.top && this.bottom < rect.top) && 
-		!(this.bottom > rect.bottom && this.top > rect.bottom);
+	return this.right > rect.left && 
+		this.left < rect.right && 
+		this.bottom > rect.top && 
+		this.top < rect.bottom;
 };
 
 dream.Rect.prototype.getIntersectWith = function(rect){

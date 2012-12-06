@@ -106,8 +106,7 @@ dream.util.ArrayList.prototype.clear = function(){
 };
 
 dream.util.ArrayList.prototype.addArray = function(items){
-	for(var i in items) 
-		this.add(items[i]);
+	items && items.forEach(this.add, this);
 };
 
 /**
@@ -145,31 +144,32 @@ dream.util.Selector = function(items){
 dream.event.create(dream.util.Selector.prototype, "onDeselect");
 dream.event.create(dream.util.Selector.prototype, "onSelect");
 
-dream.util.Selector.prototype.selectObject = function(obj){
-	dream.util.assert(obj != undefined);
-	dream.event.dispatch(this, "onDeselect", this._current);
+dream.util.Selector.prototype.selectObject = function(obj, i){
+	//dream.util.assert(obj != undefined);
+	//dream.event.dispatch(this, "onDeselect", this._current);
 	this._current = obj;
+	this._currentIndex = i;
 	dream.event.dispatch(this, "onSelect", obj);
 	return obj;
 };
 
 dream.util.Selector.prototype.select = function(obj){
 	if(typeof obj == "string"){
-		return this.selectObject(this[obj]);
+		return this.selectObject(this[obj], this.indexOf(obj));
 	}else if(typeof obj == "number"){
-		return this.selectObject(this[obj]);
+		return this.selectObject(this[obj], obj);
 	}else{
-		return this.selectObject(obj);
+		return this.selectObject(obj, this.indexOf(obj));
 	}
 };
 
 dream.util.Selector.prototype.next = function(step){
-	var i = this.indexOf(this.current) + (step || 1);
+	var i = this._currentIndex + (step || 1);
 	this.select(i >= this.length ? 0 : i);
 };
 
 dream.util.Selector.prototype.previous = function(step){
-	var i = this.indexOf(this.current) - (step || 1);
+	var i = this._currentIndex - (step || 1);
 	this.select(i < 0 ? this.length -1  : i);
 };
 
@@ -267,9 +267,9 @@ dream.util.AssetLibrary.prototype.prepare = function(callBack){
 
 Object.defineProperty(dream.util.AssetLibrary.prototype, "requiredResources", {
 	get : function () {
-		var r = [];
+		var r = new dream.util.ArrayList;
 		for(var i=0,asset; asset=this[i]; i++ )
-			r = r.concat(asset.requiredResources);
+			r.addArray(asset.requiredResources);
 		return r;
 	}
 });
@@ -290,7 +290,16 @@ dream.util.RedrawRegionList.prototype.add = function(rect){
 	return this.push(rect);
 };
 
-dream.util.RedrawRegionList.prototype.addArray = dream.util.ArrayList.prototype.addArray;
+//dream.util.RedrawRegionList.prototype.addArray = dream.util.ArrayList.prototype.addArray;
+dream.util.RedrawRegionList.prototype.addArray = function(items){
+	if(items instanceof dream.util.RedrawRegionList)
+		for(var i = 0, o; o = items[i]; i++)
+			this.push(o);
+	else
+		for(var i = 0, o; o = items[i]; i++)
+			this.add(o);
+		
+};
 
 dream.util.RedrawRegionList.prototype.clear = function(){
 	this.splice(0, this.length);
