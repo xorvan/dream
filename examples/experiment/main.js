@@ -61,7 +61,7 @@ function init(){
 	//world.assets.add(boat1, "boat1");
 	
 	
-	for(var i=1; i<=1000; i++){
+	for(var i=1; i<=400; i++){
 		var s = world.assets.add(new Enemy(Math.random() * 5000 | 0, Math.random() * 5000 | 0), "enemy" + i);
 		//s.steps.add(new dream.visual.animation.Step(function(){this.rotation += 5;}));
 	}
@@ -89,9 +89,9 @@ function init(){
 	ce.rotation = 90;
 	ce.tweens.add(new dream.visual.animation.Tween({rotation:180}, 100, dream.visual.animation.interpolators.sine, true));
 	
-	paper = world.assets.add(new dream.visual.Composite(100,100));
+	paper = world.assets.add(new dream.visual.Composite(-400,100));
 	with(rect1 = paper.assets.add(new dream.visual.drawing.Rect(0,0,100,100))){
-		anchorX = anchorY = 50;
+		//anchorX = anchorY = 50;
 		fillStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0.25, "#00aaaa"), new dream.visual.drawing.ColorStop(0.75, "#aa0000")], 0, 0, 1, 1);
 		rotation = 0;
 		strokeStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0, "#330000"), new dream.visual.drawing.ColorStop(1, "#008888")], 0, 0, 0, 1);
@@ -110,7 +110,7 @@ function init(){
 		onClick.add(function(){console.log("r1mc");});
 	}
 	
-	rect2 = paper.assets.add(new dream.visual.drawing.Rect(40,10,20,20));
+	rect2 = paper.assets.add(new dream.visual.drawing.Rect(0,0,20,20));
 	rect2.fillStyle = "#ff0000";
 	rect2.strokeStyle = "#00ff00";
 	rect2.onMouseOver.add(function(){console.log("r2mi");});
@@ -126,8 +126,17 @@ function init(){
 
 	//rp = paper.tweens.add(new dream.visual.animation.Tween({rotation:360}, 1000, false, true));
 	world.onResize.add(function(){
-		world.left = world.width/2;
-		world.top = world.height/2;		
+		this.left = this.width/2;
+		this.top = this.height/2;		
+	});
+	
+	world.onMouseMove.add(function(mouse){
+		var m = this.translateIn(mouse);
+		this.anchorX = m.left;
+		this.anchorY = m.top;
+		
+		this.left = mouse.left;
+		this.top = mouse.top;
 	});
 	
 	exp.scenes.add(world, "world");	

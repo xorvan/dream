@@ -63,7 +63,7 @@ dream.visual.Composite.prototype.step = function (){
 }; 
 
 dream.visual.Composite.prototype.drawImage = function(ctx, rect, drawRect) {
-	for(var zi in scene.renderList.index.z){
+	for(var zi in this.renderList.index.z){
 		this.renderList.index.z[zi].forEach(function(g){
 			if(g.viewRect.hasIntersectWith(drawRect))
 				g.draw(ctx, new dream.Rect(rect.left + g.rect.left, rect.top + g.rect.top, g.rect.width, g.rect.height), g.translateInRect(drawRect));
@@ -151,18 +151,26 @@ dream.visual.Composite.prototype.translateOutRectOld = function(rect){
 dream.visual.Composite.prototype.checkHover = function (p){
 	if(p.isIn(this.viewRect)){
 		var pr = this.translateIn(p);
-		for(var i = this.renderList.length -1 , g; g = this.renderList[i]; i--){
-			if(g.checkHover(pr)){
-				if(this.hovered && this.hovered != g){
-					dream.event.dispatch(this.hovered, "onMouseOut");
-					this.hovered.isHovered = false;
-				}
-				this.hovered = g;
-				if(!this.isHovered) dream.event.dispatch(this, "onMouseOver");
-				this.isHovered = true;
-				return true;
-			}
+		
+		var zs = [];
+		for(var zi in this.renderList.index.z){
+			zs.push(zi);
 		}
+
+		var l, z = this.renderList.index.z;
+		while(l = z[zs.pop()])
+			for(var i = l.length -1 , g; g = l[i]; i--){
+				if(g.checkHover(pr)){
+					if(this.hovered && this.hovered != g){
+						dream.event.dispatch(this.hovered, "onMouseOut");
+						this.hovered.isHovered = false;
+					}
+					this.hovered = g;
+					if(!this.isHovered) dream.event.dispatch(this, "onMouseOver");
+					this.isHovered = true;
+					return true;
+				}
+			}
 	}
 
 	if(this.hovered){

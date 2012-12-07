@@ -54,8 +54,8 @@ dream.visual.Graphic.prototype.translateIn = function(p){
 	var c = Math.cos(this.r);
 	var s = Math.sin(this.r);
 	var r = p.clone();
-	r.left = (this.anchorX + (x * c + y * s)  / this.scaleX) | 0;
-	r.top = (this.anchorY +  (y * c - x * s) / this.scaleY) | 0;
+	r.left = (this.anchorX + (x * c + y * s)  / this.scaleX);// | 0;
+	r.top = (this.anchorY +  (y * c - x * s) / this.scaleY);// | 0;
 	return r;
 };
 
