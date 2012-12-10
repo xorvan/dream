@@ -368,3 +368,18 @@ dream.util.getId = function(obj){
 	return obj.__GID || (obj.__GID = ++dream.util.objCount);
 };
 
+dream.util.createEventProperty = function(obj, name, changeEvent, shadowVariable){
+	var e = changeEvent || "onChange", sv = shadowVariable || "_"+name;
+	return Object.defineProperty(obj, name, {
+		get : new Function("return this."+sv),
+		set : new Function("v", "var o = this."+sv+";this."+sv+"=v;dream.event.dispatch(this, '"+e+"', o);")
+	});
+};
+
+dream.util.createFlagProperty = function(obj, name, changeFlag, shadowVariable){
+	var e = changeEvent || "isChanged", sv = shadowVariable || "_"+name;
+	return Object.defineProperty(obj, name, {
+		get : new Function("return this."+sv),
+		set : new Function("v", "var o = this."+sv+";this."+sv+"=v; if(v!=o) this."+e+" = true;")
+	});
+};
