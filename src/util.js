@@ -377,7 +377,7 @@ dream.util.createEventProperty = function(obj, name, changeEvent, shadowVariable
 };
 
 dream.util.createFlagProperty = function(obj, name, changeFlag, shadowVariable){
-	var e = changeEvent || "isChanged", sv = shadowVariable || "_"+name;
+	var e = changeFlag || "isChanged", sv = shadowVariable || "_"+name;
 	return Object.defineProperty(obj, name, {
 		get : new Function("return this."+sv),
 		set : new Function("v", "var o = this."+sv+";this."+sv+"=v; if(v!=o) this."+e+" = true;")
