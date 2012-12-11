@@ -86,9 +86,47 @@ dream.visual.animation.Tween.prototype.revert = function(){
 
 dream.visual.animation.interpolators = {
 		linear: function(x){return x;},
-		sine: function(x) {return Math.sin(Math.PI * x * 2);},
-		halfSine: function(x) {return Math.sin(Math.PI * x);},
-		quarterSine: function(x) {return Math.sin(Math.PI * x / 2);}
+		Sine: function(freq){return function(x) {var pi=Math.PI;return Math.sin(pi * x * freq * 2);};},
+		halfSine: function(freq) {return function(x) {var pi=Math.PI;return Math.abs(Math.sin(pi * x * freq));};},
+		quarterSine: function(freq){return function(x) {var pi=Math.PI;return Math.sin(pi * x * freq / 2);};},
+		exp:function (pow){return function(x)     {return Math.exp(x * pow) - 1;};},
+		powIn:function (pow) {return function(x)  {return Math.pow(x, pow);};},
+		powOut:function (pow) {return function(x) {return 1 - Math.pow(1 - x, pow);};},
+		powInOut:function (pow) {return function(x) {if ((x *= 2) < 1) return 0.5 * Math.pow(x, pow);	return 1 - 0.5 * Math.abs(Math.pow(2-x,pow));};},
+		backIn: function (val) {return function(x){return x * x * ((val + 1) * x - val);};},
+		backOut: function (val) {return function(x){return (--x * x * ((val + 1) * x + val) + 1);};},
+		circIn: function(x) {return Math.sqrt(1-(--x)*x);},
+		circOut: function(x) {if ((x*=2) < 1) return -0.5*(Math.sqrt(1-x*x)-1);	return 0.5*(Math.sqrt(1-(x-=2)*x)+1);},
+		bounceOut: function(x) {if (x < 1/2.75) {
+												return (7.5625*x*x);
+											} else if (x < 2/2.75) {
+												return (7.5625*(x-=1.5/2.75)*x+0.75);
+											} else if (x < 2.5/2.75) {
+												return (7.5625*(x-=2.25/2.75)*x+0.9375);
+											} else {
+												return (7.5625*(x-=2.625/2.75)*x +0.984375);
+											};},
+		bounceIn: function (x){return 1-dream.visual.animation.interpolators.bounceOut(1-x);},									
+		bounceInOut: function (x){if (x < 0.5) return dream.visual.animation.interpolators.bounceIn (x * 2) * 0.5;return dream.visual.animation.interpolators.bounceOut(x * 2 - 1) * 0.5 + 0.5;},
+		elasticIn:function (amplitude, period){
+			var pi2 = Math.PI*2;
+			return function(x) {
+				if (x==0 || x==1) return x;
+				var s = period/pi2 * Math.asin(1/amplitude);
+				return (amplitude*Math.pow(2,-10*x)*Math.sin((x-s)*pi2/period )+1);};},
+		elasticOut:function (amplitude, period){
+				var pi2 = Math.PI*2;
+				return function(x) {
+					if (x==0 || x==1) return x;
+					var s = period/pi2*Math.asin(1/amplitude);
+					return -(amplitude*Math.pow(2,10*(x-=1))*Math.sin((x-s)*pi2/period));};},
+				elasticInOut:function (amplitude, period){
+					var pi2 = Math.PI*2;
+					return function(x) {
+						var s = period/pi2 * Math.asin(1/amplitude);
+						if ((x*=2)<1) return -0.5*(amplitude*Math.pow(2,10*(x-=1))*Math.sin( (x-s)*pi2/period ));
+						return amplitude*Math.pow(2,-10*(x-=1))*Math.sin((x-s)*pi2/period)*0.5+1;};}
+		//backIn: function (val) {return function(x){return };}
 
 };
 
