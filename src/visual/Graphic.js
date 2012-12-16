@@ -39,6 +39,18 @@ dream.visual.Graphic = function(left, top, width, height){
 		graphic.steps.remove(tween.step);
 	});
 	
+	this.buffer = null;
+	this.dropBuffer = function(){this.buffer = null; if (this.oldDrawImage) this.drawImage = this.oldDrawImage;};
+	this.updateBuffer = function(){
+		this.oldDrawImage = this.drawImage;
+		if (this.buffer == null)
+			this.buffer = new dream.util.BufferCanvas(this.actuallRect.width, this.actuallRect.height);
+		this.oldDrawImage(this.buffer.context, new dream.Rect(0, 0, this.actuallRect.width, this.actuallRect.height), this.actuallRect.clone());
+		this.drawImage = function(ctx, rect) {
+			ctx.drawImage(this.buffer.canvas, rect.left, rect.top, this.actuallRect.width, this.actuallRect.height);
+		};
+	};
+	
 }.inherits(dream.VisualAsset);
 
 dream.event.create(dream.visual.Graphic.prototype, "onImageChange");
@@ -97,6 +109,7 @@ dream.visual.Graphic.prototype.draw = function(ctx, rect, drawRect) {
 		ctx.translate(tx, ty);
 		ctx.rotate(this.r);
 		ctx.scale(this.sx, this.sy);
+		//if (this.buffer)
 		this.drawImage(ctx, new dream.Rect(this.ax*-1, this.ay*-1, rect.width, rect.height), drawRect);
 		ctx.restore();
 	}else
