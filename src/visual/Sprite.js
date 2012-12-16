@@ -13,12 +13,25 @@ dream.visual.Sprite = function(frameSet, left, top, width, height){
 		}
 		
 		if(fs.frames.length > 1)
-			sprite.animStep = sprite.steps.add(new dream.visual.animation.Step(function(){fs.frames.next();sprite.isImageChanged = true;}, -1, fs.interval));
+			sprite.animStep = sprite.steps.add(
+					new dream.visual.animation.Step(function(){
+						fs.frames.next();
+						sprite.rect.width = fs.frames.current.width; 
+						sprite.rect.height = fs.frames.current.width; 
+						sprite.isBoundaryChanged = true; 
+						sprite.isImageChanged = true;
+					}, -1, fs.interval)
+			);
 	});
 	
 	if(frameSet){
 		this.frameSets.add(frameSet, "default");
 		this.frameSets.select("default");
+		
+		var f = this.frameSets.current.frames.current;
+		
+		this.rect.width = f.width;
+		this.rect.height = f.height;
 	}
 }.inherits(dream.visual.Graphic);
 
@@ -30,10 +43,10 @@ dream.visual.Sprite.prototype.resume = function(){
 	if(this.animStep) this.animStep.resume();
 };
 
-dream.visual.Sprite.prototype.drawImage = function(ctx, rect) {
+dream.visual.Sprite.prototype.drawImage = function(ctx, origin) {
 	var fs = this.frameSets.current;
 	var f = fs.frames.current;
-	ctx.drawImage(dream.preload.cache[fs.spriteSheetUrl].content, f.left, f.top, f.width, f.height, rect.left, rect.top, rect.width, rect.height);
+	ctx.drawImage(dream.preload.cache[fs.spriteSheetUrl].content, f.left, f.top, f.width, f.height, origin.left|0, origin.top|0, f.width, f.height);
 };
 
 Object.defineProperty(dream.visual.Sprite.prototype, "requiredResources", {

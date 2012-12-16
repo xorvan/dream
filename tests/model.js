@@ -81,7 +81,7 @@ CompositeRect = function(left, top, width, height){
 Enemy = function(left, top){
 	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/enemies.png", 0, 0, 100, 75, 4, 5), left, top, 100, 75);
 	this.onDragStart.add(function(mouse){
-		var lm = this.translateIn(mouse);
+		var lm = this.rect.transformation.unproject(mouse);
 		this.anchorX = lm.left;
 		this.anchorY = lm.top;	
 		this.steps.add(new dream.visual.animation.Step(function(){this.rotation+=5;}), 'main');

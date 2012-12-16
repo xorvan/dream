@@ -4,8 +4,9 @@ Boat = function(){
 
 Star = function(left, top){
 	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/star.png", 0, 0, 581, 518), left, top, 58, 51);
-	this.anchorX = this.width / 2;
-	this.anchorY = this.width / 2;
+	this.anchorX = 581 / 2;
+	this.anchorY = 518 / 2;
+	this.scale = 0.1;
 }.inherits(dream.visual.Sprite);
 
 Enemy = function(left, top){
@@ -13,7 +14,7 @@ Enemy = function(left, top){
 	//this.anchorX = this.anchorY = 50;
 	var exo, eyo;
 	this.onDragStart.add(function(mouse){
-		var mouse = this.translateIn(mouse);
+		var mouse = this.rect.transformation.unproject(mouse);
 		exo = mouse.left;
 		eyo = mouse.top;
 		this.anchorX = exo;
@@ -62,7 +63,7 @@ function init(){
 	
 	
 	for(var i=1; i<=400; i++){
-		var s = world.assets.add(new Enemy(Math.random() * 5000 | 0, Math.random() * 5000 | 0), "enemy" + i);
+		var s = world.assets.add(new Enemy(Math.random() * 500 | 0, Math.random() * 500 | 0), "enemy" + i);
 		//s.steps.add(new dream.visual.animation.Step(function(){this.rotation += 5;}));
 	}
 	
@@ -77,8 +78,8 @@ function init(){
 	enemy = world.assets.add(new Enemy(100,10));
 	//|enemy = world.assets.add(new dream.visual.Sprite(new dream.visual.SpriteFrameSet("res/enemies.png", 0, 0, 100, 75, 4), 50, 50, 100, 75));
 	with(enemy){
-		anchorX = width /2; 
-		anchorY = height /2;
+		//anchorX = width /2; 
+		//anchorY = height /2;
 		//left = top = 200;
 		tween1 = tweens.add(new dream.visual.animation.Tween({scale:2,left:400,top:400,alpha:0.2, rotation:360}, 200, dream.visual.animation.interpolators.sine, true));
 		onMouseOver.add(function(){console.log("mi");});
@@ -126,12 +127,12 @@ function init(){
 
 	//rp = paper.tweens.add(new dream.visual.animation.Tween({rotation:360}, 1000, false, true));
 	world.onResize.add(function(){
-		this.left = this.width/2;
-		this.top = this.height/2;		
+		this.left = exp.width/2;
+		this.top = exp.height/2;		
 	});
 	
 	world.onMouseMove.add(function(mouse){
-		var m = this.translateIn(mouse);
+		var m = this.rect.transformation.unproject(mouse);
 		this.anchorX = m.left;
 		this.anchorY = m.top;
 		

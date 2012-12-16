@@ -20,10 +20,10 @@ Object.defineProperty(dream.visual.drawing.Shape.prototype, "fillStyle", {
 			this._fs.onChange.removeByOwner(this);
 
 		this._fs = v;
-		dream.event.dispatch(this, "onImageChange", [this.viewRect.clone()]);
+		dream.event.dispatch(this, "onImageChange", [this.boundary.clone()]);
 		
 		if(this._fs instanceof dream.visual.drawing.Gradient)
-			this._fs.onChange.propagate(this, "onImageChange", function(){return [this.viewRect.clone()];});
+			this._fs.onChange.propagate(this, "onImageChange", function(){return [this.boundary.clone()];});
 	}
 });
 
@@ -36,31 +36,63 @@ Object.defineProperty(dream.visual.drawing.Shape.prototype, "strokeStyle", {
 			this._ss.onChange.removeByOwner(this);
 		
 		this._ss = v;
-		dream.event.dispatch(this, "onImageChange", [this.viewRect.clone()]);
+		dream.event.dispatch(this, "onImageChange", [this.boundary.clone()]);
 		
 		if(this._ss instanceof dream.visual.drawing.Gradient)
-			this._ss.onChange.propagate(this, "onImageChange", function(){return [this.viewRect.clone()];});
+			this._ss.onChange.propagate(this, "onImageChange", function(){return [this.boundary.clone()];});
 	}
 });
 
 dream.visual.drawing.Shape.prototype.drawImage = function(context, rect){
-	if(this._fs) context.fillStyle = this._fs instanceof dream.visual.drawing.Gradient ? this._fs.createStyle(context, rect) : this._fs;
-	if(this._ss) context.strokeStyle = this._ss instanceof dream.visual.drawing.Gradient ? this._ss.createStyle(context, rect) : this._ss;
+	if(this._fs) context.fillStyle = this._fs instanceof dream.visual.drawing.Gradient ? this._fs.createStyle(context, this.rect) : this._fs;
+	if(this._ss) context.strokeStyle = this._ss instanceof dream.visual.drawing.Gradient ? this._ss.createStyle(context, this.rect) : this._ss;
 };
 
 /**
  * @constructor
  */
 dream.visual.drawing.Rect = function(left, top, width, height){
-	dream.visual.drawing.Shape._superClass.call(this, left, top, width, height);
+	dream.visual.drawing.Shape._superClass.call(this, left, top);
+	
+	this._width = 0;
+	this._height = 0;
+	this.width = width;
+	this.height = height;
 	
 }.inherits(dream.visual.drawing.Shape);
 
-dream.visual.drawing.Rect.prototype.drawImage = function(context, rect){
-	dream.visual.drawing.Rect._superClass.prototype.drawImage.call(this, context, rect);
-	if(this.fillStyle) context.fillRect(rect.left, rect.top, rect.width, rect.height);
-	if(this.strokeStyle) context.strokeRect(rect.left, rect.top, rect.width, rect.height);
+dream.visual.drawing.Rect.prototype.drawImage = function(context, origin){
+	dream.visual.drawing.Rect._superClass.prototype.drawImage.call(this, context, origin);
+	if(this.fillStyle) context.fillRect(origin.left, origin.top, this.width, this.height);
+	if(this.strokeStyle) context.strokeRect(origin.left, origin.top, this.width, this.height);
 };
+
+Object.defineProperty(dream.visual.drawing.Shape.prototype, "width", {
+	get: function() {
+		return this._width;
+	},
+	set: function(v){
+		var d = v - this._width;		
+		this.rect.width += d;
+		this._width = v;
+		this.isImageChanged = true;
+		this.isBoundaryChanged = true;
+	}
+});
+
+Object.defineProperty(dream.visual.drawing.Shape.prototype, "height", {
+	get: function() {
+		return this._height;
+	},
+	set: function(v){
+		var d = v - this._height;		
+		this.rect.height += d;
+		this._height = v;
+		this.isImageChanged = true;
+		this.isBoundaryChanged = true;
+	}
+});
+
 
 /**
  * @constructor

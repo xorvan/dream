@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<canvas id="myCanvas" width="300" height="150" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.</canvas>
+<script type="text/javascript" src="../../src/event.js"></script>
+<script type="text/javascript" src="../../src/core.js"></script>
+<script type="text/javascript" src="../../src/util.js"></script>
+<script type="text/javascript" src="../../src/transform.js"></script>
+<script>
+Matrix = dream.transform.Matrix;
+transform = dream.transform
+
+var c=document.getElementById("myCanvas");
+var ctx=c.getContext("2d");
+
+ax = 125, ay = 50;
+x = 150, y = 75;
+s = Math.sin(Math.PI/4);
+c = Math.cos(Math.PI/4);
+
+ctx.save();
+ctx.fillStyle="yellow";
+ctx.transform(1,0,0,1,x,y);
+ctx.transform(1,0,0,1,-ax,-ay);
+ctx.fillRect(0,0,250,100)
+
+
+//ctx.setTransform(1,0.5,-0.5,1,x,y);
+//ctx.scale(0.5,0.5);
+//ctx.transform(0.5,0,0,0.5,-ax*0.5,-ay*0.5);
+
+var m = (new Matrix(1,0,0,1,x,y))
+.multiplyBy(new Matrix(c,s,-s,c,0,0))
+.multiplyBy(new Matrix(0.5,0,0,0.5,0,0))
+.multiplyBy(new Matrix(1,0,0,1,-ax,-ay))
+
+var m2 = (new Matrix(1,0,0,1,x,y))
+.multiplyBy(new Matrix(c,s,-s,c,0,0))
+.multiplyBy(new Matrix(0.5,0,0,0.5,0,0))
+.multiplyBy(new Matrix(c,s,-s,c,0,0))
+.multiplyBy(new Matrix(0.5,0,0,0.5,0,0))
+.multiplyBy(new Matrix(1,0,0,1,-ax,-ay))
+
+
+t1 = new transform.Composite([
+	new transform.Translation(x,y),
+	new transform.Scale(0.2, 0.7),
+	new transform.Rotation(45),
+	new transform.Translation(-ax,-ay),
+	]); 
+
+t1 = new transform.Generic(x, y, 0.2, 0.7, 45, ax, ay);
+
+r1 = new dream.Rect(0, 0, 250, 100, t1);
+
+m = t1.matrix;
+
+m3 = m.inverse;
+
+ctx.setTransform(m.x0, m.y0, m.x1, m.y1, m.dx, m.dy);
+//ctx.transform(1, 0, 0, 1, -ax, -ay);
+ctx.fillStyle="red";
+ctx.fillRect(0,0,250,100);
+ctx.scale(1,1);
+
+ctx.setTransform(m2.x0, m2.y0, m2.x1, m2.y1, m2.dx, m2.dy);
+//ctx.setTransform(1, 0, 0, 1, 0, 0);
+//ctx.translate(0,0)
+//ctx.transform(1,0.5,-0.5,1,30,10);
+//ctx.transform(m.a, m.b, m.c, m.d, m.dx, m.dy);
+ctx.fillStyle="blue";
+ctx.fillRect(0,0,250,100);
+
+
+ctx.setTransform(1, 0, 0, 1, 0, 0);
+ctx.beginPath()
+ctx.moveTo(t1.project(new dream.Point(0,0)).left,m.multiplyByPoint(new dream.Point(0,0)).top)
+ctx.lineTo(t1.project(new dream.Point(250,0)).left,m.multiplyByPoint(new dream.Point(250,0)).top)
+ctx.lineTo(t1.project(new dream.Point(250,100)).left,m.multiplyByPoint(new dream.Point(250,100)).top)
+
+/*ctx.moveTo(m.multiplyByPoint(new dream.Point(0,0)).left,m.multiplyByPoint(new dream.Point(0,0)).top)
+ctx.lineTo(m.multiplyByPoint(new dream.Point(250,0)).left,m.multiplyByPoint(new dream.Point(250,0)).top)
+ctx.lineTo(m.multiplyByPoint(new dream.Point(250,100)).left,m.multiplyByPoint(new dream.Point(250,100)).top)
+*/
+ctx.closePath()
+ctx.strokeStyle = "#000"
+ctx.stroke();
+ctx.restore();
+</script>
+
+</body>
+</html>

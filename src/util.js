@@ -368,6 +368,14 @@ dream.util.getId = function(obj){
 	return obj.__GID || (obj.__GID = ++dream.util.objCount);
 };
 
+dream.util.createProperty = function(obj, name, shadowVariable){
+	var sv = shadowVariable || "_"+name;
+	return Object.defineProperty(obj, name, {
+		get : new Function("return this."+sv),
+		set : new Function("v", "this."+sv+"=v;")
+	});
+};
+
 dream.util.createEventProperty = function(obj, name, changeEvent, shadowVariable){
 	var e = changeEvent || "onChange", sv = shadowVariable || "_"+name;
 	return Object.defineProperty(obj, name, {
@@ -377,9 +385,17 @@ dream.util.createEventProperty = function(obj, name, changeEvent, shadowVariable
 };
 
 dream.util.createFlagProperty = function(obj, name, changeFlag, shadowVariable){
-	var e = changeEvent || "isChanged", sv = shadowVariable || "_"+name;
+	var f = changeFlag || "isChanged", sv = shadowVariable || "_"+name;
 	return Object.defineProperty(obj, name, {
 		get : new Function("return this."+sv),
-		set : new Function("v", "var o = this."+sv+";this."+sv+"=v; if(v!=o) this."+e+" = true;")
+		set : new Function("v", "var o = this."+sv+";this."+sv+"=v; if(v!=o) this."+f+" = true;")
+	});
+};
+
+dream.util.createEventFlagProperty = function(obj, name, changeEvent, changeFlag, shadowVariable){
+	var e = changeEvent || "onChange",f = changeFlag || "isChanged", sv = shadowVariable || "_"+name;
+	return Object.defineProperty(obj, name, {
+		get : new Function("return this."+sv),
+		set : new Function("v", "var o = this."+sv+";this."+sv+"=v;dream.event.dispatch(this, '"+e+"', o);if(v!=o) this."+f+" = true;")
 	});
 };

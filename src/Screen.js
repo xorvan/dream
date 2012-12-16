@@ -22,6 +22,8 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 	this.width = this.canvas.width;
 	this.height = this.canvas.height;
 	
+	this.rect = new dream.Rect(0, 0, this.width, this.height, new dream.transform.Scale);
+	
 	this.redrawRegions = new dream.util.RedrawRegionList();
 	this.redrawBuffer = new dream.util.BufferCanvas(0, 0);
 	
@@ -31,13 +33,14 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 	this.scenes = new dream.util.Selector;
 
 	this.scenes.onSelect.add(function(scene){
-		scene.rect.width = screen.width;
-		scene.rect.height = screen.height;
+		//TODO: scene width & height
+		//scene.rect.width = screen.width;
+		//scene.rect.height = screen.height;
 		
 		dream.event.dispatch(scene, "onResize");
 		
 		screen.redrawRegions.add(new dream.Rect(0,0, screen.width, screen.height));
-		scene.onViewRectChange.add(function(oldRect){
+		scene.onBoundaryChange.add(function(oldRect){
 			//console.log("vc");
 			screen.redrawRegions.add(new dream.Rect(0,0, this.width, this.height));//screen.scenes.current.viewport);
 		});
@@ -83,7 +86,7 @@ dream.Screen.prototype.render = function(){
 	}
 
 	//this.scenes.current.draw(this.context, this.scenes.current.rect, this.scenes.current.viewport);
-	this.drawImage(this.context, this.scenes.current.rect, new dream.Rect(0,0, this.width, this.height));
+	this.drawImage(this.context, this.scenes.current.origin, new dream.Rect(0,0, this.width, this.height));
 	
 	this.checkHover(this.input.mouse);
 	
@@ -95,12 +98,11 @@ dream.Screen.prototype.drawImageWithoutRedrawRegion = function(ctx, rect, drawRe
 	var scene = this.scenes.current;
 	scene.step();
 	ctx.clearRect(0,0,drawRect.width, drawRect.height);
-	scene.draw(ctx, new dream.Rect(scene.rect.left, scene.rect.top, scene.rect.width, scene.rect.height), scene.translateInRect(drawRect));
+	scene.draw(ctx, new dream.Rect(scene.rect.left, scene.rect.top, scene.rect.width, scene.rect.height), scene.rect.transformation.unprojectRect(drawRect).boundary);
 };
 
-dream.Screen.prototype.drawImageWithClippingRedrawRegion = function(ctx, rect, drawRect) {
+dream.Screen.prototype.drawImageWithClippingRedrawRegion = function(ctx, origin, drawRect) {
 	var rgCount = 0;
-	
 	var scene = this.scenes.current;
 	scene.step();
 	var rg;
@@ -113,7 +115,7 @@ dream.Screen.prototype.drawImageWithClippingRedrawRegion = function(ctx, rect, d
 			ctx.closePath();
 			rgCount++;
 			ctx.clearRect(rg.left, rg.top, rg.width, rg.height);
-			scene.draw(ctx, new dream.Rect(scene.rect.left, scene.rect.top, scene.rect.width, scene.rect.height), scene.translateInRect(rg));
+			scene.draw(ctx, new dream.Point(scene.origin.left, scene.origin.top), scene.rect.transformation.unprojectRect(rg).boundary);
 			ctx.restore();
 			//console.log(rr+"");
 		}
@@ -136,7 +138,7 @@ dream.Screen.prototype.drawImageWithBufferdRedrawRegion = function(ctx, rect, dr
 			rb.canvas.height = rg.height;
 			rgCount++;
 			ctx.clearRect(rg.left, rg.top, rg.width, rg.height);
-			scene.draw(rb.context, new dream.Rect(scene.rect.left - rg.left, scene.rect.top - rg.top, scene.rect.width, scene.rect.height), scene.translateInRect(rg));
+			scene.draw(rb.context, new dream.Rect(scene.rect.left - rg.left, scene.rect.top - rg.top, scene.rect.width, scene.rect.height), scene.rect.transformation.unprojectRect(rg));
 			ctx.drawImage(rb.canvas, 0, 0, rg.width, rg.height, rg.left, rg.top, rg.width, rg.height);
 			//console.log(rr+"");
 		}
@@ -157,7 +159,7 @@ dream.Screen.prototype.checkHover = function (p){
 			dream.event.dispatch(this, "onMouseOver");
 		}
 		
-		this.hovered.checkHover(this.translateIn(p));
+		this.hovered.checkHover(this.rect.transformation.unproject(p));
 	}
 };
 
@@ -202,25 +204,20 @@ dream.Screen.prototype.updateSize = function() {
 		this.scaleY = this.canvas.offsetHeight / this.height;
 	}
 	
-	this.canvas.width = this.width = this.width | 0;
-	this.canvas.height = this.height = this.height | 0;
+	this.canvas.width = this.rect.width = this.width = this.width | 0;
+	this.canvas.height = this.rect.height = this.height = this.height | 0;
+	
+	this.rect.transformation.x = this.scaleX;
+	this.rect.transformation.y = this.scaleY;
 	
 	if(this.scenes.current){
-		this.scenes.current.rect.width = this.width;
-		this.scenes.current.rect.height = this.height;
+		this.scenes.current.width = this.width;
+		this.scenes.current.height = this.height;
 		dream.event.dispatch(this.scenes.current, "onResize");
 	}
 
 	dream.event.dispatch(this, "onResize");
 };
-
-dream.Screen.prototype.translateIn = function(p){
-	var r = p.clone();
-	r.left = (p.left / this.scaleX) | 0;
-	r.top = (p.top / this.scaleY) | 0;
-	return r;
-};
-
 
 dream.Screen.prototype.highlite = function(rect) {
 	this.context.strokeStyle = "#f00";this.context.strokeRect(rect.left, rect.top, rect.width, rect.height);
