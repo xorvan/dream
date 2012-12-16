@@ -29,6 +29,7 @@ html,body {
 	<script type="text/javascript" src="../src/util.js"></script>
 	<script type="text/javascript" src="../src/preload.js"></script>
 	<script type="text/javascript" src="../src/input.js"></script>
+	<script type="text/javascript" src="../src/transform.js"></script>
 	<script type="text/javascript" src="../src/visual.js"></script>
 	<script type="text/javascript" src="../src/visual/Graphic.js"></script>
 	<script type="text/javascript" src="../src/visual/Composite.js"></script>
@@ -62,7 +63,7 @@ html,body {
 			}
 			
 			en=new Enemy(0,0);
-			en.tweens.add(new dream.visual.animation.Tween({left:900,top:300,alpha:0.1,rotation:355},300,dream.visual.animation.interpolators.sine,true));
+			en.tweens.add(new dream.visual.animation.Tween({left:900,top:300,alpha:0.1,rotation:355},300,new dream.visual.animation.interpolator.Sine,true));
 			scene.assets.add(en);
 
 			test.scenes.current = scene;

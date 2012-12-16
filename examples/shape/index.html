@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>DreamJS Experimental Sandbox</title>
+<style type="text/css">
+html,body {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.content {
+	height: 99%;
+}
+
+#mainCanvas {
+	width: 100%;
+	height: 100%;
+}
+
+
+</style>
+</head>
+<body onload="init()">
+	<script type="text/javascript" src="../../src/event.js"></script>
+	<script type="text/javascript" src="../../src/core.js"></script>
+	<script type="text/javascript" src="../../src/Screen.js"></script>
+	<script type="text/javascript" src="../../src/util.js"></script>
+	<script type="text/javascript" src="../../src/preload.js"></script>
+	<script type="text/javascript" src="../../src/input.js"></script>
+	<script type="text/javascript" src="../../src/transform.js"></script>
+	<script type="text/javascript" src="../../src/visual.js"></script>
+	<script type="text/javascript" src="../../src/visual/Graphic.js"></script>
+	<script type="text/javascript" src="../../src/visual/Composite.js"></script>
+	<script type="text/javascript" src="../../src/visual/Sprite.js"></script>
+	<script type="text/javascript" src="../../src/scenery.js"></script>
+	<script type="text/javascript" src="../../src/visual/animation.js"></script>
+	<script type="text/javascript" src="../../src/visual/drawing.js"></script>
+	<script type="text/javascript" src="../../src/visual/Map.js"></script>
+	<script type="text/javascript" src="Stats.js"></script>
+	
+	<script type="text/javascript">
+		function init(){
+			test = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 900, 600);
+			
+			scene = new dream.scenery.Scene;
+			
+			p1=new dream.visual.drawing.Poly(100,50,100,0);
+			
+			p1.fillStyle=new dream.visual.drawing.Color("#f00");
+			var tw=new dream.visual.animation.Tween({sides:12, "fillStyle.blue":255},700, new dream.visual.animation.interpolator.Sine,true,1)
+			p1.tweens.add(tw);
+			scene.assets.add(p1,'aaa');
+			
+			with(rect1 = scene.assets.add(new dream.visual.drawing.Rect(50,250,150,150),'recttt')){
+
+				fillStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0.25, new dream.visual.drawing.Color("#00aaaa")), new dream.visual.drawing.ColorStop(0.75, new dream.visual.drawing.Color("#aa0000"))], 0, 0, 1, 1);
+				rotation = 0;
+				//strokeStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0, "#330000"), new dream.visual.drawing.ColorStop(1, "#008888")], 0, 0, 0, 1);
+				tr = tweens.add(new dream.visual.animation.Tween({
+					"fillStyle.colorStops[0].position":.5, 
+					"fillStyle.colorStops[1].position":.5,
+					"fillStyle.colorStops[0].color.green":225,
+					"fillStyle.colorStops[1].color.blue":220
+				}, 200, new dream.visual.animation.interpolator.Sine, true));
+
+			};
+			
+			var s2= new dream.visual.drawing.Poly(300,50,70,6);
+			s2.fillStyle=new dream.visual.drawing.Color(125,125,255,0.8);
+			
+			//scene.assets.add(s2,'s2');
+
+			
+			p5 = new dream.visual.drawing.Poly(10,70,80,6);
+			p5.strokeStyle = new dream.visual.drawing.strokeStyle(new dream.visual.drawing.Color("#5f6"),5,"butt");
+			p5.tweens.add(new dream.visual.animation.Tween({left:500},200, new dream.visual.animation.interpolator.ElasticInOut(1,0.3), true));
+			
+			scene.assets.add(p5,'p5');
+			
+			gr1 = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0.25,"#00aaaa"), new dream.visual.drawing.ColorStop(0.75, "#aa0000")], 0, 0, 0, 1);
+			
+			//p5.fillStyle=gr1;
+			//p5.strokeStyle=gr1;
+			
+			
+			
+			c1=new dream.visual.drawing.Circle(250,250,60);
+			c1.fillStyle="#1a1";
+			scene.assets.add(c1);
+			
+			//e1=new dream.visual.drawing.Ellipse(200,10,60,100);
+			//e1.fillStyle="#aa5";
+			//scene.assets.add(e1);
+			
+			cs1=new dream.visual.drawing.CircleSlice(500,90,70,90);
+			cs1.fillStyle="#49f";
+			cs1.strokeStyle = "#658";
+			scene.assets.add(cs1);
+			
+			cs1.tweens.add(new dream.visual.animation.Tween({angle:360},200, null, true));
+			
+			s1=new dream.visual.drawing.Star(430,175,25,75,5);
+			s1.fillStyle="#a0a";
+			scene.assets.add(s1);
+			
+			s1.tweens.add(new dream.visual.animation.Tween({ radius:120},300, null, true));
+			
+
+			test.scenes.current = scene;
+			
+			
+			stats=new Stats();
+			stats.getDomElement().style.position = 'absolute';
+			stats.getDomElement().style.left = '0px';
+			stats.getDomElement().style.top = '0px';
+			document.body.appendChild(stats.getDomElement() );
+			var stp=new dream.visual.animation.Step(function(){stats.update();});
+			scene.steps.add(stp);
+		}
+	</script>
+
+	<div class="content" id="container">
+		<canvas id="mainCanvas"></canvas>
+	</div>
+</body>
+</html>

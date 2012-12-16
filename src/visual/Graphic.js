@@ -46,6 +46,8 @@ dream.visual.Graphic = function(left, top){
 		graphic.steps.remove(tween.step);
 	});
 	
+	this.buffer = null;
+	
 }.inherits(dream.VisualAsset);
 
 dream.event.create(dream.visual.Graphic.prototype, "onImageChange");
@@ -59,7 +61,7 @@ dream.visual.Graphic.prototype.draw = function(ctx, origin, drawRect) {
 	ctx.globalAlpha = this.alpha;
 	var m = this.rect.transformation.matrix;
 	ctx.transform(m.x0, m.y0, m.x1, m.y1, m.dx, m.dy);
-	this.drawImage(ctx, new dream.Point(0, 0), drawRect);
+	this.drawImage(ctx, origin, drawRect);
 	ctx.restore();
 };
 
@@ -103,6 +105,28 @@ dream.visual.Graphic.prototype.checkHover = function (p){
 	}else{
 		return false;
 	}
+};
+
+dream.visual.Graphic.prototype.dropBuffer = function(){
+	this.buffer = null; 
+	if(this._oldDrawImage) this.drawImage = this._oldDrawImage;
+};
+
+dream.visual.Graphic.prototype.updateBuffer = function(){
+	if (this.buffer == null){
+		this._oldDrawImage = this.drawImage;
+		this.drawImage = function(ctx, origin){
+			var w = this.buffer.canvas.width, h = this.buffer.canvas.height;
+			ctx.drawImage(this.buffer.canvas, 0, 0, w, h, this.buffer.left + origin.left, this.buffer.top + origin.top, w, h);
+		};
+	}
+
+	this.buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
+	this.buffer.left = this.rect.left;
+	this.buffer.top = this.rect.top;
+	this.buffer.context.translate(-this.rect.left, -this.rect.top);
+	
+	this._oldDrawImage(this.buffer.context, new dream.Point(0, 0), this.rect.clone());
 };
 
 dream.visual.Graphic.prototype.raiseMouseDown = function(mouse){

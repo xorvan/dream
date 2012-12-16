@@ -35,7 +35,7 @@ RotatingCircles = function(left, top, d1, d2){
 	c1.fillStyle = "#0f0";
 	c2.fillStyle = "#00f";
 	
-	c2.tweens.add(new dream.visual.animation.Tween({left:20, top:20, scale:1.3, rotation:360}, 200, dream.visual.animation.interpolators.sine, true));
+	c2.tweens.add(new dream.visual.animation.Tween({left:20, top:20, scale:1.3, rotation:360}, 200, new dream.visual.animation.interpolator.Sine, true));
 	//c2.steps.add(new dream.visual.animation.Step(function(){this.rotation += 10;},-1,2));
 	
 }.inherits(dream.visual.Composite);
@@ -70,11 +70,11 @@ CompositeRect = function(left, top, width, height){
 	this.assets.add(tc3 = new ThreeCircles(width, 0, width/2, width/4, width/6 ), "tc3");
 	this.assets.add(tc4 = new ThreeCircles(width, height, width/3, width/4, width/6 ), "tc4");
 	
-	tc3.tweens.add(new dream.visual.animation.Tween({scale:1.5}, 20, dream.visual.animation.interpolators.sine, true));
+	tc3.tweens.add(new dream.visual.animation.Tween({scale:1.5}, 20, new dream.visual.animation.interpolator.Sine, true));
 	
 	r.fillStyle = "#f0f";
 	
-	this.tweens.add(new dream.visual.animation.Tween({rotation:90, scale:1.5, left:left+200}, 90, dream.visual.animation.interpolators.sine, true));
+	this.tweens.add(new dream.visual.animation.Tween({rotation:90, scale:1.5, left:left+200}, 90, new dream.visual.animation.interpolator.Sine, true));
 	
 }.inherits(dream.visual.Composite);
 
@@ -108,7 +108,7 @@ Paper1 = function(left, top){
 		tr = tweens.add(new dream.visual.animation.Tween({
 			"fillStyle.colorStops[0].position":.5, 
 			"fillStyle.colorStops[1].position":.5
-		}, 200, dream.visual.animation.interpolators.sine, true));
+		}, 200, new dream.visual.animation.interpolator.Sine, true));
 
 	};
 	

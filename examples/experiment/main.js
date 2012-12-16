@@ -40,7 +40,7 @@ CompositeEnemy = function(left, top){
 	this.e1 = this.assets.add(new Enemy(0,0));
 	this.e2 = this.assets.add(new Enemy(20,0));
 	this.s = this.assets.add(new Star(10,10));
-	this.s.tweens.add(new dream.visual.animation.Tween({left:60}, 50, dream.visual.animation.interpolators.sine, true));
+	this.s.tweens.add(new dream.visual.animation.Tween({left:60}, 50, new dream.visual.animation.interpolator.Sine, true));
 }.inherits(dream.visual.Composite);
 
 function init(){
@@ -81,14 +81,14 @@ function init(){
 		//anchorX = width /2; 
 		//anchorY = height /2;
 		//left = top = 200;
-		tween1 = tweens.add(new dream.visual.animation.Tween({scale:2,left:400,top:400,alpha:0.2, rotation:360}, 200, dream.visual.animation.interpolators.sine, true));
+		tween1 = tweens.add(new dream.visual.animation.Tween({scale:2,left:400,top:400,alpha:0.2, rotation:360}, 200, new dream.visual.animation.interpolator.Sine, true));
 		onMouseOver.add(function(){console.log("mi");});
 		onMouseOut.add(function(){console.log("mo");});
 	}
 	
 	ce = world.assets.add(new CompositeEnemy(400,50));
 	ce.rotation = 90;
-	ce.tweens.add(new dream.visual.animation.Tween({rotation:180}, 100, dream.visual.animation.interpolators.sine, true));
+	ce.tweens.add(new dream.visual.animation.Tween({rotation:180}, 100, new dream.visual.animation.interpolator.Sine, true));
 	
 	paper = world.assets.add(new dream.visual.Composite(-400,100));
 	with(rect1 = paper.assets.add(new dream.visual.drawing.Rect(0,0,100,100))){
@@ -103,7 +103,7 @@ function init(){
 			alpha:0.8,*/
 			"fillStyle.colorStops[0].position":.5, 
 			"fillStyle.colorStops[1].position":.5
-		}, 200, dream.visual.animation.interpolators.sine, true));
+		}, 200, new dream.visual.animation.interpolator.Sine, true));
 		onMouseOut.add(function(){console.log("r1mo");});
 		onMouseOver.add(function(){console.log("r1mi");});
 		onMouseDown.add(function(){console.log("r1md");});

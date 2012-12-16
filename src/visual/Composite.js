@@ -68,7 +68,7 @@ dream.visual.Composite.prototype.drawImage = function(ctx, origin, drawRect) {
 				g.draw(ctx, new dream.Point(0, 0), g.rect.transformation.unprojectRect(drawRect).boundary);
 			}
 		});		
-	} 
+	}
 };
 
 dream.visual.Composite.prototype.checkHover = function(p){
