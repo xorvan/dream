@@ -16,9 +16,15 @@ dream.visual.Sprite = function(frameSet, left, top, width, height){
 			sprite.animStep = sprite.steps.add(
 					new dream.visual.animation.Step(function(){
 						fs.frames.next();
-						sprite.rect.width = fs.frames.current.width; 
-						sprite.rect.height = fs.frames.current.width; 
-						sprite.isBoundaryChanged = true; 
+						var sw = sprite.rect.width, 
+							fw = fs.frames.current.width, 
+							sh = sprite.rect.height, 
+							fh = fs.frames.current.height; 
+						if(sw != fw || sh != fh){
+							sprite.rect.width = fw; 
+							sprite.rect.height = fh; 
+							sprite.isBoundaryChanged = true; 
+						}
 						sprite.isImageChanged = true;
 					}, -1, fs.interval)
 			);

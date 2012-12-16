@@ -67,13 +67,13 @@ function init(){
 		//s.steps.add(new dream.visual.animation.Step(function(){this.rotation += 5;}));
 	}
 	
-	for(var i=0; i<=15; i++){
-		with(world.assets.add(new Star(i*90, i*60), "star" + i)){
-			alpha = 0.8;
-			rotation = Math.random()*360 | 0;
-			steps.add(new dream.visual.animation.Step(function(){this.rotation+=2;}));
-		}
-	}
+//	for(var i=0; i<=15; i++){
+//		with(world.assets.add(new Star(i*90, i*60), "star" + i)){
+//			alpha = 0.8;
+//			rotation = Math.random()*360 | 0;
+//			steps.add(new dream.visual.animation.Step(function(){this.rotation+=2;}));
+//		}
+//	}
 
 	enemy = world.assets.add(new Enemy(100,10));
 	//|enemy = world.assets.add(new dream.visual.Sprite(new dream.visual.SpriteFrameSet("res/enemies.png", 0, 0, 100, 75, 4), 50, 50, 100, 75));

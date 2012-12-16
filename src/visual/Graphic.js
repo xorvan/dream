@@ -63,6 +63,36 @@ dream.visual.Graphic.prototype.draw = function(ctx, origin, drawRect) {
 	ctx.restore();
 };
 
+dream.visual.Graphic.prototype.step = function (){
+	
+	for(var i = 0, step; step = this.steps[i]; i++){
+		if(step.isPlaying && !((dream.fc - step.startFrame) % step.interval) ){
+			step.fn.call(this);
+		}
+		if (step.endFrame == dream.fc && step.isPlaying){
+			dream.event.dispatch(step, "onEnd");			
+			if(!step._persistent) this.steps.remove(step);
+		}
+	}
+
+	if(this.isBoundaryChanged){
+		this.boundary = this.rect.boundary;
+		
+		if(this.isImageChanged){
+			dream.event.dispatch(this, "onImageChange", this.boundary.hasIntersectWith(this.oldBoundary) ? [this.boundary.add(this.oldBoundary)] : [this.boundary, this.oldBoundary]);
+			this.isImageChanged = false;
+		}
+		
+		dream.event.dispatch(this, "onBoundaryChange", this.oldBoundary);
+		this.oldBoundary = this.boundary.clone();
+		this.isBoundaryChanged = false;
+	}else if(this.isImageChanged){
+		dream.event.dispatch(this, "onImageChange", [this.boundary]);
+		this.isImageChanged = false;
+	}
+	
+}; 
+
 dream.visual.Graphic.prototype.checkHover = function (p){
 	var pl = this.rect.transformation.unproject(p); 
 	var x = pl.left, y = pl.top;
@@ -115,34 +145,6 @@ dream.visual.Graphic.prototype.raiseDragStop = function(mouse){
 	this.isMouseDown = false;
 	dream.event.dispatch(this, "onDragStop", mouse);
 };
-
-dream.visual.Graphic.prototype.step = function (){
-	
-	for(var i = 0, step; step = this.steps[i]; i++){
-		if(step.isPlaying && !((dream.fc - step.startFrame) % step.interval) ){
-			step.fn.call(this);
-		}
-		if (step.endFrame == dream.fc && step.isPlaying){
-			dream.event.dispatch(step, "onEnd");			
-			if(!step._persistent) this.steps.remove(step);
-		}
-	}
-
-	if(this.isBoundaryChanged){
-		if(this.isImageChanged){
-			dream.event.dispatch(this, "onImageChange", this.boundary.hasIntersectWith(this.oldBoundary) ? [this.boundary.add(this.oldBoundary)] : [this.boundary, this.oldBoundary]);
-			this.isImageChanged = false;
-		}
-		this.boundary = this.rect.boundary;
-		dream.event.dispatch(this, "onBoundaryChange", this.oldBoundary);
-		this.oldBoundary = this.boundary.clone();
-		this.isBoundaryChanged = false;
-	}else if(this.isImageChanged){
-		dream.event.dispatch(this, "onImageChange", [this.boundary]);
-		this.isImageChanged = false;
-	}
-	
-}; 
 
 Object.defineProperty(dream.visual.Graphic.prototype, "left", {
 	get : function() {
