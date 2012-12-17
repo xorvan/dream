@@ -227,7 +227,7 @@ dream.visual.drawing.Poly.prototype.drawImage = function(context, origin){
 	var ang = 2  * Math.PI / this.sides;
 	context.rotate(Math.PI / -2);
 	context.beginPath();
-	var s = Math.abs(this.sides | 0);
+	var s = Math.abs(this.sides) + 0.5 | 0;
 	for (var i=0; i < s; i++){
 		context.rotate(ang);
 		context.lineTo(this.radius, 0);
