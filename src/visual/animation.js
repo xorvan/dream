@@ -106,6 +106,28 @@ var Sine = function(freq){
 /**
  * 
  */
+var Cosine = function(freq){
+	var f = freq == undefined ? 1 : freq;
+	this.fn = function(x) {var pi=Math.PI;return Math.cos(pi * x * f * 2);};
+}.inherits(Interpolator);
+
+/**
+ * 
+ */
+var PowerIn = function(pow){
+	this.fn = function(x){return Math.pow(x, pow);};
+}.inherits(Interpolator);
+
+/**
+ * 
+ */
+var PowerOut = function(pow){
+	this.fn = function(x){return 1 - Math.pow(1 - x, pow);};
+}.inherits(Interpolator);
+
+/**
+ * 
+ */
 var ElasticInOut = function(amplitude, period){
 	var pi2 = Math.PI*2;
 	var a = amplitude == undefined ? 1 : amplitude;
@@ -206,6 +228,9 @@ dream.visual.animation = {
 		interpolator:{
 			Linear: Linear,
 			Sine: Sine,
+			Cosine: Cosine,
+			PowerIn: PowerIn,
+			PowerOut: PowerOut,
 			ElasticInOut: ElasticInOut
 		},
 		Step: Step

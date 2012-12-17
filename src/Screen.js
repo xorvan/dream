@@ -71,13 +71,14 @@ dream.event.create(dream.VisualAsset.prototype, "onResize");
 dream.Screen.prototype.pause = function(){
 	var craf = this.cancelRequestAnimationFrameFunction;
 	craf(this._AFID);
+	this.isRendering = false;
 };
 
 dream.Screen.prototype.resume = function(){
 	this.render();
 };
 
-dream.Screen.prototype.render = function(){
+dream.Screen.prototype.render = function(){		
 	this.fc++;
 	dream.fc ++;
 	
@@ -94,8 +95,11 @@ dream.Screen.prototype.render = function(){
 	
 	this.checkHover(this.input.mouse);
 	
-	var screen = this, raf = this.requestAnimationFrameFunction; 
-	this._AFID = raf(function(){screen.render();});
+	if(!this.isRendering){
+		this.isRendering = true;
+		var screen = this, raf = this.requestAnimationFrameFunction; 
+		this._AFID = raf(function(){screen.isRendering = false;screen.render();});
+	}
 };
 
 dream.Screen.prototype.drawImageWithoutRedrawRegion = function(ctx, rect, drawRect) {
