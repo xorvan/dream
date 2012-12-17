@@ -59,6 +59,10 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 	window.addEventListener("resize", function(){
 		screen.updateSize();
 	},false);
+
+	window.addEventListener("orientationchange ", function(){
+		screen.updateSize();
+	},false);
 		
 }.inherits(dream.VisualAsset);
 
@@ -237,5 +241,5 @@ Object.defineProperty(dream.Screen.prototype, "frameRate", {
 dream.Screen.scaleModes = {
 	EXACTFIT: 0,
 	SHOWALL: 1,
-	NOBORDER: 2,
+	NOBORDER: 2
 };

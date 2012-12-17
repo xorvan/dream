@@ -152,7 +152,7 @@ var interpolators = {
 				return function(x) {
 					if (x==0 || x==1) return x;
 					var s = period/pi2*Math.asin(1/amplitude);
-					return -(amplitude*Math.pow(2,10*(x-=1))*Math.sin((x-s)*pi2/period));};},
+					return -(amplitude*Math.pow(2,10*(x-=1))*Math.sin((x-s)*pi2/period));};}
 
 		//backIn: function (val) {return function(x){return };}
 
