@@ -225,6 +225,8 @@ dream.Screen.prototype.updateSize = function() {
 		this.scenes.current.height = this.height;
 		dream.event.dispatch(this.scenes.current, "onResize");
 	}
+	
+	this.redrawRegions.add(new dream.Rect(0,0, screen.width, screen.height));
 
 	dream.event.dispatch(this, "onResize");
 };
