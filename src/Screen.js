@@ -4,7 +4,7 @@
 dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleMode){
 	var screen = this;
 	
-	this.scaleMode = dream.Screen.scaleModes.SHOWALL;
+	this.scaleMode = dream.Screen.ScaleMode.SHOW_ALL;
 	if(scaleMode != undefined) this.scaleMode = scaleMode;
 
 	this.fc = 0;
@@ -196,7 +196,7 @@ dream.Screen.prototype.updateSize = function() {
 	this.scaleY = this.canvas.offsetHeight / this.height;
 	
 	if(this.scaleMode && this.scaleX != this.scaleY){
-		if(this.scaleMode == dream.Screen.scaleModes.SHOWALL){
+		if(this.scaleMode == dream.Screen.ScaleMode.SHOW_ALL){
 			if(this.scaleX < this.scaleY){
 				this.height = this.canvas.offsetHeight / this.scaleX; 
 			}else{
@@ -252,8 +252,8 @@ Object.defineProperty(dream.Screen.prototype, "orientation", {
 	}
 });
 
-dream.Screen.scaleModes = {
-	EXACTFIT: 0,
-	SHOWALL: 1,
-	NOBORDER: 2
+dream.Screen.ScaleMode = {
+	EXACT_FIT: 0,
+	SHOW_ALL: 1,
+	NO_BORDER: 2
 };

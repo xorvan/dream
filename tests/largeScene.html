@@ -87,16 +87,16 @@ html,body {
 
 			test.scenes.current = scene;
 			
-			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.anchorX += Math.min(i,10);}, dream.input.key.RIGHT));
-			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.anchorX -= Math.min(i,10);}, dream.input.key.LEFT));
-			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.anchorY -= Math.min(i,10);}, dream.input.key.UP));
-			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.anchorY += Math.min(i,10);}, dream.input.key.DOWN));
+			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.anchorX += Math.min(i,10);}, dream.input.Key.RIGHT));
+			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.anchorX -= Math.min(i,10);}, dream.input.Key.LEFT));
+			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.anchorY -= Math.min(i,10);}, dream.input.Key.UP));
+			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.anchorY += Math.min(i,10);}, dream.input.Key.DOWN));
 			
-			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.camera.rotation += Math.min(i,5);}, dream.input.key.SLASH));
-			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.camera.rotation -= Math.min(i,5);}, dream.input.key.ASTERISK));
+			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.camera.rotation += Math.min(i,5);}, dream.input.Key.SLASH));
+			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.camera.rotation -= Math.min(i,5);}, dream.input.Key.ASTERISK));
 			
-			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.camera.scale += i/100;}, dream.input.key.PLUS));
-			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.camera.scale -= i/100;}, dream.input.key.MINUS));
+			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.camera.scale += i/100;}, dream.input.Key.PLUS));
+			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.camera.scale -= i/100;}, dream.input.Key.MINUS));
 			
 			stats=new Stats();
 			stats.getDomElement().style.position = 'absolute';

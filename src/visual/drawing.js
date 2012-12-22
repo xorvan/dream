@@ -9,6 +9,7 @@ dream.visual.drawing = {};
 dream.visual.drawing.Shape = function(left, top, width, height){
 	dream.visual.drawing.Shape._superClass.call(this, left, top, width, height);
 	
+	this.strokeOffset = 1;
 }.inherits(dream.visual.Graphic);
 
 Object.defineProperty(dream.visual.drawing.Shape.prototype, "fillStyle", {
@@ -23,7 +24,7 @@ Object.defineProperty(dream.visual.drawing.Shape.prototype, "fillStyle", {
 		dream.event.dispatch(this, "onImageChange", [this.boundary.clone()]);
 		
 		if(this._fs instanceof dream.visual.drawing.Style)
-			this._fs.onChange.propagate(this, "onImageChange", function(){return [this.boundary.clone()];});
+			this._fs.onChange.propagateFlagged(this, "isImageChanged");
 	}
 });
 
@@ -39,7 +40,37 @@ Object.defineProperty(dream.visual.drawing.Shape.prototype, "strokeStyle", {
 		dream.event.dispatch(this, "onImageChange", [this.boundary.clone()]);
 		
 		if(this._ss instanceof dream.visual.drawing.Style)
-			this._ss.onChange.propagate(this, "onImageChange", function(){return [this.viewRect.clone()];});
+			this._ss.onChange.propagateFlagged(this, "isImageChanged");
+	}
+});
+
+dream.visual.drawing.Shape.prototype._setStrokeOffset = function(w){
+	var d = (((w + 1) / 2) | 0) - this.strokeOffset;
+	this.strokeOffset += d;
+	if(d){
+		this.rect.left -= d;
+		this.rect.top -= d;
+		this.rect.width += d * 2;
+		this.rect.height += d * 2;
+		this.isBoundaryChanged = true;
+	}	
+};
+
+Object.defineProperty(dream.visual.drawing.Shape.prototype, "lineStyle", {
+	get: function() {
+		return this._ls;
+	},
+	set: function(v){
+		dream.util.assert(v instanceof dream.visual.drawing.LineStyle, "lineStyle must be LineStyle!");
+		this._ls = v;
+		this.isImageChanged = true;
+		
+		this._setStrokeOffset(v.width);
+		var shape = this;
+		this._ls.onChange.add(function(){
+			shape._setStrokeOffset(v.width);
+			shape.isImageChanged = true;
+		});
 	}
 });
 
@@ -47,18 +78,16 @@ Object.defineProperty(dream.visual.drawing.Shape.prototype, "strokeStyle", {
 dream.visual.drawing.Shape.prototype.drawImage = function(context, origin){
 	var r = this.rect;
 	if(this._fs) context.fillStyle = this._fs instanceof dream.visual.drawing.Style ? this._fs.createStyle(context, new dream.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._fs;
-	if(this._ss) {
-		if (this._ss instanceof dream.visual.drawing.Style){
-			context.strokeStyle = this._ss.createStyle(context, this.rect);
-			if (this._ss instanceof dream.visual.drawing.strokeStyle){
-				context.lineWidth=this._ss._width;
-				context.lineCap=this._ss._cap;
-				context.lineJoin=this._ss._join;
-				if (this._ss._join == "miter")
-					context.miterLimit= this._ss._miterLimit;
-			}}
-		else context.strokeStyle = this._ss;
+	if(this._ss) context.strokeStyle = this._ss instanceof dream.visual.drawing.Style ? this._ss.createStyle(context, new dream.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._ss;
+		
+	if(this._ls){
+		context.lineWidth=this._ls._width;
+		context.lineCap=this._ls._cap;
+		context.lineJoin=this._ls._join;
+		if (this._ls._join == dream.visual.drawing.LineStyle.Join.MITER)
+			context.miterLimit= this._ls._miterLimit;
 	}
+
 };
 
 /**
@@ -354,43 +383,32 @@ dream.util.createEventProperty(dream.visual.drawing.Color.prototype,"alpha","onC
 /**
  * @constructor
  */
-dream.visual.drawing.strokeStyle = function(style, width, cap, join, miterLimit){
-	this._style=style || "#000";
-	this._width=width || 1;
-	this._cap=cap || "butt";
-	this._join = join || "miter";
+dream.visual.drawing.LineStyle = function(width, cap, join, miterLimit){
+	this._width = width || 1;
+	this._cap = cap || dream.visual.drawing.LineStyle.Cap.BUTT;
+	this._join = join || dream.visual.drawing.LineStyle.Join.MITER;
 	this._miterLimit = miterLimit || 10;
-	
-	if (this._style instanceof dream.visual.drawing.Style)
-		this._style.onChange.propagate(this);
-	
-}.inherits(dream.visual.drawing.Style);
-
-dream.visual.drawing.strokeStyle.prototype.createStyle=function(context, rect){
-	return this._style instanceof dream.visual.drawing.Style ? this._style.createStyle(context, rect):this._style;
 	
 };
 
-Object.defineProperty(dream.visual.drawing.strokeStyle.prototype, "style", {
-	get: function() {
-		return this._style;
-	},
-	set: function(v){
-		if (this._style instanceof dream.visual.drawing.Style) 
-			this._style.onChange.removeByOwner(this);
-		this._style = v;
-		if (this._style instanceof dream.visual.drawing.Style) 
-			this._style.onChange.propagate(this);
-		dream.event.dispatch(this, "onChange");
-	}
-});
+dream.event.create(dream.visual.drawing.LineStyle.prototype, "onChange");
 
-dream.util.createEventProperty(dream.visual.drawing.strokeStyle.prototype,"width","onChange");
-dream.util.createEventProperty(dream.visual.drawing.strokeStyle.prototype,"cap","onChange");
-dream.util.createEventProperty(dream.visual.drawing.strokeStyle.prototype,"join","onChange");
-dream.util.createEventProperty(dream.visual.drawing.strokeStyle.prototype,"miterLimit","onChange");
+dream.util.createEventProperty(dream.visual.drawing.LineStyle.prototype,"width","onChange");
+dream.util.createEventProperty(dream.visual.drawing.LineStyle.prototype,"cap","onChange");
+dream.util.createEventProperty(dream.visual.drawing.LineStyle.prototype,"join","onChange");
+dream.util.createEventProperty(dream.visual.drawing.LineStyle.prototype,"miterLimit","onChange");
 
+dream.visual.drawing.LineStyle.Cap = {
+	BUTT: "butt",
+	ROUND: "round",
+	SQUARE: "square"
+};
 
+dream.visual.drawing.LineStyle.Join = {
+	ROUND: "round",
+	BEVEL: "bevel",
+	MITER: "miter"
+};
 
 /**
  * @constructor

@@ -11,8 +11,8 @@ init = function(){
 	
 	gameScreen = new dream.Screen(document.getElementById("mainCanvas"), 640, 400, 640, 1200);
 	
-	gameScreen.keyBindings.add(new dream.input.KeyBinding(function(i){jumper.left += Math.min(i,10);}, dream.input.key.RIGHT));
-	gameScreen.keyBindings.add(new dream.input.KeyBinding(function(i){jumper.left -= Math.min(i,10);}, dream.input.key.LEFT));
+	gameScreen.keyBindings.add(new dream.input.KeyBinding(function(i){jumper.left += Math.min(i,10);}, dream.input.Key.RIGHT));
+	gameScreen.keyBindings.add(new dream.input.KeyBinding(function(i){jumper.left -= Math.min(i,10);}, dream.input.Key.LEFT));
 	
 	jumper = new Jumper();
 	jumper.behaviours.add(new dream.behaviour.LeftBounded(0+jumper.radius,640-jumper.radius));

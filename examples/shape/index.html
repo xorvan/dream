@@ -76,7 +76,8 @@ html,body {
 			scene.assets.add(p2, 'p2');
 			
 			p5 = new drawing.Poly(100,100,80,6);
-			p5.strokeStyle = new drawing.strokeStyle(new drawing.Color("#5f6"),5,"butt");
+			p5.strokeStyle = new drawing.Color("#5f6");
+			p5.lineStyle = new drawing.LineStyle(5,drawing.LineStyle.Cap.BUTT);
 			
 			p5.tweens.add(new Tween({left: 500, scale: 0.5},200, new interpolator.ElasticInOut(1, 0.4), true));
 			scene.assets.add(p5, 'p5');

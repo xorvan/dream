@@ -44,7 +44,7 @@ CompositeEnemy = function(left, top){
 }.inherits(dream.visual.Composite);
 
 function init(){
-	exp = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 800, 600, dream.Screen.scaleModes.SHOWALL );
+	exp = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 800, 600, dream.Screen.ScaleMode.SHOW_ALL );
 	
 	world = new dream.scenery.Scene();
 	
@@ -142,19 +142,19 @@ function init(){
 	
 	exp.scenes.add(world, "world");	
 	exp.scenes.current = world;//| exp.scenes.select("world");
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.anchorX += Math.min(i,10);}, dream.input.key.RIGHT));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.anchorX -= Math.min(i,10);}, dream.input.key.LEFT));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.anchorY -= Math.min(i,10);}, dream.input.key.UP));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.anchorY += Math.min(i,10);}, dream.input.key.DOWN));
+	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.anchorX += Math.min(i,10);}, dream.input.Key.RIGHT));
+	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.anchorX -= Math.min(i,10);}, dream.input.Key.LEFT));
+	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.anchorY -= Math.min(i,10);}, dream.input.Key.UP));
+	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.anchorY += Math.min(i,10);}, dream.input.Key.DOWN));
 	
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.camera.rotation += Math.min(i,5);}, dream.input.key.SLASH));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.camera.rotation -= Math.min(i,5);}, dream.input.key.ASTERISK));
+	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.camera.rotation += Math.min(i,5);}, dream.input.Key.SLASH));
+	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.camera.rotation -= Math.min(i,5);}, dream.input.Key.ASTERISK));
 	
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.camera.scale += i/100;}, dream.input.key.PLUS));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.camera.scale -= i/100;}, dream.input.key.MINUS));
+	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.camera.scale += i/100;}, dream.input.Key.PLUS));
+	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.camera.scale -= i/100;}, dream.input.Key.MINUS));
 	
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){paper.rotation += i;}, dream.input.key.Q));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){paper.rotation -= i;}, dream.input.key.W));
+	exp.keyBindings.add(new dream.input.KeyBinding(function(i){paper.rotation += i;}, dream.input.Key.Q));
+	exp.keyBindings.add(new dream.input.KeyBinding(function(i){paper.rotation -= i;}, dream.input.Key.W));
 
 	
 	stats=new Stats();

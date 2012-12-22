@@ -258,6 +258,12 @@ dream.util.EventDispatcher.prototype.propagate = function(target, event){
 	target);
 };
 
+dream.util.EventDispatcher.prototype.propagateFlagged = function(target, flag){
+	return this.add(function(){
+		target["flag"] = true;
+	});
+};
+
 /**
  * @constructor
  */

@@ -95,7 +95,7 @@ dream.input.KeyBinding = function(fn, key){
 	this.key = key;
 };
 
-dream.input.key = {
+dream.input.Key = {
 	'LEFT' : 37,
 	'TAB':9,
 	'UP' : 38,
