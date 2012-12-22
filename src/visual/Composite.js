@@ -49,23 +49,24 @@ dream.visual.Composite.prototype.addToRect = function(g){
 
 
 dream.visual.Composite.prototype.step = function (){
+	dream.visual.Composite._superClass.prototype.step.call(this);
+	
 	this.renderList.forEach(function(g){
 		g.step();
 	});
 	
 	if(this.redrawRegions.length){
-		dream.event.dispatch(this, "onImageChange", this.redrawRegions.map(function(r){return this.rect.transformation.projectRect(r).boundary}, this) );
+		dream.event.dispatch(this, "onImageChange", this.redrawRegions.map(function(r){return this.rect.transformation.projectRect(r).boundary;}, this) );
 		this.redrawRegions.clear();
 	}
 	
-	dream.visual.Composite._superClass.prototype.step.call(this);
 }; 
 
 dream.visual.Composite.prototype.drawImage = function(ctx, origin, drawRect) {
 	for(var zi in this.renderList.index.z){
 		this.renderList.index.z[zi].forEach(function(g){
 			if(g.boundary.hasIntersectWith(drawRect)){
-				g.draw(ctx, new dream.Point(0, 0), g.rect.transformation.unprojectRect(drawRect).boundary);
+				g.draw(ctx, origin, g.rect.transformation.unprojectRect(drawRect).boundary);
 			}
 		});		
 	}

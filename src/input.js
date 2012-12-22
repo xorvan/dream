@@ -73,6 +73,12 @@ dream.input.InputHandler = function(screen){
 		dream.event.dispatch(screen, "onKeyUp");
 	}, false);
 	
+	if (window.DeviceMotionEvent){
+		window.addEventListener("devicemotion",function(e){
+			dream.event.dispatch(screen, "onDeviceMotion", e);
+		}, false);
+	}
+	
 };
 
 dream.input.InputHandler.prototype = {

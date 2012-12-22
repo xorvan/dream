@@ -45,7 +45,8 @@ Object.defineProperty(dream.visual.drawing.Shape.prototype, "strokeStyle", {
 
 
 dream.visual.drawing.Shape.prototype.drawImage = function(context, origin){
-	if(this._fs) context.fillStyle = this._fs instanceof dream.visual.drawing.Style ? this._fs.createStyle(context, this.rect) : this._fs;
+	var r = this.rect;
+	if(this._fs) context.fillStyle = this._fs instanceof dream.visual.drawing.Style ? this._fs.createStyle(context, new dream.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._fs;
 	if(this._ss) {
 		if (this._ss instanceof dream.visual.drawing.Style){
 			context.strokeStyle = this._ss.createStyle(context, this.rect);
@@ -84,8 +85,7 @@ Object.defineProperty(dream.visual.drawing.Shape.prototype, "width", {
 		return this._width;
 	},
 	set: function(v){
-		var d = v - this._width;		
-		this.rect.width += d;
+		this.rect.width = v;
 		this._width = v;
 		this.isImageChanged = true;
 		this.isBoundaryChanged = true;
@@ -97,8 +97,7 @@ Object.defineProperty(dream.visual.drawing.Shape.prototype, "height", {
 		return this._height;
 	},
 	set: function(v){
-		var d = v - this._height;		
-		this.rect.height += d;
+		this.rect.height = v;
 		this._height = v;
 		this.isImageChanged = true;
 		this.isBoundaryChanged = true;
@@ -119,8 +118,8 @@ Object.defineProperty(dream.visual.drawing.CircularShape.prototype, "radius", {
 	},
 	set: function(v){
 		this._radius = v;
-		this.rect.width = this.rect.height = v*2;
-		this.rect.left = this.rect.top = - v;
+		this.rect.width = this.rect.height = v*2 + 2;
+		this.rect.left = this.rect.top = - v - 1;
 		this.isBoundaryChanged=true;
 		this.isImageChanged=true;
 	}
