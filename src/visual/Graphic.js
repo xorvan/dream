@@ -18,6 +18,10 @@ dream.visual.Graphic = function(left, top){
 		graphic.isImageChanged = true;
 		graphic.isBoundaryChanged = true;
 	});
+
+	this.rect.transformation.onPositionChange.add(function(){
+		graphic.isPositionChanged = true;
+	});
 	
 	this.visible = true;
 	
@@ -60,8 +64,8 @@ dream.event.create(dream.visual.Graphic.prototype, "onZChange");
 dream.visual.Graphic.prototype.selectionThreshold = 4;
 
 dream.visual.Graphic.prototype.draw = function(ctx, origin, drawRect) {
-	ctx.save();
-	ctx.globalAlpha = this.alpha;
+	ctx.save();	
+	if(this.a != 1) ctx.globalAlpha = this.alpha;
 //	var m = this.rect.transformation.matrix;
 //	ctx.transform(m.x0, m.y0, m.x1, m.y1, m.dx|0, m.dy |0);
 	var o = this.rect.transformation.apply(ctx, origin);
@@ -90,9 +94,25 @@ dream.visual.Graphic.prototype.step = function (){
 			this.isImageChanged = false;
 		}
 		
-		dream.event.dispatch(this, "onBoundaryChange", this.oldBoundary);
-		this.oldBoundary = this.boundary.clone();
+		if(!this.boundary.isEqualWith(this.oldBoundary)){
+			dream.event.dispatch(this, "onBoundaryChange", this.oldBoundary);
+			this.oldBoundary = this.boundary.clone();
+		}
+		
 		this.isBoundaryChanged = false;
+	}else if(this.isPositionChanged){
+		this.boundary = this.rect.boundary;
+		
+		if(!this.boundary.isEqualWith(this.oldBoundary)){
+			dream.event.dispatch(this, "onBoundaryChange", this.oldBoundary);
+			dream.event.dispatch(this, "onImageChange", this.boundary.hasIntersectWith(this.oldBoundary) ? [this.boundary.add(this.oldBoundary)] : [this.boundary, this.oldBoundary]);
+			this.oldBoundary = this.boundary.clone();
+		}else if(this.isImageChanged){
+			dream.event.dispatch(this, "onImageChange", this.boundary.hasIntersectWith(this.oldBoundary) ? [this.boundary.add(this.oldBoundary)] : [this.boundary, this.oldBoundary]);
+		}
+		this.isPositionChanged = false;
+		this.isImageChanged = false;
+		
 	}else if(this.isImageChanged){
 		dream.event.dispatch(this, "onImageChange", [this.boundary]);
 		this.isImageChanged = false;
@@ -101,9 +121,8 @@ dream.visual.Graphic.prototype.step = function (){
 }; 
 
 dream.visual.Graphic.prototype.checkHover = function (p){
-	var pl = this.rect.transformation.unproject(p); 
-	var x = pl.left, y = pl.top;
-	if(pl.isIn(this.rect) && this.image.data[ (((y|0) - this.rect.top) * this.rect.width + (x|0) - this.rect.left)*4 + 3 ] > this.selectionThreshold){
+	var pl = this.rect.transformation.unproject(p);
+	if(pl.isIn(this.rect) && this.image.data[ (((pl.top|0) - this.rect.top) * this.rect.width + ( pl.left|0) - this.rect.left)*4 + 3 ] > this.selectionThreshold){
 		if(!this.isHovered) dream.event.dispatch(this, "onMouseOver");
 		this.isHovered = true;
 		return true;
@@ -277,7 +296,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "z", {
 
 Object.defineProperty(dream.visual.Graphic.prototype, "image", {
 	get: function() {
-		var buffer = this. _bb = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
+		var buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
 
 		this.drawImage(buffer.context, new dream.Point(-this.rect.left, -this.rect.top));
 		return buffer.context.getImageData(0, 0, this.rect.width, this.rect.height);

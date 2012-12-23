@@ -199,6 +199,11 @@ dream.Rect.prototype.covers = function(rect){
 		this.top <= rect.top && this.bottom >= rect.bottom;
 };
 
+dream.Rect.prototype.isEqualWith = function(rect){
+	return this.left == rect.left && this.width == rect.width &&
+		this.top == rect.top && this.height == rect.height;
+};
+
 dream.Rect.prototype.add = function(rect){
 	var r = new dream.Rect(this.left<rect.left?this.left:rect.left, this.top<rect.top?this.top:rect.top);
 	r.width = (this.right>rect.right?this.right:rect.right) - r.left;

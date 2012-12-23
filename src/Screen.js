@@ -92,10 +92,9 @@ dream.Screen.prototype.render = function(){
 		this.input.downKeys[k]++;
 	}
 
-	//this.scenes.current.draw(this.context, this.scenes.current.rect, this.scenes.current.viewport);
-	this.drawImage(this.context, this.scenes.current.origin, new dream.Rect(0,0, this.width, this.height));
+	this.drawImage(this.context, new dream.Point, new dream.Rect(0,0, this.width, this.height));
 	
-	this.checkHover(this.input.mouse);
+//	this.checkHover(this.input.mouse);
 	
 	if(!this.isRendering){
 		this.isRendering = true;
@@ -108,7 +107,7 @@ dream.Screen.prototype.drawImageWithoutRedrawRegion = function(ctx, rect, drawRe
 	var scene = this.scenes.current;
 	scene.step();
 	ctx.clearRect(0,0,drawRect.width, drawRect.height);
-	scene.draw(ctx, new dream.Rect(scene.rect.left, scene.rect.top, scene.rect.width, scene.rect.height), scene.rect.transformation.unprojectRect(drawRect).boundary);
+	scene.draw(ctx, new dream.Point, scene.rect.transformation.unprojectRect(drawRect).boundary);
 };
 
 dream.Screen.prototype.drawImageWithClippingRedrawRegion = function(ctx, origin, drawRect) {
@@ -125,7 +124,7 @@ dream.Screen.prototype.drawImageWithClippingRedrawRegion = function(ctx, origin,
 			ctx.closePath();
 			rgCount++;
 			ctx.clearRect(rg.left, rg.top, rg.width, rg.height);
-			scene.draw(ctx, new dream.Point(0, 0), scene.rect.transformation.unprojectRect(rg).boundary);
+			scene.draw(ctx, origin, scene.rect.transformation.unprojectRect(rg).boundary);
 			ctx.restore();
 			//console.log(rr+"");
 		}
@@ -148,7 +147,7 @@ dream.Screen.prototype.drawImageWithBufferdRedrawRegion = function(ctx, rect, dr
 			rb.canvas.height = rg.height;
 			rgCount++;
 			ctx.clearRect(rg.left, rg.top, rg.width, rg.height);
-			scene.draw(rb.context, new dream.Rect(scene.rect.left - rg.left, scene.rect.top - rg.top, scene.rect.width, scene.rect.height), scene.rect.transformation.unprojectRect(rg));
+			scene.draw(rb.context, new dream.Point(-rg.left, -rg.top), scene.rect.transformation.unprojectRect(rg));
 			ctx.drawImage(rb.canvas, 0, 0, rg.width, rg.height, rg.left, rg.top, rg.width, rg.height);
 			//console.log(rr+"");
 		}

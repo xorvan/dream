@@ -56,6 +56,7 @@ var Transformation = function(){
 var $ = Transformation.prototype;
 
 dream.event.create($, "onChange");
+dream.event.create($, "onPositionChange");
 
 Object.defineProperty($, "matrix", {
 	get : function () {
@@ -125,8 +126,8 @@ var Translation = function(left, top){
 }.inherits(Transformation);
 var $ = Translation.prototype;
 
-dream.util.createEventFlagProperty($, "left");
-dream.util.createEventFlagProperty($, "top");
+dream.util.createEventFlagProperty($, "left", "onPositionChange");
+dream.util.createEventFlagProperty($, "top", "onPositionChange");
 
 Object.defineProperty($, "hasTransform", {
 	get : function () {
@@ -266,7 +267,8 @@ var Composite = function(transformations){
 	this.transformations = new dream.util.ArrayList;
 	this.transformations.onAdd.add(function(obj){
 		obj.onChange.propagate(composite);
-		obj.onChange.add(function(){composite.isChanged = true;});
+		obj.onPositionChange.propagate(composite);
+		obj.onChange.add(obj.onPositionChange.add(function(){composite.isChanged = true;}));
 		dream.event.dispatch(composite, "onChange");
 		composite.isChanged = true;
 	});
@@ -291,7 +293,7 @@ Object.defineProperty($, "hasTransform", {
 $.updateMatrix = function(){
 	var r = this.transformations[0];
 	for (var i=1, m; m = this.transformations[i]; i++ )
-		if(r.hasTransform) r = r.compose(m);
+		if(m.hasTransform) r = r.compose(m);
 	
 	this._matrix = r && r.matrix || new Matrix();
 };

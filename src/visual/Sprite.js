@@ -16,11 +16,9 @@ dream.visual.Sprite = function(frameSet, left, top, width, height){
 			sprite.animStep = sprite.steps.add(
 					new dream.visual.animation.Step(function(){
 						fs.frames.next();
-						var sw = sprite.rect.width, 
-							fw = fs.frames.current.width, 
-							sh = sprite.rect.height, 
+						var	fw = fs.frames.current.width, 
 							fh = fs.frames.current.height; 
-						if(sw != fw || sh != fh){
+						if(sprite.rect.width != fw || sprite.rect.height != fh){
 							sprite.rect.width = fw; 
 							sprite.rect.height = fh; 
 							sprite.isBoundaryChanged = true; 

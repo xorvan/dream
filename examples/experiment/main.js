@@ -163,6 +163,6 @@ function init(){
 	stats.getDomElement().style.top = '0px';
 	document.getElementById("container").appendChild(stats.getDomElement() );
 	var stp=new dream.visual.animation.Step(function(){stats.update();});
-	enemy.steps.add(stp);
+	world.steps.add(stp);
 };
 

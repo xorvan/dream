@@ -66,7 +66,7 @@ dream.visual.Composite.prototype.drawImage = function(ctx, origin, drawRect) {
 	for(var zi in this.renderList.index.z){
 		this.renderList.index.z[zi].forEach(function(g){
 			if(g.boundary.hasIntersectWith(drawRect)){
-				g.draw(ctx, origin, g.rect.transformation.unprojectRect(drawRect).boundary);
+				g.draw(ctx, origin, g.rect);
 			}
 		});		
 	}

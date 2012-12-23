@@ -260,7 +260,7 @@ dream.util.EventDispatcher.prototype.propagate = function(target, event){
 
 dream.util.EventDispatcher.prototype.propagateFlagged = function(target, flag){
 	return this.add(function(){
-		target["flag"] = true;
+		target[flag] = true;
 	});
 };
 
