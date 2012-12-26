@@ -4,12 +4,6 @@
  */
 dream.visual.Graphic = function(left, top){	
 	this.a = 1;
-	this.r = 0;
-	this.sx = 1;
-	this.sy = 1;
-	this.ax = 0;
-	this.ay = 0;
-	
 	this._z = 0;
 	
 	this.anchor = new dream.Point();
@@ -32,8 +26,8 @@ dream.visual.Graphic = function(left, top){
 	
 	this.steps = new dream.util.ArrayList();
 	this.tweens = new dream.util.ArrayList();
+	this.behaviours = new dream.util.ArrayList();
 	
-	var graphic = this;
 	this.tweens.onAdd.add(function(tween){
 		tween.host = graphic; 
 		graphic.steps.add(tween.step);
@@ -44,6 +38,15 @@ dream.visual.Graphic = function(left, top){
 	
 	this.tweens.onRemove.add(function(tween){
 		graphic.steps.remove(tween.step);
+	});
+	
+	this.behaviours.onAdd.add(function(behaviour){
+		behaviour.obj = graphic;
+		behaviour.enable();
+	});
+	
+	this.behaviours.onRemove.add(function(behaviour){
+		behaviour.disable();
 	});
 	
 	this.buffer = null;
@@ -59,9 +62,11 @@ dream.visual.Graphic.prototype.selectionThreshold = 4;
 dream.visual.Graphic.prototype.draw = function(ctx, origin, drawRect) {
 	ctx.save();
 	ctx.globalAlpha = this.alpha;
-	var m = this.rect.transformation.matrix;
-	ctx.transform(m.x0, m.y0, m.x1, m.y1, m.dx, m.dy);
-	this.drawImage(ctx, origin, drawRect);
+//	var m = this.rect.transformation.matrix;
+//	ctx.transform(m.x0, m.y0, m.x1, m.y1, m.dx|0, m.dy |0);
+	var o = this.rect.transformation.apply(ctx, origin);
+//	o.left |= 0, o.top |= 0;
+	this.drawImage(ctx, o, drawRect);
 	ctx.restore();
 };
 
@@ -176,13 +181,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "left", {
 	},
 	set : function(v) {
 		this.origin.left = v;
-		this.rect.transformation.left = v;
-		
-//		var d = v - this.origin.left;
-//		this.boundary.left += d;
-//		
-//		this.isImageChanged = true;
-//		this.isBoundaryChanged = true;
+		this.rect.transformation.left = v;		
 	}
 });
 
@@ -193,11 +192,6 @@ Object.defineProperty(dream.visual.Graphic.prototype, "top", {
 	set : function(v) {
 		this.origin.top = v;
 		this.rect.transformation.top = v;
-		
-//		var d = v - this.origin.top;
-//		this.boundary.top += d;
-//		this.isImageChanged = true;
-//		this.isBoundaryChanged = true;
 	}
 });
 
@@ -207,9 +201,6 @@ Object.defineProperty(dream.visual.Graphic.prototype, "rotation", {
 	},
 	set : function(v) {
 		this.rect.transformation.rotation = v;
-
-//		this.isImageChanged = true;
-//		this.calcBoundary();
 	}
 });
 
@@ -229,9 +220,6 @@ Object.defineProperty(dream.visual.Graphic.prototype, "scaleX", {
 	},
 	set : function(v) {
 		this.rect.transformation.scaleX = v;
-		
-//		this.isImageChanged = true;
-//		this.calcBoundary();
 	}
 });
 
@@ -241,9 +229,6 @@ Object.defineProperty(dream.visual.Graphic.prototype, "scaleY", {
 	},
 	set : function(v) {
 		this.rect.transformation.scaleY = v;
-
-		//		this.isImageChanged = true;
-//		this.calcBoundary();
 	}
 });
 
@@ -254,9 +239,6 @@ Object.defineProperty(dream.visual.Graphic.prototype, "scale", {
 	set : function(v) {
 		this.rect.transformation.scaleX = v;
 		this.rect.transformation.scaleY = v;
-		
-//		this.isImageChanged = true;
-//		this.calcBoundary();
 	}
 });
 
@@ -266,9 +248,6 @@ Object.defineProperty(dream.visual.Graphic.prototype, "anchorX", {
 	},
 	set : function(v) {
 		this.rect.transformation.anchorX = v;
-
-//		this.isImageChanged = true;
-//		this.calcBoundary();
 	}
 });
 
@@ -278,9 +257,6 @@ Object.defineProperty(dream.visual.Graphic.prototype, "anchorY", {
 	},
 	set : function(v) {
 		this.rect.transformation.anchorY = v;
-
-//		this.isImageChanged = true;
-//		this.calcBoundary();
 	}
 });
 

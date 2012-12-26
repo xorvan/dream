@@ -9,95 +9,75 @@ var drawing = dream.visual.drawing,
 
 init = function(){
 	
-	gameScreen = new dream.Screen(document.getElementById("mainCanvas"), 640, 640, 640, 1200);
-		
+	gameScreen = new dream.Screen(document.getElementById("mainCanvas"), 640, 400, 640, 1200);
 	
-	gameScreen.keyBindings.add(new dream.input.KeyBinding(function(i){jumper.left += Math.min(i,10);}, dream.input.key.RIGHT));
-	gameScreen.keyBindings.add(new dream.input.KeyBinding(function(i){jumper.left -= Math.min(i,10);}, dream.input.key.LEFT));
+	gameScreen.keyBindings.add(new dream.input.KeyBinding(function(i){jumper.left += Math.min(i,10);}, dream.input.Key.RIGHT));
+	gameScreen.keyBindings.add(new dream.input.KeyBinding(function(i){jumper.left -= Math.min(i,10);}, dream.input.Key.LEFT));
 	
-	if (window.DeviceMotionEvent){
-		// Position Variables
-		var x = 0;
-		   
-		// Speed - Velocity
-		var vx = 0;
-		  
-		// Acceleration
-		var ax = 0;
-		   
-		var delay = 10;
-		var vMultiplier = 0.05;
-		
-		window.ondevicemotion = function(event) {
-	   	 
-			ax = window.orientation ? event.accelerationIncludingGravity.y : event.accelerationIncludingGravity.x;
-		};
-	 	
-		setInterval(function() {
-			vx = ax *3;
-	 
-			x = parseInt(x + vx);
-			
-			if (x - jumper.radius < 0) { x = jumper.radius; vx = 0; }
-			if (x + jumper.radius > gameScreen.width) { x = gameScreen.width - jumper.radius; vx = 0; }
-			
-			jumper.left = x;
-		}, delay);
-
-//		setInterval(function() {
-//		vx = vx + ax;
-// 
-//		x = parseInt(x + vx * vMultiplier);
-//		
-//		if (x - jumper.radius < 0) { x = jumper.radius; vx = 0; }
-//		if (x + jumper.radius > gameScreen.width) { x = gameScreen.width - jumper.radius; vx = 0; }
-//		
-//		jumper.left = x;
-//	}, delay);
-
-	}
+	jumper = new Jumper();
+	jumper.behaviours.add(new dream.behaviour.LeftBounded(0+jumper.radius,640-jumper.radius));
+	classicScene = null;
+	
+	gameScreen.onDeviceMotion.add(function(event){
+		var a = this.orientation ? event.accelerationIncludingGravity.y : event.accelerationIncludingGravity.x;
+		jumper.behaviours.moving.vx = a * 3;
+	});
 	
 	startGame();
 	
 };
 
 
-startGame = function(){
-	level1 = new dream.scenery.Scene;
-	level1.onResize.add(function(){
+startGame = function(){	
+	classicScene = new ClassicScene(jumper, gameScreen);
+	classicScene.onGameOver.add(function(){
+		startGame();
+	});
+	
+	gameScreen.scenes.current = classicScene;
+	jumper.jump();
+};
+
+ClassicScene = function(jumper, gameScreen){
+	dream.scenery.Scene.call(this);
+	
+	this.top = gameScreen.height;
+	this.onResize.add(function(){
 		this.top = gameScreen.height;
 	});
 	
-	level1.assets.add(jumper = new Jumper(100, 0), "jumper");
+	jumper.tweens.clear();
+	jumper.top = 0;
+	jumper.left = 320;
+	this.assets.add(jumper, "jumper");
 	
-	barManager = new BarManager(level1);
+	this.barManager = new BarManager(this);
 	
-	barManager.altitude = 0;
+	this.barManager.altitude = 0;
 	
-	level1.steps.add(new Step(function(){
+	this.steps.add(new Step(function(){
 		if(!jumper.stat){
-			for(var i=0, bar; bar = barManager.bars[i]; i++){
+			for(var i=0, bar; bar = this.barManager.bars[i]; i++){
 				if(jumper.boundary.right > bar.boundary.left && jumper.boundary.left < bar.boundary.right && Math.abs(bar.boundary.top - jumper.boundary.bottom) < 10){
-					console.log(Math.abs(bar.boundary.top - jumper.boundary.bottom));
-					jumper.top = bar.boundary.top;
+					jumper.top = bar.top;
 					jumper.jump();
 					break;
 				}			
 			}
-			if(jumper.boundary.top > level1.anchorY) startGame();
+			if(jumper.top - jumper.rect.height > this.anchorY) dream.event.dispatch(this, "onGameOver");
 		}else{
-			var y = jumper.top + 500;
-			if(y < level1.anchorY){
-				level1.anchorY = y;
-				barManager.altitude = -y;
+			var y = jumper.top + 400;
+			if(y < this.anchorY){
+				this.anchorY = y;
+				this.barManager.altitude = -y;
 			}
 		}
 	}));
 	
-	gameScreen.scenes.current = level1;
-		
-	jumper.jump();
-};
+}.inherits(dream.scenery.Scene);
+var $ = ClassicScene.prototype;
+
+dream.event.create($, "onGameOver");
 
 BarManager = function(scene){
 	this.bars = [];
@@ -107,7 +87,6 @@ BarManager = function(scene){
 	
 	this.scene = scene;
 };
-
 var $ = BarManager.prototype;
 
 $.generateBars = function(){

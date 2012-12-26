@@ -4,7 +4,7 @@
 dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleMode){
 	var screen = this;
 	
-	this.scaleMode = dream.Screen.scaleModes.SHOWALL;
+	this.scaleMode = dream.Screen.ScaleMode.SHOW_ALL;
 	if(scaleMode != undefined) this.scaleMode = scaleMode;
 
 	this.fc = 0;
@@ -36,6 +36,7 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 		//TODO: scene width & height
 		//scene.rect.width = screen.width;
 		//scene.rect.height = screen.height;
+		screen.hovered = null;
 		
 		dream.event.dispatch(scene, "onResize");
 		
@@ -67,6 +68,7 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 }.inherits(dream.VisualAsset);
 
 dream.event.create(dream.VisualAsset.prototype, "onResize");
+dream.event.create(dream.VisualAsset.prototype, "onDeviceMotion");
 
 dream.Screen.prototype.pause = function(){
 	var craf = this.cancelRequestAnimationFrameFunction;
@@ -123,7 +125,7 @@ dream.Screen.prototype.drawImageWithClippingRedrawRegion = function(ctx, origin,
 			ctx.closePath();
 			rgCount++;
 			ctx.clearRect(rg.left, rg.top, rg.width, rg.height);
-			scene.draw(ctx, new dream.Point(scene.origin.left, scene.origin.top), scene.rect.transformation.unprojectRect(rg).boundary);
+			scene.draw(ctx, new dream.Point(0, 0), scene.rect.transformation.unprojectRect(rg).boundary);
 			ctx.restore();
 			//console.log(rr+"");
 		}
@@ -194,7 +196,7 @@ dream.Screen.prototype.updateSize = function() {
 	this.scaleY = this.canvas.offsetHeight / this.height;
 	
 	if(this.scaleMode && this.scaleX != this.scaleY){
-		if(this.scaleMode == dream.Screen.scaleModes.SHOWALL){
+		if(this.scaleMode == dream.Screen.ScaleMode.SHOW_ALL){
 			if(this.scaleX < this.scaleY){
 				this.height = this.canvas.offsetHeight / this.scaleX; 
 			}else{
@@ -223,6 +225,8 @@ dream.Screen.prototype.updateSize = function() {
 		this.scenes.current.height = this.height;
 		dream.event.dispatch(this.scenes.current, "onResize");
 	}
+	
+	this.redrawRegions.add(new dream.Rect(0,0, screen.width, screen.height));
 
 	dream.event.dispatch(this, "onResize");
 };
@@ -242,8 +246,14 @@ Object.defineProperty(dream.Screen.prototype, "frameRate", {
 	}
 });
 
-dream.Screen.scaleModes = {
-	EXACTFIT: 0,
-	SHOWALL: 1,
-	NOBORDER: 2
+Object.defineProperty(dream.Screen.prototype, "orientation", {
+	get : function() {
+		return window.orientation;
+	}
+});
+
+dream.Screen.ScaleMode = {
+	EXACT_FIT: 0,
+	SHOW_ALL: 1,
+	NO_BORDER: 2
 };

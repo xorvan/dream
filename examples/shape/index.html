@@ -76,7 +76,9 @@ html,body {
 			scene.assets.add(p2, 'p2');
 			
 			p5 = new drawing.Poly(100,100,80,6);
-			p5.strokeStyle = new drawing.strokeStyle(new drawing.Color("#5f6"),5,"butt");
+			p5.strokeStyle = new drawing.Color("#5f6");
+			p5.lineStyle = new drawing.LineStyle(5,drawing.LineStyle.Cap.BUTT);
+			
 			p5.tweens.add(new Tween({left: 500, scale: 0.5},200, new interpolator.ElasticInOut(1, 0.4), true));
 			scene.assets.add(p5, 'p5');
 			
@@ -85,7 +87,10 @@ html,body {
 			//p5.strokeStyle=gr1;
 			
 			c1 = new dream.visual.drawing.Circle(250,250,60);
-			c1.fillStyle="#1a1";
+			c1.fillStyle = new drawing.LinearGradient([new drawing.ColorStop(0, new drawing.Color("#52a23a")), 
+			                                        new drawing.ColorStop(1, new drawing.Color("#e2f29a"))], 0, 0, 1, 0);
+
+			
 			scene.assets.add(c1);
 			
 			//e1=new dream.visual.drawing.Ellipse(200,10,60,100);
@@ -98,9 +103,11 @@ html,body {
 			cs1.tweens.add(new dream.visual.animation.Tween({angle:360},200, null, true));
 			scene.assets.add(cs1);
 			
-			s1=new dream.visual.drawing.Star(430,175,25,75,5);
-			s1.fillStyle="#a0a";
-			s1.tweens.add(new dream.visual.animation.Tween({ radius:120},300, new interpolator.Sine, true));
+			s1=new dream.visual.drawing.Star(430,175,50,50,5);
+			s1.fillStyle = new drawing.RadialGradient([new drawing.ColorStop(0, new drawing.Color("#8b0596")), 
+				                                        new drawing.ColorStop(1, new drawing.Color("#Eb55F9"))], .5, .5, 0, .5, .5, .4);
+			s1.strokeStyle = "#8b0596";
+			s1.tweens.add(new dream.visual.animation.Tween({radius:125, rotation:90},300, new interpolator.Sine, true));
 			scene.assets.add(s1);
 			
 			

@@ -16,26 +16,27 @@ html, body {
 
 .content {
 	height: 100%;
-}
-
-#mainCanvas {
-	margin:0 auto;
 	width: 640px;
-	height: 100%;
-	display: block;
+	margin:0 auto;
 	border-left: 1px solid #eee;
 	border-right: 1px solid #eee;
 }
 
+#mainCanvas {
+	height: 100%;
+	width: 100%;
+	display: block;
+}
+
 @media only screen and (device-width: 320px) {
-	#mainCanvas {
+	.content {
 		width: 320px;
 	}
 }
 
 @media only screen and (device-width: 640px) {
   /* rules for iPhone Retina */
-  	#mainCanvas {
+  	.content {
 		width: 320px;
 	}
   
@@ -56,6 +57,10 @@ html, body {
 	<script type="text/javascript" src="../../src/visual/Composite.js"></script>
 	<script type="text/javascript" src="../../src/visual/Sprite.js"></script>
 	<script type="text/javascript" src="../../src/scenery.js"></script>
+	<script type="text/javascript" src="../../src/Behaviour.js"></script>
+	<script type="text/javascript" src="../../src/behaviour/Draggable.js"></script>
+	<script type="text/javascript" src="../../src/behaviour/Moving.js"></script>
+	<script type="text/javascript" src="../../src/behaviour/LeftBounded.js"></script>
 	<script type="text/javascript" src="../../src/visual/animation.js"></script>
 	<script type="text/javascript" src="../../src/visual/drawing.js"></script>
 	<script type="text/javascript" src="../../src/visual/Map.js"></script>
