@@ -22,7 +22,7 @@ dream.event.create(dream.util.ArrayList.prototype, "onRemove");
  * @param {string} [id]
  */
 dream.util.ArrayList.prototype.add = function(object, id){
-	dream.util.assert(object);
+	//dream.util.assert(object);
 	var gid = dream.util.getId(object);
 	if(this._index[gid]) return object;
 	
