@@ -71,8 +71,9 @@ html,body {
 
 			};
 			
-			p2 = new dream.visual.drawing.Poly(300,50,70,6);
+			p2 = new dream.visual.drawing.Poly(300,70,70,6);
 			p2.fillStyle=new dream.visual.drawing.Color(125,125,255,0.8);
+			//p2.tweens.add(new dream.visual.animation.Tween({'fillStyle.brightness':0},200,null, true))
 			scene.assets.add(p2, 'p2');
 			
 			p5 = new drawing.Poly(100,100,80,6);
@@ -101,6 +102,9 @@ html,body {
 			cs1.fillStyle = "#49f";
 			cs1.strokeStyle = "#658";
 			cs1.tweens.add(new dream.visual.animation.Tween({angle:360},200, null, true));
+			cs1.fillStyle = new dream.visual.drawing.Color("#49f")
+			cs1.fillStyle.hue=355;
+			cs1.tweens.add(new dream.visual.animation.Tween({'fillStyle.hue':0},500,null, true))
 			scene.assets.add(cs1);
 			
 			s1=new dream.visual.drawing.Star(430,175,50,50,5);

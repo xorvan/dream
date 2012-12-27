@@ -13,15 +13,17 @@ var $ = Bitmap.prototype;
 $.setUp = function(img){
 	if (typeof img == "string"){
 		this.source = null;
-		var r = new dream.util.ArrayList;
-		r.add(new dream.preload.ImageResource(img));
-		this.requiredResources = r;
+		this.requiredResources = [new dream.preload.ImageResource(img)];
 		this.url = img;
 		this.type = "Picture";
 	}
 	else if (img instanceof ImageData){
 		var buff = new dream.util.BufferCanvas(img.width, img.height);
 		this.source = buff.canvas;
+		if (! this._width)
+			this._width = this.source.width;
+		if (! this._height)
+			this._height = this.source.height;
 		buff.context.putImageData(img, 0, 0);
 		this.type = "ImageData";
 	}
@@ -59,8 +61,13 @@ Object.defineProperty($, "height", {
 });
 
 $.drawImage = function(ctx, origin){
-	if (! this.source)
+	if (! this.source){
 		this.source = dream.preload.cache[this.url].content;
+		if (! this._width)
+			this._width = this.source.width;
+		if (! this._height)
+			this._height = this.source.height;
+	}
 	ctx.drawImage(this.source, 0, 0, this.source.width, this.source.height, origin.left|0, origin.top|0, this._width, this._height);
 };
 
