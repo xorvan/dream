@@ -39,7 +39,7 @@ Object.defineProperty($, "step", {
 		var tween = this;
 		var step = new dream.visual.animation.Step(function(){}, this.duration, this.interval);
 		var stepFunc = function() {
-			var multiplier = tween.interpolator( (dream.fc - step.startFrame) / tween.duration );
+			var multiplier = tween.interpolator( step.frame / tween.duration );
 			for(var i in diffMap){
 				tween.setHostValue(i, initialMap[i] + diffMap[i] * multiplier); 
 			};
@@ -183,48 +183,105 @@ var interpolators = {
 /**
  * @constructor
  */
-var Timeline = function() {
+
+var Tickable = function(duration){
+	this._frameCounter = 0;
+	this.isPlaying = true;
+	this.duration = duration ? duration:-1;
+	
+};
+
+var $ = Tickable.prototype;
+dream.event.create($, "onEnd");
+
+$.tick = function(){
+	if (this.duration == this._frameCounter ) {
+		this.isPlaying = false;
+		dream.event.dispatch(this, "onEnd");
+		if (! this._persistent) return 1;
+	};
+};
+
+$.pause = function(){
+	this.isPlaying = false;
+};
+$.resume = function(){
+	this.isPlaying = true;
+};
+$.rewind = function(){
+	this.frame = 0;
+	this.isPlaying = true;
 };
 
 /**
  * @constructor
  */
+var Timeline = function(duration) {
+	Tickable.call(this, duration);
+	this.frames = {};
+//	this.steps = new dream.util.ArrayList();
+//	this.tweens = new dream.util.ArrayList();
+}.inherits(Tickable);
+
+var $ = Timeline.prototype;
+$.at = function(frame, fn){
+	if (this.frames[frame]) this.frames[frame].push(fn);
+	else this.frames[frame]=[fn];
+	return this;
+};
+
+$.tick = function(host){
+	Tickable.prototype.tick.call(this);
+	if (this.isPlaying){
+	var cnt = this._frameCounter ++;
+	if (cnt == this.duration) return 1;
+	
+	var fnlist = this.frames[cnt];
+	if (fnlist)
+		for (var fn in fnlist)
+			fnlist[fn].call(host);
+}};
+
+$.clearAt = function(frame){
+	delete this.frames[frame];
+	return this;
+};
+
+Object.defineProperty($, "seeker", {
+	get : function() {
+		return  this._frameCounter;
+	},
+	set : function(v) {
+		if (frame > 0 && frame < this.life) this._frameCounter = frame;
+	}
+});
+
+
+/**
+ * @constructor
+ */
 var Step = function(fn, duration, interval) {
+	Tickable.call(this, duration);
 	this.fn = fn;
 	this.interval = interval || 1;
-	this.isPlaying = true;
-	this.startFrame = dream.fc;
-	this.lastFrame = dream.fc;
-	this.endFrame = duration ? dream.fc + duration : -1;
-};
+}.inherits(Tickable);;
 var $ = Step.prototype;
-dream.event.create($, "onEnd");
 
-$.resume = function() {
-	if (!this.isPlaying) {
-		this.isPlaying = true;
-		this.endFrame = dream.fc + (this.endFrame - this.startFrame - this.lastFrame);
-		this.startFrame = dream.fc - this.lastFrame + 1;
+$.tick = function(host, frame){
+	Tickable.prototype.tick.call(this);
+	if (this.isPlaying){
+		if (frame && (frame > this.duration || frame <=0)) return 0;
+		this.frame = frame ? frame:++this.frame;
+		if (!(this.frame % this.interval)) this.fn.call(host);	
 	}
-};
-
-$.pause = function() {
-	if (this.isPlaying) {
-		this.isPlaying = false;
-		this.lastFrame = dream.fc - this.startFrame;
-	}
-};
-
-$.rewind = function() {
-	this.endFrame = dream.fc + this.endFrame - this.startFrame;
-	this.startFrame = dream.fc;
-	this.isPlaying = true;
+	
 };
 
 //Exporting
 dream.visual.animation = {
 		Tween: Tween,
 		Interpolator:Interpolator,
+		Timeline:Timeline,
 		interpolator:{
 			Linear: Linear,
 			Sine: Sine,
