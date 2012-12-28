@@ -3,8 +3,8 @@ var Bitmap = function(img, left, top, width, height){
 	dream.visual.Bitmap._superClass.call(this, left, top);
 	this._width = width;
 	this._height = height;
-	this.rect.width=width;
-	this.rect.height=height;
+	this.rect.width = width;
+	this.rect.height = height;
 	this.setUp(img);
 }.inherits(dream.visual.Graphic);
 
@@ -21,9 +21,9 @@ $.setUp = function(img){
 		var buff = new dream.util.BufferCanvas(img.width, img.height);
 		this.source = buff.canvas;
 		if (! this._width)
-			this._width = this.source.width;
+			this._width = this.rect.width = this.source.width;
 		if (! this._height)
-			this._height = this.source.height;
+			this._height = this.rect.height = this.source.height;
 		buff.context.putImageData(img, 0, 0);
 		this.type = "ImageData";
 	}
@@ -64,9 +64,10 @@ $.drawImage = function(ctx, origin){
 	if (! this.source){
 		this.source = dream.preload.cache[this.url].content;
 		if (! this._width)
-			this._width = this.source.width;
+			this._width = this.rect.width = this.source.width;
 		if (! this._height)
-			this._height = this.source.height;
+			this._height = this.rect.height = this.source.height;
+		this.isBoundaryChanged = true;
 	}
 	ctx.drawImage(this.source, 0, 0, this.source.width, this.source.height, origin.left|0, origin.top|0, this._width, this._height);
 };

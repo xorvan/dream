@@ -77,7 +77,7 @@ function init(){
 //		}
 //	}
 	
-	p= world.assets.add(new dream.visual.Bitmap("res/star.png", 0, 0, 150, 150));
+	p= world.assets.add(new dream.visual.Bitmap("res/star.png", 0, 0));
 	enemy = world.assets.add(new Enemy(100,10));
 	//|enemy = world.assets.add(new dream.visual.Sprite(new dream.visual.SpriteFrameSet("res/enemies.png", 0, 0, 100, 75, 4), 50, 50, 100, 75));
 	with(enemy){
@@ -93,40 +93,40 @@ function init(){
 	ce.rotation = 90;
 	ce.tweens.add(new dream.visual.animation.Tween({rotation:180}, 100, new dream.visual.animation.interpolator.Sine, true));
 	
-//	paper = world.assets.add(new dream.visual.Composite(-400,100));
-//	with(rect1 = paper.assets.add(new dream.visual.drawing.Rect(0,0,100,100))){
-//		//anchorX = anchorY = 50;
-//		fillStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0.25, "#00aaaa"), new dream.visual.drawing.ColorStop(0.75, "#aa0000")], 0, 0, 1, 1);
-//		rotation = 0;
-//		strokeStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0, "#330000"), new dream.visual.drawing.ColorStop(1, "#008888")], 0, 0, 0, 1);
-//		tr = tweens.add(new dream.visual.animation.Tween({
-//		/*	width:150,
-//			scale:1.5,
-//			rotation:-15,
-//			alpha:0.8,*/
-//			"fillStyle.colorStops[0].position":.5, 
-//			"fillStyle.colorStops[1].position":.5
-//		}, 200, new dream.visual.animation.interpolator.Sine, true));
-//		onMouseOut.add(function(){console.log("r1mo");});
-//		onMouseOver.add(function(){console.log("r1mi");});
-//		onMouseDown.add(function(){console.log("r1md");});
-//		onMouseUp.add(function(){console.log("r1mu");});
-//		onClick.add(function(){console.log("r1mc");});
-//	}
+	paper = world.assets.add(new dream.visual.Composite(-400,100));
+	with(rect1 = paper.assets.add(new dream.visual.drawing.Rect(0,0,100,100))){
+		//anchorX = anchorY = 50;
+		fillStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0.25, "#00aaaa"), new dream.visual.drawing.ColorStop(0.75, "#aa0000")], 0, 0, 1, 1);
+		rotation = 0;
+		strokeStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0, "#330000"), new dream.visual.drawing.ColorStop(1, "#008888")], 0, 0, 0, 1);
+		tr = tweens.add(new dream.visual.animation.Tween({
+		/*	width:150,
+			scale:1.5,
+			rotation:-15,
+			alpha:0.8,*/
+			"fillStyle.colorStops[0].position":.5, 
+			"fillStyle.colorStops[1].position":.5
+		}, 200, new dream.visual.animation.interpolator.Sine, true));
+		onMouseOut.add(function(){console.log("r1mo");});
+		onMouseOver.add(function(){console.log("r1mi");});
+		onMouseDown.add(function(){console.log("r1md");});
+		onMouseUp.add(function(){console.log("r1mu");});
+		onClick.add(function(){console.log("r1mc");});
+	}
 	
-//	rect2 = paper.assets.add(new dream.visual.drawing.Rect(0,0,20,20));
-//	rect2.fillStyle = "#ff0000";
-//	rect2.strokeStyle = "#00ff00";
-//	rect2.onMouseOver.add(function(){console.log("r2mi");});
-//	rect2.onMouseOut.add(function(){console.log("r2mo");});
-//	
-//	//paper.scale = 2;
-//	paper.onMouseOver.add(function(){console.log("pmi");});
-//	paper.onMouseOut.add(function(){console.log("pmo");});
-//	paper.onMouseDown.add(function(){console.log("pmd");});
-//	paper.onMouseUp.add(function(){console.log("pmu");});
-//	paper.onClick.add(function(){console.log("pmc");});
-//	paper.onMouseMove.add(function(){console.log("pmm");});
+	rect2 = paper.assets.add(new dream.visual.drawing.Rect(0,0,20,20));
+	rect2.fillStyle = "#ff0000";
+	rect2.strokeStyle = "#00ff00";
+	rect2.onMouseOver.add(function(){console.log("r2mi");});
+	rect2.onMouseOut.add(function(){console.log("r2mo");});
+	
+	//paper.scale = 2;
+	paper.onMouseOver.add(function(){console.log("pmi");});
+	paper.onMouseOut.add(function(){console.log("pmo");});
+	paper.onMouseDown.add(function(){console.log("pmd");});
+	paper.onMouseUp.add(function(){console.log("pmu");});
+	paper.onClick.add(function(){console.log("pmc");});
+	paper.onMouseMove.add(function(){console.log("pmm");});
 
 	world.onMouseMove.add(function(mouse){
 		var m = this.rect.transformation.unproject(mouse);

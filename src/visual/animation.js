@@ -39,7 +39,7 @@ Object.defineProperty($, "step", {
 		var tween = this;
 		var step = new dream.visual.animation.Step(function(){}, this.duration, this.interval);
 		var stepFunc = function() {
-			var multiplier = tween.interpolator( step.frame / tween.duration );
+			var multiplier = tween.interpolator( step._frameCounter / tween.duration );
 			for(var i in diffMap){
 				tween.setHostValue(i, initialMap[i] + diffMap[i] * multiplier); 
 			};
@@ -209,7 +209,7 @@ $.resume = function(){
 	this.isPlaying = true;
 };
 $.rewind = function(){
-	this.frame = 0;
+	this._frameCounter = 0;
 	this.isPlaying = true;
 };
 
@@ -271,8 +271,8 @@ $.tick = function(host, frame){
 	Tickable.prototype.tick.call(this);
 	if (this.isPlaying){
 		if (frame && (frame > this.duration || frame <=0)) return 0;
-		this.frame = frame ? frame:++this.frame;
-		if (!(this.frame % this.interval)) this.fn.call(host);	
+		this.frame = frame ? frame:++this._frameCounter;
+		if (!(this._frameCounter % this.interval)) this.fn.call(host);	
 	}
 	
 };
