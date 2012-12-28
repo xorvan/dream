@@ -30,6 +30,7 @@ dream.visual.Graphic = function(left, top){
 	
 	this.steps = new dream.util.ArrayList();
 	this.tweens = new dream.util.ArrayList();
+	this.timelines = new dream.util.ArrayList();
 	this.behaviours = new dream.util.ArrayList();
 	
 	this.tweens.onAdd.add(function(tween){
@@ -77,13 +78,10 @@ dream.visual.Graphic.prototype.draw = function(ctx, origin, drawRect) {
 dream.visual.Graphic.prototype.step = function (){
 	
 	for(var i = 0, step; step = this.steps[i]; i++){
-		if(step.isPlaying && !((dream.fc - step.startFrame) % step.interval) ){
-			step.fn.call(this);
-		}
-		if (step.endFrame == dream.fc && step.isPlaying){
-			dream.event.dispatch(step, "onEnd");			
-			if(!step._persistent) this.steps.remove(step);
-		}
+		if (step.tick(this)) this.steps.remove(step);
+	}
+	for(var j = 0, timeline; timeline = this.timelines[j]; j++){
+		if (timeline.tick(this)) this.timelines.remove(timeline);
 	}
 
 	if(this.isBoundaryChanged){
@@ -296,7 +294,6 @@ Object.defineProperty(dream.visual.Graphic.prototype, "z", {
 Object.defineProperty(dream.visual.Graphic.prototype, "image", {
 	get: function() {
 		var buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
-
 		this.drawImage(buffer.context, new dream.Point(-this.rect.left, -this.rect.top));
 		return buffer.context.getImageData(0, 0, this.rect.width, this.rect.height);
 	}

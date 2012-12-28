@@ -9,13 +9,24 @@
 <booleanAttribute key="formattingPrintInputDelimiter" value="false"/>
 <booleanAttribute key="generateExports" value="false"/>
 <listAttribute key="inputResources">
+<listEntry value="/DreamJS/src/Screen.js"/>
 <listEntry value="/DreamJS/src/core.js"/>
+<listEntry value="/DreamJS/src/event.js"/>
+<listEntry value="/DreamJS/src/input.js"/>
+<listEntry value="/DreamJS/src/preload.js"/>
 <listEntry value="/DreamJS/src/scenery.js"/>
+<listEntry value="/DreamJS/src/transform.js"/>
+<listEntry value="/DreamJS/src/util.js"/>
 <listEntry value="/DreamJS/src/visual.js"/>
+<listEntry value="/DreamJS/src/visual/Composite.js"/>
+<listEntry value="/DreamJS/src/visual/Graphic.js"/>
+<listEntry value="/DreamJS/src/visual/Map.js"/>
+<listEntry value="/DreamJS/src/visual/Sprite.js"/>
 <listEntry value="/DreamJS/src/visual/animation.js"/>
+<listEntry value="/DreamJS/src/visual/drawing.js"/>
 </listAttribute>
 <stringAttribute key="languageIn" value="ECMASCRIPT3"/>
-<booleanAttribute key="manageClosureDependencies" value="true"/>
+<booleanAttribute key="manageClosureDependencies" value="false"/>
 <booleanAttribute key="org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND" value="false"/>
 <booleanAttribute key="org.eclipse.ui.externaltools.ATTR_TRIGGERS_CONFIGURED" value="true"/>
 <listAttribute key="otherLibraries"/>

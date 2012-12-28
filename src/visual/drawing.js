@@ -353,24 +353,169 @@ dream.visual.drawing.Color = function(sr,g,b,a){
 			this._red=parseInt('0x'+sr[1]+sr[2]);
 			this._green=parseInt('0x'+sr[3]+sr[4]);
 			this._blue=parseInt('0x'+sr[5]+sr[6]);
-			this._alpha=1;
+			this._alpha= 1;
 		}
 	}// end of string parsing
 	else {
 		this._red = sr;
 		this._green = g;
 		this._blue = b;
-		this._alpha = a;
+		this._alpha = a == undefined ? 1:a;
 	}
+	this.colorChanged = true;
 }.inherits(dream.visual.drawing.Style);
 
 dream.visual.drawing.Color.prototype.createStyle = function(){
 	return 'rgba('+(this.red | 0)+','+(this.green | 0)+','+(this.blue | 0)+','+this.alpha+')';
 };
 
-dream.util.createEventProperty(dream.visual.drawing.Color.prototype,"red","onChange");
-dream.util.createEventProperty(dream.visual.drawing.Color.prototype,"green","onChange");
-dream.util.createEventProperty(dream.visual.drawing.Color.prototype,"blue","onChange");
+dream.visual.drawing.Color.prototype.getHSB = function (){
+	var r = this._red / 255;
+	var g = this._green / 255;
+	var bl = this._blue / 255;
+    var max = Math.max(r, g, bl), min = Math.min(r, g, bl);
+    var h, s, b;
+   var delta = max - min;
+   
+   if (max == 0) return 0, -1, 0;
+   
+   b = max;
+   s = delta/ max;
+   // hue calc
+   if (r == max) h = (g - bl)/ delta;
+   else if (g == max) h= 2 + (bl - r)/ delta;
+   else h= 4 + (r - g)/ delta;
+   h *= 60;
+   if (h < 0) h += 360;
+   this.colorChanged = false;
+   this.bufferHSB = [h,s,b];
+   
+    return [h, s, b];
+};
+
+dream.visual.drawing.Color.prototype.setHSB = function(nh, ns, nb){
+	var arr = this.colorChanged ? this.getHSB():this.bufferHSB;
+	var h = arr[0];
+	var s = arr[1];
+	var l = arr[2];
+	if (nh != null) h=nh;
+	if (ns != null) s=ns;
+	if (nb != null) l=nb;
+	var r, g, b;
+	var f, p, q, t;
+	    if(s == 0){
+	        r = g = b = l; // achromatic
+	    }else{
+	        h /= 60;
+	        var i = Math.floor(h);
+	        f = h - i;
+	        p = l * ( 1 - s );
+	    	q = l * ( 1 - s * f );
+	    	t = l * ( 1 - s * ( 1 - f ) );
+	    	switch( i ) {
+			case 0:
+				r = l;
+				g = t;
+				b = p;
+				break;
+			case 1:
+				r = q;
+				g = l;
+				b = p;
+				break;
+			case 2:
+				r = p;
+				g = l;
+				b = t;
+				break;
+			case 3:
+				r = p;
+				g = q;
+				b = l;
+				break;
+			case 4:
+				r = t;
+				g = p;
+				b = l;
+				break;
+			default:		// case 5:
+				r = l;
+				g = p;
+				b = q;
+				break;
+		} // end switch
+	    	
+	    }
+
+	    this._red = r * 255;
+	    this._green = g * 255;
+	    this._blue = b * 255;
+	
+};
+
+
+Object.defineProperty(dream.visual.drawing.Color.prototype, "hue", {
+	get: function() {
+		return this.colorChanged ? this.getHSB()[0]:this.bufferHSB[0];
+	},
+	set: function(v){ 
+		this.setHSB(v, null, null);	
+		this.colorChanged = true;
+		dream.event.dispatch(this, "onChange");
+	}
+});
+Object.defineProperty(dream.visual.drawing.Color.prototype, "saturation", {
+	get: function() {
+		return this.colorChanged ? this.getHSB()[1]:this.bufferHSB[1];
+	},
+	set: function(v){ 
+		this.setHSB(null, v, null);
+		this.colorChanged = true;
+		dream.event.dispatch(this, "onChange");
+	}
+});
+Object.defineProperty(dream.visual.drawing.Color.prototype, "brightness", {
+	get: function() {
+		return this.colorChanged ? this.getHSB()[2]:this.bufferHSB[2];
+	},
+	set: function(v){ 
+		this.setHSB(null, null, v);	
+		this.colorChanged = true;
+		dream.event.dispatch(this, "onChange");
+	}
+});
+
+Object.defineProperty(dream.visual.drawing.Color.prototype, "red", {
+	get: function() {
+		return this._red;
+	},
+	set: function(v){ 
+		this.colorChanged = true;
+		this._red = v;
+		dream.event.dispatch(this, "onChange");
+	}
+});
+Object.defineProperty(dream.visual.drawing.Color.prototype, "green", {
+	get: function() {
+		return this._green;
+	},
+	set: function(v){ 
+		this.colorChanged = true;
+		this._green = v;	
+		dream.event.dispatch(this, "onChange");
+	}
+});
+Object.defineProperty(dream.visual.drawing.Color.prototype, "blue", {
+	get: function() {
+		return this._blue;
+	},
+	set: function(v){ 
+		this.colorChanged = true;
+		this._blue = v;	
+		dream.event.dispatch(this, "onChange");
+	}
+});
+
 dream.util.createEventProperty(dream.visual.drawing.Color.prototype,"alpha","onChange");
 
 /**
@@ -390,6 +535,7 @@ dream.util.createEventProperty(dream.visual.drawing.LineStyle.prototype,"width",
 dream.util.createEventProperty(dream.visual.drawing.LineStyle.prototype,"cap","onChange");
 dream.util.createEventProperty(dream.visual.drawing.LineStyle.prototype,"join","onChange");
 dream.util.createEventProperty(dream.visual.drawing.LineStyle.prototype,"miterLimit","onChange");
+
 
 dream.visual.drawing.LineStyle.Cap = {
 	BUTT: "butt",
