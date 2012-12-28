@@ -53,7 +53,7 @@ dream.visual.Graphic = function(left, top){
 		behaviour.disable();
 	});
 	
-	this.buffer = null;
+	//this.buffer = null;
 	
 }.inherits(dream.VisualAsset);
 
@@ -102,7 +102,6 @@ dream.visual.Graphic.prototype.step = function (){
 		this.isBoundaryChanged = false;
 	}else if(this.isPositionChanged){
 		this.boundary = this.rect.boundary;
-		
 		if(!this.boundary.isEqualWith(this.oldBoundary)){
 			dream.event.dispatch(this, "onBoundaryChange", this.oldBoundary);
 			dream.event.dispatch(this, "onImageChange", this.boundary.hasIntersectWith(this.oldBoundary) ? [this.boundary.add(this.oldBoundary)] : [this.boundary, this.oldBoundary]);

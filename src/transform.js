@@ -41,9 +41,10 @@ Object.defineProperty($, "inverse", {
 		var x1 = this.x1;
 		var y1 = this.y1;
 		var dx = this.dx;
+		var dy = this.dy;
 		var n = x0*y1-y0*x1;
 
-		return new Matrix(y1/n, -y0/n, -x1/n, x0/n, (x1*this.dy-y1*dx)/n, -(x0*this.dy-y0*dx)/n);
+		return new Matrix(y1/n, -y0/n, -x1/n, x0/n, (x1*dy-y1*dx)/n, -(x0*dy-y0*dx)/n);
 	}
 });
 

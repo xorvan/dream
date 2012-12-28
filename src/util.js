@@ -405,3 +405,9 @@ dream.util.createEventFlagProperty = function(obj, name, changeEvent, changeFlag
 		set : new Function("v", "var o = this."+sv+";this."+sv+"=v;dream.event.dispatch(this, '"+e+"', o);if(v!=o) this."+f+" = true;")
 	});
 };
+
+dream.util.profile = function(fn){
+	var t0 = performance.now && performance.now() || performance.webkitNow && performance.webkitNow();
+	fn();
+	return performance.now && performance.now() || performance.webkitNow && performance.webkitNow() - t0;
+}

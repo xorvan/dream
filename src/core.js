@@ -169,7 +169,7 @@ Object.defineProperty(dream.Rect.prototype, "boundary", {
 					tp1.top = tps[i].top;
 			}
 			
-			return new dream.Rect(tp.left |0, tp.top|0, tp1.left - tp.left, tp1.top - tp.top);
+			return new dream.Rect(tp.left, tp.top, tp1.left - tp.left, tp1.top - tp.top);
 		}
 	}
 });

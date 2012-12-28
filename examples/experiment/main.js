@@ -44,11 +44,12 @@ CompositeEnemy = function(left, top){
 }.inherits(dream.visual.Composite);
 
 function init(){
-	exp = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 800, 600, dream.Screen.ScaleMode.SHOW_ALL );
+	exp = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 1600, 1200, dream.Screen.ScaleMode.SHOW_ALL );
 	
 	world = new dream.scenery.Scene();
 	
-	world.anchorX = world.anchorY = 200;
+	world.left = exp.width/2;
+	world.top = exp.height/2;		
 	
 	world.assets.loader.onProgress.add(function(){
 		console.log(world.assets.loader.loadedCount + "/" + (world.assets.loader.resources.length+world.assets.loader.loadedResources.length) );
@@ -125,12 +126,6 @@ function init(){
 	paper.onClick.add(function(){console.log("pmc");});
 	paper.onMouseMove.add(function(){console.log("pmm");});
 
-	//rp = paper.tweens.add(new dream.visual.animation.Tween({rotation:360}, 1000, false, true));
-	world.onResize.add(function(){
-		this.left = exp.width/2;
-		this.top = exp.height/2;		
-	});
-	
 	world.onMouseMove.add(function(mouse){
 		var m = this.rect.transformation.unproject(mouse);
 		this.anchorX = m.left;

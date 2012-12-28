@@ -11,8 +11,9 @@ Jumper = function(left, top){
 	drawing.Circle.call(this, left, top, 40);
 	
 	this.anchorY = 40;
-	this.fillStyle = "#f00";
+	this.fillStyle = new dream.visual.drawing.RadialGradient([new dream.visual.drawing.ColorStop(0, "#fe4532"), new dream.visual.drawing.ColorStop(1, "#de3623")], .3, .3, 0, .5, .5, .5);
 	this.z = 10;
+	this.updateBuffer();
 	
 	this.behaviours.add(new behaviour.Moving, "moving");
 	this.vx = 0;
@@ -53,9 +54,10 @@ $.jump = function(){
 Bar = function(left, top){
 	drawing.Rect.call(this, left, top, 100, 20);
 	
-	this.fillStyle = "#00f";
+	this.fillStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0, "#68aefe"), new dream.visual.drawing.ColorStop(1, "#3657de")], 0, 0, 0, 1);
+//	this.fillStyle = "#3657de"; 
 	this.behaviours.add(new dream.behaviour.Draggable);
-	
+	this.updateBuffer();
 }.inherits(drawing.Rect);
 
 })();

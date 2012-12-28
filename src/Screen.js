@@ -84,17 +84,21 @@ dream.Screen.prototype.render = function(){
 	this.fc++;
 	dream.fc ++;
 	
-	var kbs;
-	for(var k in this.input.downKeys){
-		if(kbs = this.keyBindings.index.key[k])
-			for(var i=0, kb; kb = kbs[i]; i++)
-				kb.fn(this.input.downKeys[k]);
-		this.input.downKeys[k]++;
+	var checkInput = this.fc % this.input.interval == 0;
+	
+	if(checkInput){
+		var kbs;
+		for(var k in this.input.downKeys){
+			if(kbs = this.keyBindings.index.key[k])
+				for(var i=0, kb; kb = kbs[i]; i++)
+					kb.fn(this.input.downKeys[k]);
+			this.input.downKeys[k]++;
+		}
 	}
-
+	
 	this.drawImage(this.context, new dream.Point, new dream.Rect(0,0, this.width, this.height));
 	
-//	this.checkHover(this.input.mouse);
+	if(checkInput) this.checkHover(this.input.mouse);
 	
 	if(!this.isRendering){
 		this.isRendering = true;
@@ -107,7 +111,7 @@ dream.Screen.prototype.drawImageWithoutRedrawRegion = function(ctx, rect, drawRe
 	var scene = this.scenes.current;
 	scene.step();
 	ctx.clearRect(0,0,drawRect.width, drawRect.height);
-	scene.draw(ctx, new dream.Point, scene.rect.transformation.unprojectRect(drawRect).boundary);
+	scene.draw(ctx, new dream.Point, drawRect);
 };
 
 dream.Screen.prototype.drawImageWithClippingRedrawRegion = function(ctx, origin, drawRect) {
@@ -124,7 +128,7 @@ dream.Screen.prototype.drawImageWithClippingRedrawRegion = function(ctx, origin,
 			ctx.closePath();
 			rgCount++;
 			ctx.clearRect(rg.left, rg.top, rg.width, rg.height);
-			scene.draw(ctx, origin, scene.rect.transformation.unprojectRect(rg).boundary);
+			scene.draw(ctx, origin, rg);
 			ctx.restore();
 			//console.log(rr+"");
 		}
@@ -147,7 +151,7 @@ dream.Screen.prototype.drawImageWithBufferdRedrawRegion = function(ctx, rect, dr
 			rb.canvas.height = rg.height;
 			rgCount++;
 			ctx.clearRect(rg.left, rg.top, rg.width, rg.height);
-			scene.draw(rb.context, new dream.Point(-rg.left, -rg.top), scene.rect.transformation.unprojectRect(rg));
+			scene.draw(rb.context, new dream.Point(-rg.left, -rg.top), rg);
 			ctx.drawImage(rb.canvas, 0, 0, rg.width, rg.height, rg.left, rg.top, rg.width, rg.height);
 			//console.log(rr+"");
 		}
@@ -161,13 +165,11 @@ dream.Screen.prototype.drawImage = dream.Screen.prototype.drawImageWithClippingR
 //dream.Screen.prototype.drawImage = dream.Screen.prototype.drawImageWithoutRedrawRegion;
 
 dream.Screen.prototype.checkHover = function (p){
-	if( p.isIn(new dream.Rect(0, 0, this.canvas.offsetWidth-1, this.canvas.offsetHeight-1)) ){
+	if( this.isHovered ){
 		if(!this.hovered){
-			this.isHovered = true;
 			this.hovered = this.scenes.current;
 			dream.event.dispatch(this, "onMouseOver");
 		}
-		
 		this.hovered.checkHover(this.rect.transformation.unproject(p));
 	}
 };

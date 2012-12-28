@@ -63,10 +63,11 @@ dream.visual.Composite.prototype.step = function (){
 }; 
 
 dream.visual.Composite.prototype.drawImage = function(ctx, origin, drawRect) {
+	var ldr = this.rect.transformation.unprojectRect(drawRect).boundary;
 	for(var zi in this.renderList.index.z){
 		this.renderList.index.z[zi].forEach(function(g){
-			if(g.boundary.hasIntersectWith(drawRect)){
-				g.draw(ctx, origin, g.rect);
+			if(g.boundary.hasIntersectWith(ldr)){
+				g.draw(ctx, origin, ldr);
 			}
 		});		
 	}

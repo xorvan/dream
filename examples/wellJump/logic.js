@@ -1,4 +1,4 @@
-(function(){
+(function(window){
 
 //importing packages
 var drawing = dream.visual.drawing,
@@ -115,9 +115,10 @@ Object.defineProperty($, "altitude", {
 		
 		if(v >= this.height * (this.area) ){
 			this.area++;
-			this.generateBars();			
+			var bm = this;
+			bm.generateBars();
 		}
 	}
 });
 
-})();
+})(window);

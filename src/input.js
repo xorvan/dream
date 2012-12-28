@@ -31,6 +31,8 @@ dream.input.InputHandler = function(screen){
 	
 	this.screen = screen;
 	
+	this.interval = 2;
+	
 	var input = this;
 	window.addEventListener("mousemove",function(e){
 		var x = e.clientX, y = e.clientY;
@@ -53,7 +55,11 @@ dream.input.InputHandler = function(screen){
 	screen.canvas.addEventListener("mouseout",function(e){
 		screen.raiseMouseOut(input.mouse);
 	}, false);
-	
+
+	screen.canvas.addEventListener("mouseover",function(e){
+		screen.isHovered = true;
+	}, false);
+
 	window.addEventListener("mouseup",function(e){
 		input.mouse.isDown = false;
 		screen.raiseMouseUp(input.mouse);
