@@ -218,6 +218,14 @@ dream.util.EventDispatcher.prototype.add = function(object, owner){
 	return h;
 };
 
+dream.util.EventDispatcher.prototype.addTemp = function(object, owner){
+	var tmpFn, event = this;
+	this.add(tmpFn = function(){
+		event.remove(tmpFn);
+		object && object.call(this);		
+	}, owner);
+};
+
 dream.util.EventDispatcher.prototype.removeByOwner = function(owner){
 	var oid = dream.util.getId(owner), l;
 	if(l = this.listeners[oid]){
@@ -270,17 +278,15 @@ dream.util.EventDispatcher.prototype.propagateFlagged = function(target, flag){
 dream.util.AssetLibrary = function(){
 	dream.util.AssetLibrary._superClass.call(this);
 	
-	this.loader = new dream.preload.Loader();
+	this.loader = new dream.static.Loader();
 }.inherits(dream.util.ArrayList);
 
-dream.util.AssetLibrary.prototype.prepare = function(callBack){ 	
-	if(callBack) 
-		this.loader.onLoad.add(function(){
-			callBack();
-			//remove
-		});
-
-	this.loader.load(this.requiredResources);
+dream.util.AssetLibrary.prototype.prepare = function(callBack){
+	if(this.loader.isRequestSent){
+		this.loader.abort();
+	}
+	this.loader.resources = this.requiredResources;
+	this.loader.load(callBack);
 };
 
 Object.defineProperty(dream.util.AssetLibrary.prototype, "requiredResources", {

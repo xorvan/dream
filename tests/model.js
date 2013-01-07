@@ -13,8 +13,8 @@ Cube = function(left, top){
 }.inherits(dream.visual.Sprite);
 
 Poly1 = function(left, top){
-	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/poly1.png", 0, 0, 489, 454), left, top, 150, 150);
-}.inherits(dream.visual.Sprite);
+	dream.visual.Bitmap.call(this, "res/poly1.png", left, top, 150, 150);
+}.inherits(dream.visual.Bitmap);
 
 Star1 = function(left, top){
 	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/star1.png", 0, 0, 581, 518), left, top, 80, 80);

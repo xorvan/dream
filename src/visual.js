@@ -13,6 +13,8 @@ dream.visual.SpriteFrameSet = function(spriteSheetUrl,left, top, width, height, 
 	var h = height || 0;
 	
 	this.spriteSheetUrl = spriteSheetUrl;
+	this.imageResource = new dream.static.Resource(spriteSheetUrl);
+	
 	this.interval = interval;
 	this.frames = new dream.util.Selector();
 	

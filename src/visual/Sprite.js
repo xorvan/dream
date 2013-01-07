@@ -50,14 +50,14 @@ dream.visual.Sprite.prototype.resume = function(){
 dream.visual.Sprite.prototype.drawImage = function(ctx, origin) {
 	var fs = this.frameSets.current;
 	var f = fs.frames.current;
-	ctx.drawImage(dream.preload.cache[fs.spriteSheetUrl].content, f.left, f.top, f.width, f.height, origin.left|0, origin.top|0, f.width, f.height);
+	ctx.drawImage(fs.imageResource.content, f.left, f.top, f.width, f.height, origin.left|0, origin.top|0, f.width, f.height);
 };
 
 Object.defineProperty(dream.visual.Sprite.prototype, "requiredResources", {
 	get : function () {
 		var r = new dream.util.ArrayList;
 		for(var i=0, fs; fs = this.frameSets[i]; i++){
-			r.add(new dream.preload.ImageResource(fs.spriteSheetUrl));
+			r.add(new dream.static.Resource(fs.spriteSheetUrl));
 		}
 		return r;
 	}

@@ -53,7 +53,7 @@ function init(){
 	world.top = exp.height/2;		
 	
 	world.assets.loader.onProgress.add(function(){
-		console.log(world.assets.loader.loadedCount + "/" + (world.assets.loader.resources.length+world.assets.loader.loadedResources.length) );
+		console.log(world.assets.loader.loadedCount + "/" + world.assets.loader.resources.length);
 	});
 
 	

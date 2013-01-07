@@ -121,14 +121,15 @@ dream.Screen.prototype.drawImageWithClippingRedrawRegion = function(ctx, origin,
 	var rg;
 	this.redrawRegions.forEach(function(rr){
 		if(rg = rr.getIntersectWith(drawRect)){
+			var l = (rg.left | 0) - 1, t = (rg.top | 0) - 1, w = (rg.width | 0) + 2 , h = (rg.height | 0) + 2;
 			ctx.save();
 			ctx.beginPath();
-			ctx.rect(rg.left, rg.top, rg.width, rg.height);
+			ctx.rect(l, t, w, h);
 			ctx.clip();
 			ctx.closePath();
 			rgCount++;
-			ctx.clearRect(rg.left, rg.top, rg.width, rg.height);
-			scene.draw(ctx, origin, rg);
+			ctx.clearRect(l, t, w, h);
+			scene.draw(ctx, origin, new dream.Rect(l, t, w, h));
 			ctx.restore();
 			//console.log(rr+"");
 		}

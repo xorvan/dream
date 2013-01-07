@@ -10,6 +10,6 @@ dream.visual.Map = function(url){
 
 Object.defineProperty(dream.visual.Map.prototype, "requiredResources", {
 	get : function () {
-		return [new dream.preload.MapResource(this.url)];
+		return [new dream.static.Resource(this.url)];
 	}
 });

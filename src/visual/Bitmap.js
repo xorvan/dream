@@ -1,11 +1,13 @@
 (function (){
+	
 var Bitmap = function(img, left, top, width, height){
 	dream.visual.Bitmap._superClass.call(this, left, top);
 	this._width = width;
 	this._height = height;
 	this.rect.width = width;
 	this.rect.height = height;
-	this.setUp(img);
+	if(img)
+		this.setUp(img);
 }.inherits(dream.visual.Graphic);
 
 var $ = Bitmap.prototype;
@@ -13,11 +15,10 @@ var $ = Bitmap.prototype;
 $.setUp = function(img){
 	if (typeof img == "string"){
 		this.source = null;
-		this.requiredResources = [new dream.preload.ImageResource(img)];
+		this.requiredResources = [new dream.static.Resource(img)];
 		this.url = img;
 		this.type = "Picture";
-	}
-	else if (img instanceof ImageData){
+	}else if (img instanceof ImageData){
 		var buff = new dream.util.BufferCanvas(img.width, img.height);
 		this.source = buff.canvas;
 		if (! this._width)
@@ -26,9 +27,8 @@ $.setUp = function(img){
 			this._height = this.rect.height = this.source.height;
 		buff.context.putImageData(img, 0, 0);
 		this.type = "ImageData";
-	}
-	else 
-		console.log("invalid input argument");
+	}else 
+		throw new Error("Invalid Bitmap Image!");
 };
 
 Object.defineProperty($, "img", {
@@ -62,7 +62,7 @@ Object.defineProperty($, "height", {
 
 $.drawImage = function(ctx, origin){
 	if (! this.source){
-		this.source = dream.preload.cache[this.url].content;
+		this.source = (new dream.static.Resource(this.url)).content;
 		if (! this._width)
 			this._width = this.rect.width = this.source.width;
 		if (! this._height)
@@ -71,10 +71,6 @@ $.drawImage = function(ctx, origin){
 	}
 	ctx.drawImage(this.source, 0, 0, this.source.width, this.source.height, origin.left|0, origin.top|0, this._width, this._height);
 };
-
-
-
-
 
 // exports
 dream.visual.Bitmap = Bitmap;
