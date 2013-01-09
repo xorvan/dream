@@ -3,30 +3,54 @@
  */
 dream.visual = {};
 
-/**
- * @constructor
- */
-dream.visual.SpriteFrameSet = function(spriteSheetUrl,left, top, width, height, count, interval, orders){
-	var x = left || 0;
-	var y = top || 0;
-	var w = width || 0;
-	var h = height || 0;
+(function (){
+
+var Texture = function(img, left, top, width, height, anchorX, anchorY){
+	this.img = img;
+	this.anchorX = anchorX == undefined ? 0:anchorX; 
+	this.anchorY = anchorY == undefined ? 0:anchorY; ;
+	this.rect = new dream.Rect(left, top, width, height);
+};
 	
-	this.spriteSheetUrl = spriteSheetUrl;
-	this.interval = interval;
-	this.frames = new dream.util.Selector();
-	
-	if(orders){
-		var fa = this.frames;
-		orders.forEach(function(i){
-			fa.add(new dream.Rect(w*i + x, y, w, h));
-		});
-	}else{
-		var c = count || 1;
-		for(var i=0; i<c; i++)
-			this.frames.add(new dream.Rect(w*i + x, y, w, h));
-	}
-	
-	this.frames.select(0);
+var SpriteSheet = function(data){
+	this.textures = new dream.util.ArrayList();
+	data && this.textures.addJson(data);
 };
 
+var $ = SpriteSheet.prototype;
+
+$.getTextureArray =function(name){
+	var list = [];
+	var len = name.length;
+	for (var i = 0, texture;texture = this.textures[i]; i++)
+		if (texture.name.substring(0, len) == name)
+			list.push(texture);
+	return list;
+};
+
+
+
+/**
+ * 
+ */
+var SequentialSpriteSheet = function(img, data){
+	for (name in data){
+		var slice = data[name];
+	var col = slice.col == undefined ? 1:slice.col;
+	var cnt = 0;
+	for (var j = 0; j < col; j++)
+		for (var i = 0; i < slice.count; i++, cnt++)
+			this.textures.add(new Texture(img, slice.left + i * slice.width, slice.top + j * slice.height, slice.width, slice.height), name+"_"+ cnt);
+	}
+}.inherits(SpriteSheet);
+
+//exports
+dream.visual = {
+		Texture:Texture,
+		SpriteSheet:SpriteSheet,
+		SequentialSpriteSheet:SequentialSpriteSheet
+		
+		
+};
+
+})();

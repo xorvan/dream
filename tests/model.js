@@ -1,6 +1,24 @@
 Aj = function(left, top){
 	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/aj.png", 270, 0, 88, 160, 3, 15), left, top, 90, 160);
 	this.frameSets.add(new dream.visual.SpriteFrameSet("res/aj.png", 6, 180, 112, 130, 6, 9), "run");
+	
+	ajSpriteSHEET = new Spritesheet({walking_0: new Texture("aj.png", 0,0,100,150), walking_1:new Texture()});
+	
+	ajSpriteSHEET = new SequentialSpritesheet("aj.png", {
+		walking: {left:0, top:0, width:100, height:10, count:9, col:5},
+		running: {}
+	})
+	
+	dream.visual.Sprite.call(this,left, top, {
+		"default": new SpriteAnimation(ajSpritesheet.getTextures("walking", [1,2,3,2]), 2),
+		"running": new SpriteAnimation(ajSpritesheet.textures.startsWith("running"), 2),
+		"running": new SpriteAnimation("aj.xml#running*", 2),
+		"running": new SpriteAnimation("aj.png#animation&left=10&top=20&width=200&count=13&col=10", 2)
+	});
+	new Bitmap("aj.xml#running01");
+	new TiledLayer("map.tmx#layer1;mime-type=");
+	new Bitmap("aj.png#left=10&top=20&width=100&height=100");
+	
 }.inherits(dream.visual.Sprite);
 
 
@@ -17,7 +35,7 @@ Poly1 = function(left, top){
 }.inherits(dream.visual.Sprite);
 
 Star1 = function(left, top){
-	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/star1.png", 0, 0, 581, 518), left, top, 80, 80);
+	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/star1.xml#running*;mime-type:text/atlas-texture", 0, 0, 581, 518), left, top, 80, 80);
 	this.anchorX = this.anchorY = 40;
 	this.steps.add(new dream.visual.animation.Step(function(){this.rotation += 5;}));
 }.inherits(dream.visual.Sprite);

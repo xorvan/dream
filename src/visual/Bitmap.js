@@ -5,7 +5,7 @@ var Bitmap = function(img, left, top, width, height){
 	this._height = height;
 	this.rect.width = width;
 	this.rect.height = height;
-	this.setUp(img);
+	if (img) this.setUp(img);
 }.inherits(dream.visual.Graphic);
 
 var $ = Bitmap.prototype;
@@ -28,7 +28,7 @@ $.setUp = function(img){
 		this.type = "ImageData";
 	}
 	else 
-		console.log("invalid input argument");
+		console.log("invalid input argument:  ", img);
 };
 
 Object.defineProperty($, "img", {
@@ -61,6 +61,7 @@ Object.defineProperty($, "height", {
 });
 
 $.drawImage = function(ctx, origin){
+	//console.log("wowww bitmap");
 	if (! this.source){
 		this.source = dream.preload.cache[this.url].content;
 		if (! this._width)
