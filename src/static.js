@@ -205,6 +205,7 @@ Object.defineProperty($, "dependencies", {
  */
 var ResourceLoader = function(xhr){
 	this.content = null;
+	this.dependencies = [];
 };
 var $ = ResourceLoader.prototype;
 
