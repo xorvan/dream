@@ -18,37 +18,37 @@ var Animation = function(duration, loop, interval, startFrame){
 	if (this.duration < 1) this.duration = 1;
 	this.startFrame = startFrame || 0;
 	this._interval = interval || 1;
-	this._intrevalCnt = 0;
 	this.loop = loop;
-	this.isBackPlaying = false;
+	this.isBackward = false;
 	this.actions = new dream.util.ArrayList();
 	
-	this._counter = -1;
-	this._isPlaying = false;
+	this._counter = 0;
+	this.isPlaying = false;
 };
 
 var $ = Animation.prototype;
 dream.event.create($, "onEnd");
 dream.event.create($, "onCycle");
 dream.event.create($, "onPlay");
-dream.event.create($, "onPlayStop");
+dream.event.create($, "onPause");
 
 $.pause = function(){
 	this.isPlaying = false;
+	dream.event.dispatch("onPause");
 };
 $.play = function(){
 	this.isPlaying = true;
+	dream.event.dispatch("onPlay");
 };
 $.rewind = function(){
-	this._counter = -1;
-	this.isPlaying = true;
+	this._counter = this.isBackward ? this.duration + 1 : 0;
 };
 $.stop = function(){
-	this.isPlaying = false;
-	this._counter = -1;
+	this.rewind();
+	this.pause();
 };
 
-$.seek = function(frame , hard){
+$.seek = function(frame, hard){
 	if (frame == this._counter) return;
 	
 	if (hard) {
@@ -68,27 +68,18 @@ $.seek = function(frame , hard){
 				anim.seek(frame - this.startFrame);}
 		};
 	
-	this._counter = frame - 1; 
-	if (frame <= 0 ) this._counter = -1;
-	if (this.duration != -1 && frame >= this.duration) this._counter = this.duration -1;
+	if (frame > this.duration) 
+		this._counter = this.duration;
+	else if (frame < 0 ) 
+		this._counter = 1;
+	
+	this._counter = this.isBackward ? this._counter + 1 : this._counter - 1;
 	this.host.isBoundaryChanged = true;
 };
 
 $.init = function(host){
 	this.host = host;
 };
-
-Object.defineProperty($, "isPlaying", {
-	get : function() {
-		return  this._isPlaying;
-	},
-	set : function(v) {
-		this._isPlaying = v; 
-		if (v) dream.event.dispatch("onPlay");
-		else dream.event.dispatch("onPlayStop");
-	}
-});
-
 
 Object.defineProperty($, "position", {
 	get : function() {
@@ -107,54 +98,41 @@ Object.defineProperty($, "interval", {
 	}
 });
 
-$.playBackward = function(){
-	this.isBackPlaying = true;
-};
-$.playForward = function(){
-	this.isBackPlaying = false;
-};
-
 
 $.step = function(frame) {
-		if(++this._intervalCnt % this.interval) return 1;
-		this._intervalCnt = 0;
-		if (this.isBackPlaying) {
-			if(! frame == undefined) this._counter = ++frame;
-			this._counter--;
-			if (this._counter <= -1) {
+		if (this.isBackward) {
+			this._counter = frame != undefined ? frame : this._counter - 1 ;
+			if (this._counter < 1) {
 				if (this.loop) {
-					this._counter = this.duration - 1;
+					this._counter = this.duration;
 					dream.event.dispatch(this, "onCycle");
 				} else {
-					this._isPlaying = false;
+					if (! this._isInTimeline) this.isPlaying = false;
 					this._counter = 0;
 					dream.event.dispatch(this, "onEnd");
 				}
 			}
 		} else {
-			if(! frame == undefined) this._counter = --frame;
-			this._counter ++;
-			if (this._counter >= this.duration) {
+			this._counter = frame != undefined ? frame : this._counter + 1;
+			if (this._counter > this.duration) {
 				if (this.loop) {
-					this._counter = 0;
+					this._counter = 1;
 					dream.event.dispatch(this, "onCycle");
 					
 				} else {
-					this._isPlaying = false;
-					this._counter --;
+					if (! this._isInTimeline) this.isPlaying = false;
+					this._counter = this.duration + 1;
 					dream.event.dispatch(this, "onEnd");
 				}
 			}
 		}
 		for ( var i = 0, action; action = this.actions[i]; i++)
 			if (this._counter == action.frame)
-				if (this.isBackPlaying) {
+				if (this.isBackward) {
 					if (action.backwardFn)
 						action.backwardFn.call(this.host);
 				} else
 					action.forwardFn.call(this.host);
-		return 0;
-	
 };
 
 
@@ -197,7 +175,7 @@ $.revert = function(){
 
 $.step = function(frame){
 	Tween._superClass.prototype.step.call(this, frame);
-	var multiplier = this.interpolator( this._counter / this.duration );
+	var multiplier = this.interpolator( (this._counter - 1) / this.duration );
 	for(var i in this.diffMap)
 		this.setHostValue(i, this.initialMap[i] + this.diffMap[i] * multiplier); 	
 };
@@ -211,7 +189,8 @@ var Timeline = function(duration, loop, interval, startFrame){
 	this.animations = new dream.util.ArrayList();
 	this.animations.onAdd.add(function(obj){
 		dream.util.assert(obj instanceof dream.visual.animation.Animation,"you can only add animations to timeline");
-		obj._isPlaying = true;
+		obj.isPlaying = true;
+		obj._isInTimeline = true;
 		
 		
 	});
@@ -229,9 +208,10 @@ $.init = function(host){
 
 $.step = function(frame){
 	Timeline._superClass.prototype.step.call(this, frame);
+	var localCounter; 
 	for ( var i = 0, anim; anim = this.animations[i]; i++)
-		if (anim._isPlaying && anim.startFrame <= this._counter && anim.startFrame + anim.duration >= this._counter)
-			anim.step(this._counter - anim.startFrame);
+		if (anim.isPlaying && anim.startFrame <= this._counter && anim.startFrame + anim.duration * anim.interval >= this._counter && (localCounter = this._counter - anim.startFrame, localCounter % anim.interval == 0))
+			anim.step(localCounter/anim.interval);
 };
 
 
@@ -245,8 +225,9 @@ var SpriteAnimation = function(textureArray, loop, interval, startFrame){
 var $ = SpriteAnimation.prototype;
 
 $.step = function(frame){
-	if (Animation.prototype.step.call(this, frame)) return;
-	this.host.texture = this.frames[this._counter];
+	Animation.prototype.step.call(this, frame);
+	console.log(this._counter , frame);
+	this.host.texture = this.frames[this._counter - 1];
 	
 };
 
@@ -267,6 +248,7 @@ var AnimationList = function(host){
 	AnimationList._superClass.call(this);
 	
 	this.isPlaying = true;
+	this._counter = 0;
 	this.host = host;
 	this.onAdd.add(function(obj){
 			obj.init(this.host);
@@ -278,7 +260,7 @@ var $ = AnimationList.prototype;
 
 $.step = function(){
 	for (var i = 0, anim ; anim = this[i]; i++)
-		if (anim._isPlaying) anim.step();
+		if (anim.isPlaying && ++this._counter % anim.interval == 0) anim.step();
 };
 
 $.pause = function(){
