@@ -28,12 +28,10 @@ dream.visual.Graphic = function(left, top){
 	this.isImageChanged = true;
 	this.isBoundaryChanged = true;
 	
-	this.steps = new dream.util.ArrayList();
-	this.animations = new dream.visual.animation.AnimationList(this);
+	this.dynamics = new dream.dynamic.DynamicList(this);
 	
-	
-	this.animations.onAdd.add(function(anim){
-		anim.init(graphic);
+	this.dynamics.onAdd.add(function(dyn){
+		dyn.init(graphic);
 	});
 	
 	this.behaviours = new dream.util.ArrayList();
@@ -69,10 +67,7 @@ dream.visual.Graphic.prototype.draw = function(ctx, origin, drawRect) {
 
 dream.visual.Graphic.prototype.step = function (){
 	
-	for(var i = 0, step; step = this.steps[i]; i++)
-		step.step(this);
-	
-	if (this.animations.isPlaying) this.animations.step();
+	if (this.dynamics.isPlaying) this.dynamics.step();
 
 	if(this.isBoundaryChanged){
 		this.boundary = this.rect.boundary;

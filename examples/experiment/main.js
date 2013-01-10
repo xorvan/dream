@@ -1,16 +1,15 @@
-Boat = function(){
-	
-}.inherits(dream.visual.Graphic);
+var enemySprite = new dream.visual.SequentialSpriteSheet("res/enemies.png",{"main":{left:0, top:0, width:100, height:75, count:4, col:1}});
+
 
 Star = function(left, top){
-	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/star.png", 0, 0, 581, 518), left, top, 58, 51);
+	dream.visual.Bitmap.call(this,"res/star.png", left, top,  58, 51);
 	this.anchorX = 581 / 2;
 	this.anchorY = 518 / 2;
 	this.scale = 0.1;
-}.inherits(dream.visual.Sprite);
+}.inherits(dream.visual.Bitmap);
 
 Enemy = function(left, top){
-	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/enemies.png", 0, 0, 100, 75, 4, 1,[0,1,2,3,2,3,2,1,2,1,0,1]), left, top, 100, 75);
+	dream.visual.Sprite.call(this, left, top, new dream.dynamic.SpriteAnimation(enemySprite.textures, true, 5));
 	//this.anchorX = this.anchorY = 50;
 	var exo, eyo;
 	this.onDragStart.add(function(mouse){
@@ -21,7 +20,7 @@ Enemy = function(left, top){
 		this.anchorY = eyo;
 		this.left -= exo;
 		this.top -= eyo;		
-		this.steps.add(new dream.visual.animation.Step(function(){this.rotation+=5;}), 'main');
+		this.steps.add(new dream.dynamic.Dynamic(function(){this.rotation+=5;}), 'main').play();
 	});
 	
 	this.onDrag.add(function(mouse){
@@ -40,7 +39,7 @@ CompositeEnemy = function(left, top){
 	this.e1 = this.assets.add(new Enemy(0,0));
 	this.e2 = this.assets.add(new Enemy(20,0));
 	this.s = this.assets.add(new Star(10,10));
-	this.s.animations.add(new dream.visual.animation.Tween({left:60}, 50, new dream.visual.animation.interpolator.Sine, true));
+	this.s.dynamics.add(new dream.dynamic.Tween({left:60}, new dream.dynamic.interpolator.Sine, 50, true)).play();
 }.inherits(dream.visual.Composite);
 
 
@@ -59,11 +58,7 @@ function init(){
 	
 	worldMap = new dream.visual.Map("res/world.tmx");
 	//world.assets.add(worldMap, "worldMap");
-	
-	boat1 = new Boat;
-	//world.assets.add(boat1, "boat1");
-	
-	
+
 	for(var i=1; i<=2; i++){
 		var s = world.assets.add(new Enemy(Math.random() * 500 | 0, Math.random() * 500 | 0), "enemy" + i);
 		//s.steps.add(new dream.visual.animation.Step(function(){this.rotation += 5;}));
@@ -84,14 +79,14 @@ function init(){
 		//anchorX = width /2; 
 		//anchorY = height /2;
 		//left = top = 200;
-		tween1 = animations.add(new dream.visual.animation.Tween({scale:2,left:400,top:400,alpha:0.2, rotation:360}, 200, new dream.visual.animation.interpolator.Sine, true));
+		tween1 = dynamics.add(new dream.dynamic.Tween({scale:2,left:400,top:400,alpha:0.2, rotation:360}, new dream.dynamic.interpolator.Sine, 200, true)).play();
 		onMouseOver.add(function(){console.log("mi");});
 		onMouseOut.add(function(){console.log("mo");});
 	}
 	
 	ce = world.assets.add(new CompositeEnemy(400,50));
 	ce.rotation = 90;
-	ce.animations.add(new dream.visual.animation.Tween({rotation:180}, 100, new dream.visual.animation.interpolator.Sine, true));
+	ce.dynamics.add(new dream.dynamic.Tween({rotation:180}, new dream.dynamic.interpolator.Sine, 100, true)).play();
 	
 	paper = world.assets.add(new dream.visual.Composite(-400,100));
 	with(rect1 = paper.assets.add(new dream.visual.drawing.Rect(0,0,100,100))){
@@ -99,14 +94,14 @@ function init(){
 		fillStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0.25, "#00aaaa"), new dream.visual.drawing.ColorStop(0.75, "#aa0000")], 0, 0, 1, 1);
 		rotation = 0;
 		strokeStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0, "#330000"), new dream.visual.drawing.ColorStop(1, "#008888")], 0, 0, 0, 1);
-		tr = animations.add(new dream.visual.animation.Tween({
+		tr = dynamics.add(new dream.dynamic.Tween({
 		/*	width:150,
 			scale:1.5,
 			rotation:-15,
 			alpha:0.8,*/
 			"fillStyle.colorStops[0].position":.5, 
 			"fillStyle.colorStops[1].position":.5
-		}, 200, new dream.visual.animation.interpolator.Sine, true));
+		}, new dream.dynamic.interpolator.Sine, 200, true)).play();
 		onMouseOut.add(function(){console.log("r1mo");});
 		onMouseOver.add(function(){console.log("r1mi");});
 		onMouseDown.add(function(){console.log("r1md");});
@@ -159,7 +154,7 @@ function init(){
 	stats.getDomElement().style.left = '0px';
 	stats.getDomElement().style.top = '0px';
 	document.getElementById("container").appendChild(stats.getDomElement() );
-	var stp=new dream.visual.animation.Step(function(){stats.update();});
-	world.steps.add(stp);
+	var stp=new dream.dynamic.Dynamic(function(){stats.update();});
+	world.dynamics.add(stp).play();
 };
 

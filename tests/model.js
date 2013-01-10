@@ -1,44 +1,46 @@
+ajsprite =    new dream.visual.SequentialSpriteSheet("res/aj.png",{"main":{left:270, top:0, width:88, height:160, count:3, col:1}});
+firesprite =  new dream.visual.SequentialSpriteSheet("res/fire.png",{"main":{left:0, top:0, width:64, height:64, count:16, col:1}});
+cubesprite =  new dream.visual.SequentialSpriteSheet("res/cube.png",{"main":{left:0, top:0, width:60, height:60, count:30, col:1}});
+enemySprite = new dream.visual.SequentialSpriteSheet("res/enemies.png",{"main":{left:0, top:0, width:100, height:75, count:4, col:1}});
+
+
 Aj = function(left, top){
-	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/aj.png", 270, 0, 88, 160, 3, 15), left, top, 90, 160);
-	this.frameSets.add(new dream.visual.SpriteFrameSet("res/aj.png", 6, 180, 112, 130, 6, 9), "run");
+	dream.visual.Sprite.call(this, left, top, new dream.dynamic.SpriteAnimation(ajsprite.textures, true, 15));
+	}.inherits(dream.visual.Sprite);
 	
-	ajSpriteSHEET = new Spritesheet({walking_0: new Texture("aj.png", 0,0,100,150), walking_1:new Texture()});
-	
-	ajSpriteSHEET = new SequentialSpritesheet("aj.png", {
-		walking: {left:0, top:0, width:100, height:10, count:9, col:5},
-		running: {}
-	})
-	
-	dream.visual.Sprite.call(this,left, top, {
-		"default": new SpriteAnimation(ajSpritesheet.getTextures("walking", [1,2,3,2]), 2),
-		"running": new SpriteAnimation(ajSpritesheet.textures.startsWith("running"), 2),
-		"running": new SpriteAnimation("aj.xml#running*", 2),
-		"running": new SpriteAnimation("aj.png#animation&left=10&top=20&width=200&count=13&col=10", 2)
-	});
-	new Bitmap("aj.xml#running01");
-	new TiledLayer("map.tmx#layer1;mime-type=");
-	new Bitmap("aj.png#left=10&top=20&width=100&height=100");
-	
-}.inherits(dream.visual.Sprite);
+//	dream.visual.Sprite.call(this,left, top, {
+//		"default": new SpriteAnimation(ajSpritesheet.getTextures("walking", [1,2,3,2]), 2),
+//		"running": new SpriteAnimation(ajSpritesheet.textures.startsWith("running"), 2),
+//		"running": new SpriteAnimation("aj.xml#running*", 2),
+//		"running": new SpriteAnimation("aj.png#animation&left=10&top=20&width=200&count=13&col=10", 2)
+//	});
+//	new Bitmap("aj.xml#running01");
+//	new TiledLayer("map.tmx#layer1;mime-type=");
+//	new Bitmap("aj.png#left=10&top=20&width=100&height=100");
+
 
 
 Fire = function(left, top){
-	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/fire.png", 0, 0, 64, 64, 16, 4), left, top, 64, 64);
+	dream.visual.Sprite.call(this, left, top, new dream.dynamic.SpriteAnimation(firesprite.textures, true, 4));
 }.inherits(dream.visual.Sprite);
 
 Cube = function(left, top){
-	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/cube.png", 0, 0, 60, 60, 30, 3), left, top, 60, 60);
+	dream.visual.Sprite.call(this, left, top, new dream.dynamic.SpriteAnimation(cubesprite.textures, true, 3));
+}.inherits(dream.visual.Sprite);
+
+Enemy = function(left, top){
+	dream.visual.Sprite.call(this, left, top, new dream.dynamic.SpriteAnimation(enemySprite.textures, true, 5));
 }.inherits(dream.visual.Sprite);
 
 Poly1 = function(left, top){
-	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/poly1.png", 0, 0, 489, 454), left, top, 150, 150);
-}.inherits(dream.visual.Sprite);
+	dream.visual.Bitmap.call(this, "res/poly1.png", left, top, 150, 150);
+}.inherits(dream.visual.Bitmap);
 
 Star1 = function(left, top){
-	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/star1.xml#running*;mime-type:text/atlas-texture", 0, 0, 581, 518), left, top, 80, 80);
+	dream.visual.Bitmap.call(this, "res/star1.png", left, top, 80, 80);
 	this.anchorX = this.anchorY = 40;
-	this.steps.add(new dream.visual.animation.Step(function(){this.rotation += 5;}));
-}.inherits(dream.visual.Sprite);
+	this.dynamics.add(new dream.dynamic.Dynamic(function(){this.rotation += 5;})).play();
+}.inherits(dream.visual.Bitmap);
 
 RotatingCircles = function(left, top, d1, d2){
 	dream.visual.Composite.call(this, left, top);
@@ -53,8 +55,8 @@ RotatingCircles = function(left, top, d1, d2){
 	c1.fillStyle = "#0f0";
 	c2.fillStyle = "#00f";
 	
-	c2.tweens.add(new dream.visual.animation.Tween({left:20, top:20, scale:1.3, rotation:360}, 200, new dream.visual.animation.interpolator.Sine, true));
-	//c2.steps.add(new dream.visual.animation.Step(function(){this.rotation += 10;},-1,2));
+	c2.dynamics.add(new dream.dynamic.Tween({left:20, top:20, scale:1.3, rotation:360}, new dream.dynamic.interpolator.Sine, 200, true)).play();
+	//c2.Dynamics.add(new dream.dynamic.Dynamic(function(){this.rotation += 10;},-1,2));
 	
 }.inherits(dream.visual.Composite);
 
@@ -72,7 +74,7 @@ ThreeCircles = function(left, top, d1, d2, d3){
 	
 	c.fillStyle = "#0ff";
 	
-	rc.steps.add(new dream.visual.animation.Step(function(){this.rotation += 4;},-1,2));
+	rc.dynamics.add(new dream.dynamic.Dynamic(function(){this.rotation += 4;},-1,2)).play();
 	
 	this.anchorX = this.anchorY = d1/2;
 	
@@ -88,21 +90,21 @@ CompositeRect = function(left, top, width, height){
 	this.assets.add(tc3 = new ThreeCircles(width, 0, width/2, width/4, width/6 ), "tc3");
 	this.assets.add(tc4 = new ThreeCircles(width, height, width/3, width/4, width/6 ), "tc4");
 	
-	tc3.tweens.add(new dream.visual.animation.Tween({scale:1.5}, 20, new dream.visual.animation.interpolator.Sine, true));
+	tc3.dynamics.add(new dream.dynamic.Tween({scale:1.5}, new dream.dynamic.interpolator.Sine, 20, true)).play();
 	
 	r.fillStyle = "#f0f";
 	
-	this.tweens.add(new dream.visual.animation.Tween({rotation:90, scale:1.5, left:left+200}, 90, new dream.visual.animation.interpolator.Sine, true));
+	this.dynamics.add(new dream.dynamic.Tween({rotation:90, scale:1.5, left:left+200}, new dream.dynamic.interpolator.Sine, 90, true)).play();
 	
 }.inherits(dream.visual.Composite);
 
 Enemy = function(left, top){
-	dream.visual.Sprite.call(this, new dream.visual.SpriteFrameSet("res/enemies.png", 0, 0, 100, 75, 4, 5), left, top, 100, 75);
+	dream.visual.Sprite.call(this, left, top, new dream.dynamic.SpriteAnimation(enemySprite.textures, true, 5));
 	this.onDragStart.add(function(mouse){
 		var lm = this.rect.transformation.unproject(mouse);
 		this.anchorX = lm.left;
 		this.anchorY = lm.top;	
-		this.steps.add(new dream.visual.animation.Step(function(){this.rotation+=5;}), 'main');
+		this.Dynamics.add(new dream.dynamic.Dynamic(function(){this.rotation+=5;}), 'main');
 	});
 	
 	this.onDrag.add(function(mouse){
@@ -111,7 +113,7 @@ Enemy = function(left, top){
 	});
 	
 	this.onDragStop.add(function(mouse){
-		this.steps.remove('main');
+		this.Dynamics.remove('main');
 	});
 }.inherits(dream.visual.Sprite);
 
@@ -123,10 +125,10 @@ Paper1 = function(left, top){
 		fillStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0.25, "#00aaaa"), new dream.visual.drawing.ColorStop(0.75, "#aa0000")], 0, 0, 1, 1);
 		rotation = 0;
 		strokeStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0, "#330000"), new dream.visual.drawing.ColorStop(1, "#008888")], 0, 0, 0, 1);
-		tr = tweens.add(new dream.visual.animation.Tween({
+		tr = dynamics.add(new dream.dynamic.Tween({
 			"fillStyle.colorStops[0].position":.5, 
 			"fillStyle.colorStops[1].position":.5
-		}, 200, new dream.visual.animation.interpolator.Sine, true));
+		}, new dream.dynamic.interpolator.Sine, 200, true)).play();
 
 	};
 	

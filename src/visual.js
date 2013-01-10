@@ -34,6 +34,7 @@ $.getTextureArray =function(name){
  * 
  */
 var SequentialSpriteSheet = function(img, data){
+	SpriteSheet.call(this);
 	for (name in data){
 		var slice = data[name];
 	var col = slice.col == undefined ? 1:slice.col;
