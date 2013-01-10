@@ -4,7 +4,7 @@
 (function(){
 	
 /**
- * @constructor
+ * @constructor for actions
  */
 	
 var Action = function (frame, fn, execOnSeek){
