@@ -306,7 +306,7 @@ Object.defineProperty(TiledMapResourceLoader.prototype, "dependencies", {
 			pre = pre ? pre[1] : "";
 			var images = this.content.getElementsByTagName("image");
 			for(var i=0,image; image = images[i]; i++){
-				dep.push(new dream.preload.ImageResource(pre+image.getAttribute("source")));
+				dep.push(new dream.static.ImageResource(pre+image.getAttribute("source")));
 			}
 			return dep.length? dep : null;
 		}else{

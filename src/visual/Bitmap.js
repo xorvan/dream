@@ -8,6 +8,7 @@ var Bitmap = function(img, left, top, width, height){
 	this.rect.height = height;
 	if(img)
 		this.setUp(img);
+
 }.inherits(dream.visual.Graphic);
 
 var $ = Bitmap.prototype;
@@ -29,6 +30,7 @@ $.setUp = function(img){
 		this.type = "ImageData";
 	}else 
 		throw new Error("Invalid Bitmap Image!");
+
 };
 
 Object.defineProperty($, "img", {
@@ -61,6 +63,7 @@ Object.defineProperty($, "height", {
 });
 
 $.drawImage = function(ctx, origin){
+	//console.log("wowww bitmap");
 	if (! this.source){
 		this.source = (new dream.static.Resource(this.url)).content;
 		if (! this._width)

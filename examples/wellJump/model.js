@@ -2,10 +2,10 @@
 
 //importing packages
 var drawing = dream.visual.drawing,
-	interpolator = dream.visual.animation.interpolator,
+	interpolator = dream.dynamic.interpolator,
 	behaviour = dream.behaviour,
-	Step = dream.visual.animation.Step,
-	Tween = dream.visual.animation.Tween;
+	Dynamic = dream.dynamic.Dynamic,
+	Tween = dream.dynamic.Tween;
 
 Jumper = function(left, top){
 	drawing.Circle.call(this, left, top, 40);
@@ -18,9 +18,9 @@ Jumper = function(left, top){
 	this.behaviours.add(new behaviour.Moving, "moving");
 	this.vx = 0;
 	
-	this.steps.add(new Step(function(){
+	this.dynamics.add(new Dynamic(function(){
 		this.left += this.vx;
-	}));
+	})).play();
 	
 		
 }.inherits(drawing.Circle);
@@ -29,23 +29,23 @@ var $ = Jumper.prototype;
 $.jump = function(){
 	this.stat = 1;
 
-	this.tweens.clear();
+	this.dynamics.clear();
 	
 	var jumper = this;
-	var downTween = new Tween({top:jumper.top+1200}, 100, new interpolator.PowerIn(2));
+	var downTween = new Tween({top:jumper.top+1200}, new interpolator.PowerIn(2), 100);
 	downTween.onEnd.add(function(){
 		console.log("Game Over");
 	});
 	
-	var upTween = new Tween({top:jumper.top-300}, 30, new interpolator.PowerOut(2));
+	var upTween = new Tween({top:jumper.top-300}, new interpolator.PowerOut(2), 30);
 	upTween.onEnd.add(function(){
 		jumper.stat = 0;
-		jumper.tweens.add(downTween);
+		jumper.dynamics.add(downTween).play();
 	});
 	
-	var startTween = this.tweens.add(new Tween({scaleY:0.5}, 10, new interpolator.Sine(1/2)));
+	var startTween = this.dynamics.add(new Tween({scaleY:0.5}, new interpolator.Sine(1/2), 10));
 	startTween.onEnd.add(function(){
-		jumper.tweens.add(upTween);
+		jumper.dynamics.add(upTween).play();
 	});
 
 	

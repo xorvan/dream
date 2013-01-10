@@ -32,11 +32,12 @@ html,body {
 	<script type="text/javascript" src="../../src/input.js"></script>
 	<script type="text/javascript" src="../../src/transform.js"></script>
 	<script type="text/javascript" src="../../src/visual.js"></script>
+	<script type="text/javascript" src="../../src/dynamic.js"></script>
 	<script type="text/javascript" src="../../src/visual/Graphic.js"></script>
 	<script type="text/javascript" src="../../src/visual/Composite.js"></script>
 	<script type="text/javascript" src="../../src/visual/Sprite.js"></script>
+	<script type="text/javascript" src="../../src/visual/Bitmap.js"></script>
 	<script type="text/javascript" src="../../src/scenery.js"></script>
-	<script type="text/javascript" src="../../src/visual/animation.js"></script>
 	<script type="text/javascript" src="../../src/visual/drawing.js"></script>
 	<script type="text/javascript" src="../../src/visual/Map.js"></script>
 	<script type="text/javascript" src="Stats.js"></script>
@@ -45,8 +46,8 @@ html,body {
 		function init(){
 			//importing packages
 			var drawing = dream.visual.drawing,
-				interpolator = dream.visual.animation.interpolator,
-				Tween = dream.visual.animation.Tween;
+				interpolator = dream.dynamic.interpolator,
+				Tween = dream.dynamic.Tween;
 			
 			
 			shapeScreen = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 1600, 1200);
@@ -55,34 +56,33 @@ html,body {
 			
 			with(p1 = scene.assets.add(new drawing.Poly(200,150,100,0), "p1")){
 				fillStyle = new drawing.Color("#f00");
-				tweens.add(new Tween({sides:12, "fillStyle.blue":255}, 700, new interpolator.Sine,true));
+				dynamics.add(new Tween({sides:12, "fillStyle.blue":255}, new interpolator.Sine, 700, true)).play();
 			}
 			
 			with(rect1 = scene.assets.add(new drawing.Rect(150,300,150,150), 'rect1')){
 				anchorX = anchorY = 75;
 				fillStyle = new drawing.LinearGradient([new drawing.ColorStop(0.25, new drawing.Color("#00aaaa")), 
 				                                        new drawing.ColorStop(0.75, new drawing.Color("#aa0000"))], 0, 0, 1, 1);
-				tr = tweens.add(new Tween({
+				tr = dynamics.add(new Tween({
 					rotation: 180,
 					"fillStyle.colorStops[0].position":.5, 
 					"fillStyle.colorStops[1].position":.5,
 					"fillStyle.colorStops[0].color.red":255,
 					"fillStyle.colorStops[1].color.blue":255
-				}, 200, new dream.visual.animation.interpolator.Sine, true));
+				}, new interpolator.Sine, 200,  true)).play();
 
 			};
-			
 			p2 = new dream.visual.drawing.Poly(300,70,70,6);
 			p2.fillStyle=new dream.visual.drawing.Color(125,125,255,0.8);
 			
-			//p2.tweens.add(new dream.visual.animation.Tween({'fillStyle.brightness':0},200,null, true))
+			//p2.dynamics.add(new dream.visual.animation.Tween({'fillStyle.brightness':0},200,null, true))
 			scene.assets.add(p2, 'p2');
 			
 			p5 = new drawing.Poly(100,100,80,6);
 			p5.strokeStyle = new drawing.Color("#5f6");
 			p5.lineStyle = new drawing.LineStyle(5,drawing.LineStyle.Cap.BUTT);
 			
-			p5.tweens.add(new Tween({left: 500, scale: 0.5},200, new interpolator.ElasticInOut(1, 0.4), true));
+			p5.dynamics.add(new Tween({left: 500, scale: 0.5}, new interpolator.ElasticInOut(1, 0.4), 200,  true)).play();
 			scene.assets.add(p5, 'p5');
 			
 			gr1 = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0.25,"#00aaaa"), new dream.visual.drawing.ColorStop(0.75, "#aa0000")], 0, 0, 0, 1);			
@@ -103,17 +103,17 @@ html,body {
 			cs1 = new dream.visual.drawing.CircleSlice(500,90,70,0);
 			cs1.fillStyle = "#49f";
 			cs1.strokeStyle = "#658";
-			cs1.tweens.add(new dream.visual.animation.Tween({angle:360},200, null, true));
+			cs1.dynamics.add(new Tween({angle:360}, null, 200, true)).play();
 			cs1.fillStyle = new dream.visual.drawing.Color("#49f")
 			cs1.fillStyle.hue=355;
-			cs1.tweens.add(new dream.visual.animation.Tween({'fillStyle.hue':0},500,null, true))
+			cs1.dynamics.add(new Tween({'fillStyle.hue':0},null, 500, true)).play();
 			scene.assets.add(cs1);
 			
 			s1=new dream.visual.drawing.Star(430,175,50,50,5);
 			s1.fillStyle = new drawing.RadialGradient([new drawing.ColorStop(0, new drawing.Color("#8b0596")), 
 				                                        new drawing.ColorStop(1, new drawing.Color("#Eb55F9"))], .5, .5, 0, .5, .5, .4);
 			s1.strokeStyle = "#8b0596";
-			s1.tweens.add(new dream.visual.animation.Tween({radius:125, rotation:90},300, new interpolator.Sine, true));
+			s1.dynamics.add(new Tween({radius:125, rotation:90}, new interpolator.Sine, 300, true)).play();
 			scene.assets.add(s1);
 			
 			
@@ -123,8 +123,8 @@ html,body {
 			stats.getDomElement().style.left = '0px';
 			stats.getDomElement().style.top = '0px';
 			document.body.appendChild(stats.getDomElement() );
-			var stp=new dream.visual.animation.Step(function(){stats.update();});
-			scene.steps.add(stp);
+			var stp=new dream.dynamic.Dynamic(function(){stats.update();});
+			scene.dynamics.add(stp).play();
 		}
 	</script>
 

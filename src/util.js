@@ -109,6 +109,11 @@ dream.util.ArrayList.prototype.addArray = function(items){
 	items && items.forEach(this.add, this);
 };
 
+dream.util.ArrayList.prototype.addJson = function(items){
+	for(var i in items) 
+		this.add(items[i], i);
+};
+
 /**
  * @author Ehsan
  * @constructor

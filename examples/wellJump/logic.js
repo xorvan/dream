@@ -2,9 +2,9 @@
 
 //importing packages
 var drawing = dream.visual.drawing,
-	interpolator = dream.visual.animation.interpolator,
-	Tween = dream.visual.animation.Tween,
-	Step = dream.visual.animation.Step;
+	interpolator = dream.dynamic.interpolator,
+	Tween = dream.dynamic.Tween,
+	Dynamic = dream.dynamic.Dynamic;
 
 
 init = function(){
@@ -46,7 +46,7 @@ ClassicScene = function(jumper, gameScreen){
 		this.top = gameScreen.height;
 	});
 	
-	jumper.tweens.clear();
+	jumper.dynamics.clear();
 	jumper.top = 0;
 	jumper.left = 320;
 	this.assets.add(jumper, "jumper");
@@ -55,7 +55,7 @@ ClassicScene = function(jumper, gameScreen){
 	
 	this.barManager.altitude = 0;
 	
-	this.steps.add(new Step(function(){
+	this.dynamics.add(new Dynamic(function(){
 		if(!jumper.stat){
 			for(var i=0, bar; bar = this.barManager.bars[i]; i++){
 				if(jumper.boundary.right > bar.boundary.left && jumper.boundary.left < bar.boundary.right && Math.abs(bar.boundary.top - jumper.boundary.bottom) < 10){
@@ -72,7 +72,7 @@ ClassicScene = function(jumper, gameScreen){
 				this.barManager.altitude = -y;
 			}
 		}
-	}));
+	})).play();
 	
 }.inherits(dream.scenery.Scene);
 var $ = ClassicScene.prototype;

@@ -11,13 +11,12 @@ html,body {
 }
 
 .content {
-	height: 100%;
+	height: 99%;
 }
 
 #mainCanvas {
 	width: 100%;
 	height: 100%;
-	display: block;
 }
 
 
@@ -32,12 +31,12 @@ html,body {
 	<script type="text/javascript" src="../src/input.js"></script>
 	<script type="text/javascript" src="../src/transform.js"></script>
 	<script type="text/javascript" src="../src/visual.js"></script>
+	<script type="text/javascript" src="../src/dynamic.js"></script>
 	<script type="text/javascript" src="../src/visual/Graphic.js"></script>
-	<script type="text/javascript" src="../src/visual/Bitmap.js"></script>
 	<script type="text/javascript" src="../src/visual/Composite.js"></script>
 	<script type="text/javascript" src="../src/visual/Sprite.js"></script>
+	<script type="text/javascript" src="../src/visual/Bitmap.js"></script>
 	<script type="text/javascript" src="../src/scenery.js"></script>
-	<script type="text/javascript" src="../src/visual/animation.js"></script>
 	<script type="text/javascript" src="../src/visual/drawing.js"></script>
 	<script type="text/javascript" src="../src/visual/Map.js"></script>
 	<script type="text/javascript" src="Stats.js"></script>
@@ -65,7 +64,7 @@ html,body {
 			}
 
 			en=new Enemy(0,0);
-			en.tweens.add(new dream.visual.animation.Tween({left:900,top:300,alpha:0.1,rotation:355},300,new dream.visual.animation.interpolator.Sine,true));
+			en.dynamics.add(new dream.dynamic.Tween({left:900,top:300,alpha:0.1,rotation:355},new dream.dynamic.interpolator.Sine,300,true)).play();
 			scene.assets.add(en);
 			
 
@@ -77,8 +76,8 @@ html,body {
 			stats.getDomElement().style.left = '0px';
 			stats.getDomElement().style.top = '0px';
 			document.body.appendChild(stats.getDomElement() );
-			var stp=new dream.visual.animation.Step(function(){stats.update();});
-			scene.steps.add(stp);
+			var stp=new dream.dynamic.Dynamic(function(){stats.update();});
+			scene.dynamics.add(stp).play();
 		}
 	</script>
 
