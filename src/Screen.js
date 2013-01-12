@@ -68,7 +68,6 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 }.inherits(dream.VisualAsset);
 
 dream.event.create(dream.VisualAsset.prototype, "onResize");
-dream.event.create(dream.VisualAsset.prototype, "onDeviceMotion");
 
 dream.Screen.prototype.pause = function(){
 	var craf = this.cancelRequestAnimationFrameFunction;

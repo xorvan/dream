@@ -1,33 +1,106 @@
 /**
  * 
  */
-dream.input = {};
-
-dream.input.MouseState = function(){
-	dream.Point.call(this);
+(function(window){
 	
-	this.clientX =  0;
-	this.clientY =  0;
-	this.isDown =  false;
+/**
+ * @constructor
+ */
+var InputEvent = function(){
 	
-}.inherits(dream.Point);
-
-dream.input.MouseState.prototype.clone = function(){
-	var r = new dream.input.MouseState();
-	for(var i in this){
-		r[i] = this[i];
-	}
-	return r;
 };
+
+var $ = InputEvent.prototype;
+
+$.stopPropagation = function(){
+	this._isPropagationStopped = true;
+};
+
+$.preventDefault = function(){
+	this._isDefaultPrevented = true;
+};
+
+/**
+ * @constructor
+ */
+var MouseEvent = function(domEvent, screenPosition, local){
+	InputEvent.call(this);
+	
+	this.screenPosition = screenPosition || new dream.Point; 
+	this.parentPosition = this.screenPosition;
+	
+	this.local = local;
+	this.domEvent = domEvent;
+	
+	this._parentStack = [];
+	this._localStack = [];
+	
+}.inherits(InputEvent);
+
+var $ = MouseEvent.prototype;
+
+$.toLocal = function(local){
+	this._localStack.push(this.local);
+	this._parentStack.push(this.parentPosition);
+	
+	this.parentPosition = this.localPosition;
+	this.local = local;
+	
+	return this;
+};
+
+$.restore = function(){
+	this.parentPosition = this._parentStack.pop();
+	this.local = this._localStack.pop();
+	
+	return this;
+};
+
+Object.defineProperty($, "localPosition", {
+	get : function() {
+		return this.local.rect.transformation.unproject(this.parentPosition);
+	}
+});
+
+Object.defineProperty($, "buttons", {
+	get : function() {
+		return this.domEvent.buttons;
+	}
+});
+
+Object.defineProperty($, "ctrlKey", {
+	get : function() {
+		return this.domEvent.ctrlKey;
+	}
+});
+
+Object.defineProperty($, "shiftKey", {
+	get : function() {
+		return this.domEvent.shiftKey;
+	}
+});
+
+Object.defineProperty($, "altKey", {
+	get : function() {
+		return this.domEvent.altKey;
+	}
+});
+
+Object.defineProperty($, "metaKey", {
+	get : function() {
+		return this.domEvent.metaKey;
+	}
+});
 
 /**
  * @param {dream.Screen} screen The Screen to handle input.
  * @constructor
  */
 dream.input.InputHandler = function(screen){
-	this.mouse =  new dream.input.MouseState();
-	
-	this.downKeys = {};
+	this.mouse = {
+			position: new dream.Point,
+			isDown: false
+	};
 	
 	this.screen = screen;
 	
@@ -37,23 +110,19 @@ dream.input.InputHandler = function(screen){
 	window.addEventListener("mousemove",function(e){
 		var x = e.clientX, y = e.clientY;
 		
-		input.mouse.clientX = x;
-		input.mouse.clientX = y;
+		input.mouse.position.left = x - input.screen.canvas.offsetLeft + window.scrollX;
+		input.mouse.position.top = y - input.screen.canvas.offsetTop + window.scrollY;
 		
-		input.mouse.left = x - input.screen.canvas.offsetLeft + scrollX;
-		input.mouse.top = y - input.screen.canvas.offsetTop + scrollY;
-		
-		screen.raiseMouseMove(input.mouse);
-		if(input.mouse.isDown) screen.raiseDrag(input.mouse);
+		screen.raiseMouseMove(new MouseEvent(e, input.mouse.position, screen), new MouseEvent(e, input.mouse.position, screen));
+		if(input.mouse.isDown) screen.raiseDrag(new MouseEvent(e, input.mouse.position, screen));
 	}, false);
 	
 	screen.canvas.addEventListener("mousedown",function(e){
-		input.mouse.isDown = true;
-		screen.raiseMouseDown(input.mouse);
+		screen.raiseMouseDown(new MouseEvent(e, input.mouse.position, screen));
 	}, false);
 
 	screen.canvas.addEventListener("mouseout",function(e){
-		screen.raiseMouseOut(input.mouse);
+		screen.raiseMouseOut(new MouseEvent(e, input.mouse.position, screen));
 	}, false);
 
 	screen.canvas.addEventListener("mouseover",function(e){
@@ -62,48 +131,16 @@ dream.input.InputHandler = function(screen){
 
 	window.addEventListener("mouseup",function(e){
 		input.mouse.isDown = false;
-		screen.raiseMouseUp(input.mouse);
-		screen.raiseDragStop(input.mouse);
+		screen.raiseMouseUp(new MouseEvent(e, input.mouse.position, screen), new MouseEvent(e, input.mouse.position, screen));
+		screen.raiseDragStop(new MouseEvent(e, input.mouse.position, screen));
 	}, false);
 
-	window.addEventListener("keydown",function(e, keyCode){
-		var kc = keyCode || e.keyCode || e.which;
-		console.log(kc);
-		if(!input.downKeys[kc]) input.downKeys[kc] = 1;
-		dream.event.dispatch(screen, "onKeyDown");
-	}, false);
-
-	window.addEventListener("keyup",function(e, keyCode){
-		var kc = keyCode || e.keyCode || e.which;
-		delete input.downKeys[kc];
-		dream.event.dispatch(screen, "onKeyUp");
-	}, false);
-	
-	if (window.DeviceMotionEvent){
-		window.addEventListener("devicemotion",function(e){
-			dream.event.dispatch(screen, "onDeviceMotion", e);
-		}, false);
-	}
 	
 };
 
-dream.input.InputHandler.prototype = {
- 
-		
-};
-
-
-/**
- * @constructor
- */
-dream.input.KeyBinding = function(fn, key){
-	this.fn = fn;
-	this.key = key;
-};
-
-dream.input.Key = {
+var Key = {
 	'LEFT' : 37,
-	'TAB':9,
+	'TAB': 9,
 	'UP' : 38,
 	'RIGHT' : 39,
 	'DOWN' : 40,
@@ -155,3 +192,30 @@ dream.input.Key = {
 	'Y' : 89,
 	'Z' : 90
 };
+
+dream.input = {
+		InputEvent: InputEvent,
+		MouseEvent: MouseEvent,
+		InputHandler: InputHandler,
+		Key: Key
+};
+
+dream.event.create(dream.input, "onKeyDown");
+dream.event.create(dream.input, "onKeyUp");
+dream.event.create(dream.input, "onDeviceMotion");
+
+window.addEventListener("keydown",function(e){
+	dream.event.dispatch(dream.input, "onKeyDown", e);
+}, false);
+
+window.addEventListener("keyup",function(e){
+	dream.event.dispatch(dream.input, "onKeyUp", e);
+}, false);
+
+if (window.DeviceMotionEvent){
+	window.addEventListener("devicemotion",function(e){
+		dream.event.dispatch(dream.input, "onDeviceMotion", e);
+	}, false);
+}
+
+})(window);
