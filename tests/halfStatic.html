@@ -39,6 +39,7 @@ html,body {
 	<script type="text/javascript" src="../src/scenery.js"></script>
 	<script type="text/javascript" src="../src/visual/drawing.js"></script>
 	<script type="text/javascript" src="../src/visual/Map.js"></script>
+	<script type="text/javascript" src="../src/tune.js"></script>
 	<script type="text/javascript" src="Stats.js"></script>
 	
 	<script type="text/javascript" src="model.js"></script>
@@ -48,13 +49,8 @@ html,body {
 			
 			scene = new dream.scenery.Scene;
 			
-			for(var i = 0; i < 12; i++ ){
-				cr = new CompositeRect(Math.random() * 900, Math.random() * 200 + 400, Math.random() * 50 + 50, Math.random() * 50 + 50);
-				scene.assets.add(cr, "cr"+i);
-			}
 			
 			for(var i = 0; i < 100; i++ ){
-				
 				var c = new Cube(Math.random() * 700 + 100, Math.random() * 200 + 400);
 				c.z = 3;
 				scene.assets.add(c, "c"+i);
@@ -66,11 +62,19 @@ html,body {
 			}
 			
 			
+			for(var i = 0; i < 2; i++ ){
+				cr = new CompositeRect(Math.random() * 900, Math.random() * 200 + 400, Math.random() * 50 + 50, Math.random() * 50 + 50);
+				scene.assets.add(cr, "cr"+i);
+			}
+			
+			
 			en=new Enemy(0,0);
 			en.dynamics.add(new dream.dynamic.Tween({left:900,top:300,alpha:0.1,rotation:355},new dream.dynamic.interpolator.Sine,300,true)).play();
 			scene.assets.add(en);
 
 			test.scenes.current = scene;
+			
+			
 			
 			
 			stats=new Stats();
@@ -80,6 +84,10 @@ html,body {
 			document.body.appendChild(stats.getDomElement() );
 			var stp=new dream.dynamic.Dynamic(function(){stats.update();});
 			scene.dynamics.add(stp).play();
+			
+			t = new dream.tune.Tuner(scene);
+			//t.getHeavyObjects();
+			//t.mirrorObjects();
 		}
 	</script>
 

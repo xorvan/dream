@@ -29,13 +29,16 @@ $.step = function(){
 
 $.init = function(host){
 	this.host = host;
+	return this;
 };
 	
 $.pause = function(){
 	this.isPlaying = false;
+	return this;
 };
 $.play = function(){
 	this.isPlaying = true;
+	return this;
 };
 
 var Animation = function(duration, loop, interval, startFrame){
@@ -58,19 +61,23 @@ dream.event.create($, "onPause");
 $.pause = function(){
 	this.isPlaying = false;
 	dream.event.dispatch("onPause");
+	return this;
 };
 $.play = function(){
 	if (this._counter == 0 || this._counter == this.duration + 1) this.rewind();
 	this.isPlaying = true;
 	dream.event.dispatch("onPlay");
+	return this;
 };
 $.rewind = function(){
 	if (this.isBackward) this.seeker = this.duration;
 	else this.seeker = 1; 
+	return this;
 };
 $.stop = function(){
 	this.rewind();
 	this.pause();
+	return this;
 };
 
 Object.defineProperty($, "seeker", {
@@ -179,16 +186,18 @@ $.init = function(host){
 	this.diffMap = {};
 	this.initialMap = {};
 	for(var i in this.valueMap){
-		this.diffMap[i] = this.valueMap[i] - this.getHostValue(i);
+		if (i[0] == "$"){
+			var j = i;
+			i = i.slice(1);
+			this.diffMap[i] = this.valueMap[j];}
+		else
+			this.diffMap[i] = this.valueMap[i] - this.getHostValue(i);
 		this.initialMap[i] = this.getHostValue(i);
-	}};
-
-$.revert = function(){
-	for(var i in this.initialMap){
-		this.host[i] = this.initialMap[i];
 	}
-	this.stop();
+	return this;
 };
+	
+
 
 $.step = function(frame){
 	Animation.prototype.step.call(this, frame);

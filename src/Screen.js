@@ -161,9 +161,9 @@ dream.Screen.prototype.drawImageWithBufferdRedrawRegion = function(ctx, rect, dr
 	//if(rgCount) console.log(rgCount +" redraw regions." );
 };
 
-dream.Screen.prototype.drawImage = dream.Screen.prototype.drawImageWithClippingRedrawRegion;
+//dream.Screen.prototype.drawImage = dream.Screen.prototype.drawImageWithClippingRedrawRegion;
 //dream.Screen.prototype.drawImage = dream.Screen.prototype.drawImageWithBufferdRedrawRegion;
-//dream.Screen.prototype.drawImage = dream.Screen.prototype.drawImageWithoutRedrawRegion;
+dream.Screen.prototype.drawImage = dream.Screen.prototype.drawImageWithoutRedrawRegion;
 
 dream.Screen.prototype.checkHover = function (p){
 	if( this.isHovered ){

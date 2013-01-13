@@ -40,8 +40,8 @@ dream.input.InputHandler = function(screen){
 		input.mouse.clientX = x;
 		input.mouse.clientX = y;
 		
-		input.mouse.left = x - input.screen.canvas.offsetLeft + scrollX;
-		input.mouse.top = y - input.screen.canvas.offsetTop + scrollY;
+		input.mouse.left = x - input.screen.canvas.offsetLeft + (window.scrollX || document.body.scrollLeft);
+		input.mouse.top = y - input.screen.canvas.offsetTop + (window.scrollY || document.body.scrollTop);
 		
 		screen.raiseMouseMove(input.mouse);
 		if(input.mouse.isDown) screen.raiseDrag(input.mouse);

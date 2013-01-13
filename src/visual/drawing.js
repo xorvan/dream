@@ -1,50 +1,51 @@
-/**
- * 
- */
-dream.visual.drawing = {};
+(function(){
+
+
 
 /**
  * @constructor
  */
-dream.visual.drawing.Shape = function(left, top, width, height){
-	dream.visual.drawing.Shape._superClass.call(this, left, top, width, height);
+var Shape = function(left, top, width, height){
+	Shape._superClass.call(this, left, top, width, height);
 	
 	this.strokeOffset = 1;
 }.inherits(dream.visual.Graphic);
 
-Object.defineProperty(dream.visual.drawing.Shape.prototype, "fillStyle", {
+var $ = Shape.prototype;
+
+Object.defineProperty($, "fillStyle", {
 	get: function() {
 		return this._fs;
 	},
 	set: function(v){
-		if(this._fs instanceof dream.visual.drawing.Gradient)
+		if(this._fs instanceof Gradient)
 			this._fs.onChange.removeByOwner(this);
 
 		this._fs = v;
 		dream.event.dispatch(this, "onImageChange", [this.boundary.clone()]);
 		
-		if(this._fs instanceof dream.visual.drawing.Style)
+		if(this._fs instanceof Style)
 			this._fs.onChange.propagateFlagged(this, "isImageChanged");
 	}
 });
 
-Object.defineProperty(dream.visual.drawing.Shape.prototype, "strokeStyle", {
+Object.defineProperty($, "strokeStyle", {
 	get: function() {
 		return this._ss;
 	},
 	set: function(v){
-		if(this._ss instanceof dream.visual.drawing.Style)
+		if(this._ss instanceof Style)
 			this._ss.onChange.removeByOwner(this);
 		
 		this._ss = v;
 		dream.event.dispatch(this, "onImageChange", [this.boundary.clone()]);
 		
-		if(this._ss instanceof dream.visual.drawing.Style)
+		if(this._ss instanceof Style)
 			this._ss.onChange.propagateFlagged(this, "isImageChanged");
 	}
 });
 
-dream.visual.drawing.Shape.prototype._setStrokeOffset = function(w){
+$._setStrokeOffset = function(w){
 	var d = (((w + 1) / 2) | 0) - this.strokeOffset;
 	this.strokeOffset += d;
 	if(d){
@@ -56,12 +57,12 @@ dream.visual.drawing.Shape.prototype._setStrokeOffset = function(w){
 	}	
 };
 
-Object.defineProperty(dream.visual.drawing.Shape.prototype, "lineStyle", {
+Object.defineProperty($, "lineStyle", {
 	get: function() {
 		return this._ls;
 	},
 	set: function(v){
-		dream.util.assert(v instanceof dream.visual.drawing.LineStyle, "lineStyle must be LineStyle!");
+		dream.util.assert(v instanceof LineStyle, "lineStyle must be LineStyle!");
 		this._ls = v;
 		this.isImageChanged = true;
 		
@@ -75,41 +76,22 @@ Object.defineProperty(dream.visual.drawing.Shape.prototype, "lineStyle", {
 });
 
 
-dream.visual.drawing.Shape.prototype.drawImage = function(context, origin){
+$.drawImage = function(context, origin){
 	var r = this.rect;
-	if(this._fs) context.fillStyle = this._fs instanceof dream.visual.drawing.Style ? this._fs.createStyle(context, new dream.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._fs;
-	if(this._ss) context.strokeStyle = this._ss instanceof dream.visual.drawing.Style ? this._ss.createStyle(context, new dream.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._ss;
+	if(this._fs) context.fillStyle = this._fs instanceof Style ? this._fs.createStyle(context, new dream.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._fs;
+	if(this._ss) context.strokeStyle = this._ss instanceof Style ? this._ss.createStyle(context, new dream.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._ss;
 		
 	if(this._ls){
 		context.lineWidth=this._ls._width;
 		context.lineCap=this._ls._cap;
 		context.lineJoin=this._ls._join;
-		if (this._ls._join == dream.visual.drawing.LineStyle.Join.MITER)
+		if (this._ls._join == LineStyle.Join.MITER)
 			context.miterLimit= this._ls._miterLimit;
 	}
 
 };
 
-/**
- * @constructor
- */
-dream.visual.drawing.Rect = function(left, top, width, height){
-	dream.visual.drawing.Shape._superClass.call(this, left, top);
-	
-	this._width = 0;
-	this._height = 0;
-	this.width = width;
-	this.height = height;
-	
-}.inherits(dream.visual.drawing.Shape);
-
-dream.visual.drawing.Rect.prototype.drawImage = function(context, origin){
-	dream.visual.drawing.Rect._superClass.prototype.drawImage.call(this, context, origin);
-	if(this.fillStyle) context.fillRect(origin.left, origin.top, this.width, this.height);
-	if(this.strokeStyle) context.strokeRect(origin.left, origin.top, this.width, this.height);
-};
-
-Object.defineProperty(dream.visual.drawing.Shape.prototype, "width", {
+Object.defineProperty($, "width", {
 	get: function() {
 		return this._width;
 	},
@@ -122,7 +104,7 @@ Object.defineProperty(dream.visual.drawing.Shape.prototype, "width", {
 	}
 });
 
-Object.defineProperty(dream.visual.drawing.Shape.prototype, "height", {
+Object.defineProperty($, "height", {
 	get: function() {
 		return this._height;
 	},
@@ -138,12 +120,35 @@ Object.defineProperty(dream.visual.drawing.Shape.prototype, "height", {
 /**
  * @constructor
  */
-dream.visual.drawing.CircularShape = function(left, top, radius){
-	dream.visual.drawing.CircularShape._superClass.call(this, left, top);
-	this.radius = radius;
-}.inherits(dream.visual.drawing.Shape);
+var Rect = function(left, top, width, height){
+	Shape.call(this, left, top);
+	
+	this._width = 0;
+	this._height = 0;
+	this.width = width;
+	this.height = height;
+	
+}.inherits(Shape);
 
-Object.defineProperty(dream.visual.drawing.CircularShape.prototype, "radius", {
+Rect.prototype.drawImage = function(context, origin){
+	Shape.prototype.drawImage.call(this, context, origin);
+	if(this.fillStyle) context.fillRect(origin.left, origin.top, this.width, this.height);
+	if(this.strokeStyle) context.strokeRect(origin.left, origin.top, this.width, this.height);
+};
+
+
+
+/**
+ * @constructor
+ */
+var CircularShape = function(left, top, radius){
+	Shape.call(this, left, top);
+	this.radius = radius;
+}.inherits(Shape);
+
+var $ = CircularShape.prototype;
+
+Object.defineProperty($, "radius", {
 	get: function() {
 		return this._radius;
 	},
@@ -160,12 +165,12 @@ Object.defineProperty(dream.visual.drawing.CircularShape.prototype, "radius", {
 /**
  * @constructor
  */
-dream.visual.drawing.Circle = function(left, top, radius){
-	dream.visual.drawing.Circle._superClass.call(this, left, top, radius);
-}.inherits(dream.visual.drawing.CircularShape);
+var Circle = function(left, top, radius){
+	CircularShape.call(this, left, top, radius);
+}.inherits(CircularShape);
 
-dream.visual.drawing.Circle.prototype.drawImage = function(context, origin){
-	dream.visual.drawing.Circle._superClass.prototype.drawImage.call(this, context, origin);
+Circle.prototype.drawImage = function(context, origin){
+	CircularShape.prototype.drawImage.call(this, context, origin);
 	context.beginPath();
 	context.arc(origin.left, origin.top, this._radius, 0, Math.PI * 2, true);
 	context.closePath();
@@ -216,14 +221,16 @@ dream.visual.drawing.Ellipse.prototype.drawImage = function(context, rect){
 /**
  * 
  */
-dream.visual.drawing.CircleSlice = function(left, top, radius, angle){
-	dream.visual.drawing.CircleSlice._superClass.call(this, left, top, radius);
+var CircleSlice = function(left, top, radius, angle){
+	CircularShape.call(this, left, top, radius);
 	this._angle = angle;
-}.inherits(dream.visual.drawing.CircularShape);
+}.inherits(CircularShape);
 
-dream.util.createFlagProperty(dream.visual.drawing.CircleSlice.prototype,"angle","isImageChanged");
+var $ = CircleSlice.prototype;
 
-dream.visual.drawing.CircleSlice.prototype.drawImage = function(context, origin){
+dream.util.createFlagProperty($,"angle","isImageChanged");
+
+$.drawImage = function(context, origin){
 	context.translate(origin.left, origin.top);
 	context.beginPath();
 	var angs = this._angle * Math.PI / 180;
@@ -233,7 +240,7 @@ dream.visual.drawing.CircleSlice.prototype.drawImage = function(context, origin)
 	context.rotate(angs);
 	
 	context.closePath();
-	dream.visual.drawing.CircleSlice._superClass.prototype.drawImage.call(this, context, new dream.Point);
+	CircularShape.prototype.drawImage.call(this, context, new dream.Point);
 	if(this.fillStyle) context.fill();
 	if(this.strokeStyle) context.stroke();
 };
@@ -241,14 +248,15 @@ dream.visual.drawing.CircleSlice.prototype.drawImage = function(context, origin)
 /**
  * @constructor
  */
-dream.visual.drawing.Poly = function (left, top, radius, sides){
-	dream.visual.drawing.Poly._superClass.call(this, left, top, radius);
+var Poly = function (left, top, radius, sides){
+	CircularShape.call(this, left, top, radius);
 	this._sides = sides;
-}.inherits(dream.visual.drawing.CircularShape);
+}.inherits(CircularShape);
+var $ = Poly.prototype;
 
-dream.util.createFlagProperty(dream.visual.drawing.Poly.prototype,"sides","isImageChanged");
+dream.util.createFlagProperty($,"sides","isImageChanged");
 
-dream.visual.drawing.Poly.prototype.drawImage = function(context, origin){
+$.drawImage = function(context, origin){
 	context.translate(origin.left, origin.top);
 	var ang = 2  * Math.PI / this.sides;
 	context.rotate(Math.PI / -2);
@@ -259,7 +267,7 @@ dream.visual.drawing.Poly.prototype.drawImage = function(context, origin){
 		context.lineTo(this.radius, 0);
 	}
 	context.closePath();
-	dream.visual.drawing.Poly._superClass.prototype.drawImage.call(this, context, new dream.Point);
+	CircularShape.prototype.drawImage.call(this, context, new dream.Point);
 	if(this.fillStyle) context.fill();
 	if(this.strokeStyle) context.stroke();
 };
@@ -267,14 +275,16 @@ dream.visual.drawing.Poly.prototype.drawImage = function(context, origin){
 /**
  * @constructor
  */
-dream.visual.drawing.Star=function (left, top, radius, radius2, points){
-	dream.visual.drawing.Star._superClass.call(this, left, top);
+var Star=function (left, top, radius, radius2, points){
+	Shape.call(this, left, top);
 	this.radius = radius;
 	this.radius2 = radius2;
 	this.points = points;
-}.inherits(dream.visual.drawing.Shape);
+}.inherits(Shape);
 
-Object.defineProperty(dream.visual.drawing.Star.prototype, "radius", {
+var $ = Star.prototype;
+
+Object.defineProperty($, "radius", {
 	get: function() {
 		return this._radius;
 	},
@@ -288,7 +298,7 @@ Object.defineProperty(dream.visual.drawing.Star.prototype, "radius", {
 		this.isImageChanged=true;
 	}
 });
-Object.defineProperty(dream.visual.drawing.Star.prototype, "radius2", {
+Object.defineProperty($, "radius2", {
 	get: function() {
 		return this._radius2;
 	},
@@ -302,9 +312,9 @@ Object.defineProperty(dream.visual.drawing.Star.prototype, "radius2", {
 		this.isImageChanged=true;
 	}
 });
-dream.util.createFlagProperty(dream.visual.drawing.Star.prototype,"points","isImageChanged");
+dream.util.createFlagProperty($,"points","isImageChanged");
 
-dream.visual.drawing.Star.prototype.drawImage = function(context, origin){
+$.drawImage = function(context, origin){
 	var ang = Math.PI/(this.points);
 	context.translate(origin.left, origin.top);
 	context.rotate(Math.PI/-2);
@@ -317,7 +327,7 @@ dream.visual.drawing.Star.prototype.drawImage = function(context, origin){
 		}else context.lineTo(this.radius2, 0);
 	} // end for
 	context.closePath();
-	dream.visual.drawing.Star._superClass.prototype.drawImage.call(this, context, new dream.Point);
+	Shape.prototype.drawImage.call(this, context, new dream.Point);
 	if(this.fillStyle) context.fill();
 	if(this.strokeStyle) context.stroke();
 };
@@ -325,7 +335,7 @@ dream.visual.drawing.Star.prototype.drawImage = function(context, origin){
 /**
  * @constructor
  */
-dream.visual.drawing.Path = function(){};
+var Path = function(){};
 
 //       definig styles it may become another file alltoghether
 
@@ -333,16 +343,16 @@ dream.visual.drawing.Path = function(){};
 /**
  * @constructor
  */
-dream.visual.drawing.Style = function(){
+var Style = function(){
 	
 };
-dream.event.create(dream.visual.drawing.Style.prototype,"onChange");
+dream.event.create(Style.prototype,"onChange");
 
 
 /**
  * @constructor
  */
-dream.visual.drawing.Color = function(sr,g,b,a){
+var Color = function(sr,g,b,a){
 	if (typeof sr == 'string'){
 		if (sr.length == 4){
 			this._red=parseInt('0x'+sr[1])*16;
@@ -363,13 +373,15 @@ dream.visual.drawing.Color = function(sr,g,b,a){
 		this._alpha = a == undefined ? 1:a;
 	}
 	this.colorChanged = true;
-}.inherits(dream.visual.drawing.Style);
+}.inherits(Style);
 
-dream.visual.drawing.Color.prototype.createStyle = function(){
+var $ = Color.prototype;
+
+$.createStyle = function(){
 	return 'rgba('+(this.red | 0)+','+(this.green | 0)+','+(this.blue | 0)+','+this.alpha+')';
 };
 
-dream.visual.drawing.Color.prototype.getHSB = function (){
+$.getHSB = function (){
 	var r = this._red / 255;
 	var g = this._green / 255;
 	var bl = this._blue / 255;
@@ -393,7 +405,7 @@ dream.visual.drawing.Color.prototype.getHSB = function (){
     return [h, s, b];
 };
 
-dream.visual.drawing.Color.prototype.setHSB = function(nh, ns, nb){
+$.setHSB = function(nh, ns, nb){
 	var arr = this.colorChanged ? this.getHSB():this.bufferHSB;
 	var h = arr[0];
 	var s = arr[1];
@@ -454,7 +466,7 @@ dream.visual.drawing.Color.prototype.setHSB = function(nh, ns, nb){
 };
 
 
-Object.defineProperty(dream.visual.drawing.Color.prototype, "hue", {
+Object.defineProperty($, "hue", {
 	get: function() {
 		return this.colorChanged ? this.getHSB()[0]:this.bufferHSB[0];
 	},
@@ -464,7 +476,7 @@ Object.defineProperty(dream.visual.drawing.Color.prototype, "hue", {
 		dream.event.dispatch(this, "onChange");
 	}
 });
-Object.defineProperty(dream.visual.drawing.Color.prototype, "saturation", {
+Object.defineProperty($, "saturation", {
 	get: function() {
 		return this.colorChanged ? this.getHSB()[1]:this.bufferHSB[1];
 	},
@@ -474,7 +486,7 @@ Object.defineProperty(dream.visual.drawing.Color.prototype, "saturation", {
 		dream.event.dispatch(this, "onChange");
 	}
 });
-Object.defineProperty(dream.visual.drawing.Color.prototype, "brightness", {
+Object.defineProperty($, "brightness", {
 	get: function() {
 		return this.colorChanged ? this.getHSB()[2]:this.bufferHSB[2];
 	},
@@ -485,7 +497,7 @@ Object.defineProperty(dream.visual.drawing.Color.prototype, "brightness", {
 	}
 });
 
-Object.defineProperty(dream.visual.drawing.Color.prototype, "red", {
+Object.defineProperty($, "red", {
 	get: function() {
 		return this._red;
 	},
@@ -495,7 +507,7 @@ Object.defineProperty(dream.visual.drawing.Color.prototype, "red", {
 		dream.event.dispatch(this, "onChange");
 	}
 });
-Object.defineProperty(dream.visual.drawing.Color.prototype, "green", {
+Object.defineProperty($, "green", {
 	get: function() {
 		return this._green;
 	},
@@ -505,7 +517,7 @@ Object.defineProperty(dream.visual.drawing.Color.prototype, "green", {
 		dream.event.dispatch(this, "onChange");
 	}
 });
-Object.defineProperty(dream.visual.drawing.Color.prototype, "blue", {
+Object.defineProperty($, "blue", {
 	get: function() {
 		return this._blue;
 	},
@@ -516,12 +528,12 @@ Object.defineProperty(dream.visual.drawing.Color.prototype, "blue", {
 	}
 });
 
-dream.util.createEventProperty(dream.visual.drawing.Color.prototype,"alpha","onChange");
+dream.util.createEventProperty($,"alpha","onChange");
 
 /**
  * @constructor
  */
-dream.visual.drawing.LineStyle = function(width, cap, join, miterLimit){
+var LineStyle = function(width, cap, join, miterLimit){
 	this._width = width || 1;
 	this._cap = cap || dream.visual.drawing.LineStyle.Cap.BUTT;
 	this._join = join || dream.visual.drawing.LineStyle.Join.MITER;
@@ -529,21 +541,23 @@ dream.visual.drawing.LineStyle = function(width, cap, join, miterLimit){
 	
 };
 
-dream.event.create(dream.visual.drawing.LineStyle.prototype, "onChange");
+var $ = LineStyle.prototype;
 
-dream.util.createEventProperty(dream.visual.drawing.LineStyle.prototype,"width","onChange");
-dream.util.createEventProperty(dream.visual.drawing.LineStyle.prototype,"cap","onChange");
-dream.util.createEventProperty(dream.visual.drawing.LineStyle.prototype,"join","onChange");
-dream.util.createEventProperty(dream.visual.drawing.LineStyle.prototype,"miterLimit","onChange");
+dream.event.create($, "onChange");
+
+dream.util.createEventProperty($,"width","onChange");
+dream.util.createEventProperty($,"cap","onChange");
+dream.util.createEventProperty($,"join","onChange");
+dream.util.createEventProperty($,"miterLimit","onChange");
 
 
-dream.visual.drawing.LineStyle.Cap = {
+LineStyle.Cap = {
 	BUTT: "butt",
 	ROUND: "round",
 	SQUARE: "square"
 };
 
-dream.visual.drawing.LineStyle.Join = {
+LineStyle.Join = {
 	ROUND: "round",
 	BEVEL: "bevel",
 	MITER: "miter"
@@ -552,14 +566,16 @@ dream.visual.drawing.LineStyle.Join = {
 /**
  * @constructor
  */
-dream.visual.drawing.ColorStop = function(position, color){
+var ColorStop = function(position, color){
 	this._position = position;
 	this._color = color;
 };
 
-dream.event.create(dream.visual.drawing.ColorStop.prototype, "onChange");
+var $ = ColorStop.prototype;
 
-Object.defineProperty(dream.visual.drawing.ColorStop.prototype, "position", {
+dream.event.create($, "onChange");
+
+Object.defineProperty($, "position", {
 	get: function() {
 		return this._position;
 	},
@@ -569,15 +585,15 @@ Object.defineProperty(dream.visual.drawing.ColorStop.prototype, "position", {
 	}
 });
 
-Object.defineProperty(dream.visual.drawing.ColorStop.prototype, "color", {
+Object.defineProperty($, "color", {
 	get: function() {
 		return this._color;
 	},
 	set: function(v){
-		if (this._color instanceof dream.visual.drawing.Color) 
+		if (this._color instanceof Color) 
 			this._color.onChange.removeByOwner(this);
 		this._color = v;
-		if (this._color instanceof dream.visual.drawing.Color) 
+		if (this._color instanceof Color) 
 			this._color.onChange.propagate(this);
 		dream.event.dispatch(this, "onChange");
 	}
@@ -588,7 +604,7 @@ Object.defineProperty(dream.visual.drawing.ColorStop.prototype, "color", {
  * @param {Array<dream.visual.drawing.ColorStop>} colorStops
  * @constructor
  */
-dream.visual.drawing.Gradient = function(colorStops){
+var Gradient = function(colorStops){
 	this.colorStops = new dream.util.ArrayList;
 	
 	this.colorStops.onAdd.propagate(this, "onChange");
@@ -603,34 +619,34 @@ dream.visual.drawing.Gradient = function(colorStops){
 	});
 	
 	this.colorStops.addArray(colorStops);
-}.inherits(dream.visual.drawing.Style);;
+}.inherits(Style);
 
 
 /**
  * @constructor
  */
-dream.visual.drawing.LinearGradient = function(colorStops, startX, startY, endX, endY){
-	dream.visual.drawing.LinearGradient._superClass.call(this, colorStops);
+var LinearGradient = function(colorStops, startX, startY, endX, endY){
+	Gradient.call(this, colorStops);
 	
 	this.startX = startX;
 	this.startY = startY;
 	this.endX = endX;
 	this.endY = endY;
 	
-}.inherits(dream.visual.drawing.Gradient);
+}.inherits(Gradient);
 
-dream.visual.drawing.LinearGradient.prototype.createStyle = function(context, rect){
+LinearGradient.prototype.createStyle = function(context, rect){
 	var gr = context.createLinearGradient(rect.left + rect.width * this.startX, rect.top + rect.height * this.startY, rect.left + rect.width * this.endX, rect.top + rect.height * this.endY);
 	for ( var i = 0, cs; cs = this.colorStops[i]; i++)
-		gr.addColorStop(cs.position, cs.color instanceof dream.visual.drawing.Color ? cs.color.createStyle():cs.color);
+		gr.addColorStop(cs.position, cs.color instanceof Color ? cs.color.createStyle():cs.color);
 	return gr;
 };
 
 /**
  * @constructor
  */
-dream.visual.drawing.RadialGradient = function(colorStops, startX, startY, startR, endX, endY, endR){
-	dream.visual.drawing.LinearGradient._superClass.call(this, colorStops);
+var RadialGradient = function(colorStops, startX, startY, startR, endX, endY, endR){
+	Gradient.call(this, colorStops);
 	
 	this.startX = startX;
 	this.startY = startY;
@@ -639,12 +655,33 @@ dream.visual.drawing.RadialGradient = function(colorStops, startX, startY, start
 	this.endY = endY;
 	this.endR = endR;
 	
-}.inherits(dream.visual.drawing.Gradient);
+}.inherits(Gradient);
 
-dream.visual.drawing.RadialGradient.prototype.createStyle = function(context, rect){
+RadialGradient.prototype.createStyle = function(context, rect){
 	var d = rect.width > rect.height ? rect.width : rect.height;
 	var gr = context.createRadialGradient(rect.left + rect.width * this.startX, rect.top + rect.height * this.startY, d * this.startR, rect.left + rect.width * this.endX, rect.top + rect.height * this.endY, d * this.endR);
 	for ( var i = 0, cs; cs = this.colorStops[i]; i++)
-		gr.addColorStop(cs.position, cs.color instanceof dream.visual.drawing.Color ? cs.color.createStyle():cs.color);
+		gr.addColorStop(cs.position, cs.color instanceof Color ? cs.color.createStyle():cs.color);
 	return gr;
 };
+
+// exports
+dream.visual.drawing = {
+		Shape:Shape,
+		Rect:Rect,
+		CircularShape:CircularShape,
+		Circle:Circle,
+		CircleSlice:CircleSlice,
+		Star:Star,
+		Poly:Poly,
+		Style:Style,
+		Color:Color,
+		LineStyle:LineStyle,
+		ColorStop:ColorStop,
+		Gradient:Gradient,
+		LinearGradient:LinearGradient,
+		RadialGradient:RadialGradient	
+		
+};
+
+})();
