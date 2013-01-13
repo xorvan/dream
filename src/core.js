@@ -17,6 +17,7 @@ Function.prototype.inherits = function(base){
 
 })();
 
+window.URL = window.URL || window.webkitURL;
 
 /**
  * @namespace This is DreamJS root package.
