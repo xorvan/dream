@@ -46,7 +46,6 @@ ClassicScene = function(jumper, gameScreen){
 		this.top = gameScreen.height;
 	});
 	
-	jumper.dynamics.clear();
 	jumper.top = 0;
 	jumper.left = 320;
 	this.assets.add(jumper, "jumper");

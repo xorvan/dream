@@ -143,7 +143,7 @@ $.doLoad = function(callBack){
 			
 			if(!loaderClass) throw new Error("Cannot load resource with Content-Type '"+ mime + "'!");
 			
-			res.loader = new loaderClass(this, function(){
+			res.loader = new loaderClass(this, res.url, function(){
 				res.content = res.loader.content;
 				res.dependencies = res.loader.dependencies;
 				
@@ -203,8 +203,9 @@ Object.defineProperty($, "dependencies", {
 /**
  * @constructor
  */
-var ResourceLoader = function(xhr){
+var ResourceLoader = function(xhr, url){
 	this.content = null;
+	this.url = url;
 	this.dependencies = [];
 };
 var $ = ResourceLoader.prototype;
@@ -236,10 +237,10 @@ ResourceLoader.Type = {
  * @constructor
  * @extends dream.static.ResourceLoader
  */
-var BlobResourceLoader = function(xhr){
-	BlobResourceLoader._superClass.call(this, xhr);
+var BlobResourceLoader = function(xhr, url){
+	BlobResourceLoader._superClass.call(this, xhr, url);
 	
-	if(xhr)
+	if(xhr && xhr.responseType != undefined)
 		xhr.responseType = ResourceLoader.Type.BLOB;
 }.inherits(ResourceLoader);
 
@@ -247,19 +248,34 @@ var BlobResourceLoader = function(xhr){
  * @constructor
  * @extends dream.static.BlocResourceLoader
  */
-var ImageResourceLoader = function(xhr, onLoad){
-	ImageResourceLoader._superClass.call(this, xhr);
+var ImageResourceLoader = function(xhr, url, onLoad){
+	ImageResourceLoader._superClass.call(this, xhr, url);
 	
 	var rl = this;
-	xhr.onload = function(ev) {
+
+	if(xhr.responseType == ResourceLoader.Type.BLOB){
+		xhr.onload = function(ev) {
+			var img = new Image();
+			img.onload = function(e) {
+				window.URL.revokeObjectURL(img.src);
+				console.log("Resource '"+url+"' loaded using XHR2 Blob responseType!");
+				onLoad();
+			};
+			img.src = window.URL.createObjectURL(this.response);
+			rl.content = img;
+		};
+	}else{
+		xhr.abort();
 		var img = new Image();
-	    img.onload = function(e) {
-	      window.URL.revokeObjectURL(img.src);
-	      onLoad();
-	    };
-	    img.src = window.URL.createObjectURL(this.response);
-	    rl.content = img;
-	};
+		img.onload = function(){
+			rl.content = img;
+			console.log("Resource '"+url+"' loaded using TagLoading!");
+			onLoad();
+		};
+		img.src = url;
+		
+	}
+	
 		
 }.inherits(BlobResourceLoader);
 
@@ -270,14 +286,15 @@ ResourceLoader.register(ImageResourceLoader);
  * @constructor
  * @extends dream.static.ResourceLoader
  */
-var DocumentResourceLoader = function(xhr, onLoad){
-	DocumentResourceLoader._superClass.call(this, xhr);
+var DocumentResourceLoader = function(xhr, url, onLoad){
+	DocumentResourceLoader._superClass.call(this, xhr, url);
 	
 	if(xhr){
-		xhr.responseType = ResourceLoader.Type.DOCUMENT;
+		if(xhr.responseType != undefined) 
+			xhr.responseType = ResourceLoader.Type.DOCUMENT;
 		
 		xhr.onload = function(ev) {
-			rl.content = this.response;
+			rl.content = this.responseType == ResourceLoader.Type.DOCUMENT ? this.response : this.responseXML;
 			onLoad();
 		};
 	}
@@ -291,7 +308,7 @@ ResourceLoader.register(DocumentResourceLoader);
  * @constructor
  * @extends dream.static.DocumentResourceLoader
  */
-var TiledMapResourceLoader = function(xhr, onLoad){
+var TiledMapResourceLoader = function(xhr, url, onLoad){
 	TiledMapResourceLoader._superClass.call(this, xhr, onLoad);
 	
 }.inherits(DocumentResourceLoader);
