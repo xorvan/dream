@@ -49,7 +49,6 @@ html,body {
 			
 			scene = new dream.scenery.Scene;
 			
-			
 			for(var i = 0; i < 100; i++ ){
 				var c = new Cube(Math.random() * 700 + 100, Math.random() * 200 + 400);
 				c.z = 3;
@@ -62,7 +61,7 @@ html,body {
 			}
 			
 			
-			for(var i = 0; i < 2; i++ ){
+			for(var i = 0; i < 12; i++ ){
 				cr = new CompositeRect(Math.random() * 900, Math.random() * 200 + 400, Math.random() * 50 + 50, Math.random() * 50 + 50);
 				scene.assets.add(cr, "cr"+i);
 			}

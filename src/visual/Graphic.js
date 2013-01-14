@@ -132,7 +132,7 @@ dream.visual.Graphic.prototype.updateBuffer = function(){
 	this.buffer.top = this.rect.top;
 	this.buffer.context.translate(-this.rect.left, -this.rect.top);
 	
-	this._oldDrawImage(this.buffer.context, new dream.Point(0, 0), this.rect.clone());
+	this._oldDrawImage(this.buffer.context, new dream.Point(0, 0));
 };
 
 dream.visual.Graphic.prototype.raiseMouseDown = function(mouse){
@@ -279,7 +279,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "z", {
 Object.defineProperty(dream.visual.Graphic.prototype, "image", {
 	get: function() {
 		var buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
-		this.drawImage(buffer.context, new dream.Point(-this.rect.left, -this.rect.top), this.rect.clone());
+		this.drawImage(buffer.context, new dream.Point(-this.rect.left, -this.rect.top));
 		return buffer.context.getImageData(0, 0, this.rect.width, this.rect.height);
 	}
 });

@@ -6,7 +6,7 @@ dream.visual.Composite = function(left, top){
 	var composite = this;
 	
 	//this.rect = new dream.Rect(left, top);
-	
+	this._isDirty = false;
 	this.assets = new dream.util.AssetLibrary();
 	this.renderList = new dream.util.IndexedArrayList({"z": "onZChange"});
 	
@@ -24,9 +24,10 @@ dream.visual.Composite = function(left, top){
 				composite.addToRect(this);
 			}, composite);
 			
-			a.onImageChange.add(function(rects){
-				composite.redrawRegions.addArray(rects);
-			}, composite);
+			if(!composite._isDirty)
+				a.onImageChange.add(function(rects){
+					composite.redrawRegions.addArray(rects);
+				}, composite);
 					
 		};
 	});
@@ -38,6 +39,25 @@ dream.visual.Composite = function(left, top){
 		}
 	});
 }.inherits(dream.visual.Graphic);
+
+Object.defineProperty(dream.visual.Composite.prototype, "isDirty", {
+	set: function(v){
+		if(this._isDirty == v) return v;
+		this._isDirty = v;
+		if(v){
+			for(var i=0, obj; obj = this.assets[i]; i++)
+				obj.onImageChange.removeByOwner(this);
+		}else{
+			for(var i=0, obj; obj = this.assets[i]; i++)
+				obj.onImageChange.add(function(rects){
+					this.redrawRegions.addArray(rects);
+				}, this);
+		}
+	},
+	get : function () {
+		return this._isDirty;
+	}
+});
 
 dream.visual.Composite.prototype.addToRect = function(g){
 	var vr = g.boundary;
@@ -55,7 +75,9 @@ dream.visual.Composite.prototype.step = function (){
 		g.step();
 	});
 	
-	if(this.redrawRegions.length){
+	if(this._isDirty){
+		dream.event.dispatch(this, "onImageChange", [this.boundary]);
+	}else if(this.redrawRegions.length){
 		dream.event.dispatch(this, "onImageChange", this.redrawRegions.map(function(r){return this.rect.transformation.projectRect(r).boundary;}, this) );
 		this.redrawRegions.clear();
 	}
@@ -63,13 +85,21 @@ dream.visual.Composite.prototype.step = function (){
 }; 
 
 dream.visual.Composite.prototype.drawImage = function(ctx, origin, drawRect) {
-	var ldr = this.rect.transformation.unprojectRect(drawRect).boundary;
-	for(var zi in this.renderList.index.z){
-		this.renderList.index.z[zi].forEach(function(g){
-			if(g.boundary.hasIntersectWith(ldr)){
-				g.draw(ctx, origin, ldr);
-			}
-		});		
+	var ldr;
+	if(!drawRect || (ldr = this.rect.transformation.unprojectRect(drawRect).boundary, ldr.covers(this.rect))){
+		for(var zi in this.renderList.index.z){
+			this.renderList.index.z[zi].forEach(function(g){
+				g.draw(ctx, origin, this.rect);
+			});		
+		}		
+	}else{
+		for(var zi in this.renderList.index.z){
+			this.renderList.index.z[zi].forEach(function(g){
+				if(g.boundary.hasIntersectWith(ldr)){
+					g.draw(ctx, origin, ldr);
+				}
+			});		
+		}		
 	}
 };
 

@@ -240,8 +240,11 @@ ResourceLoader.Type = {
 var BlobResourceLoader = function(xhr, url){
 	BlobResourceLoader._superClass.call(this, xhr, url);
 	
-	if(xhr && xhr.responseType != undefined)
-		xhr.responseType = ResourceLoader.Type.BLOB;
+	try{
+		if(xhr && xhr.responseType != undefined)
+			xhr.responseType = ResourceLoader.Type.BLOB;
+	}catch(e){console.log(e);}
+	
 }.inherits(ResourceLoader);
 
 /**

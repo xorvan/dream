@@ -34,6 +34,7 @@ Enemy = function(left, top){
 
 Poly1 = function(left, top){
 	dream.visual.Bitmap.call(this, "res/poly1.png", left, top, 150, 150);
+	//this.updateBuffer();
 }.inherits(dream.visual.Bitmap);
 
 Star1 = function(left, top){
@@ -44,7 +45,7 @@ Star1 = function(left, top){
 
 RotatingCircles = function(left, top, d1, d2){
 	dream.visual.Composite.call(this, left, top);
-	
+	this.isDirty = true;
 	var c1, c2;
 	this.assets.add(c1 = new dream.visual.drawing.Circle(0, 0, d1), "c1");
 	this.assets.add(c2 = new dream.visual.drawing.Circle(d1/2, d1/2, d2), "c2");
@@ -64,7 +65,7 @@ RotatingCircles = function(left, top, d1, d2){
 
 ThreeCircles = function(left, top, d1, d2, d3){
 	dream.visual.Composite.call(this, left, top);
-	
+	this.isDirty = true;
 	var c, rc;
 	this.assets.add(c = new dream.visual.drawing.Circle(0, 0, d1), "c");
 	this.assets.add(rc = new RotatingCircles(d1/2, d1/2, d2, d3), "c2");
@@ -82,7 +83,7 @@ ThreeCircles = function(left, top, d1, d2, d3){
 
 CompositeRect = function(left, top, width, height){
 	dream.visual.Composite.call(this, left, top);
-	
+	this.isDirty = true;
 	var r, tc1, tc2, tc3, tc4;
 	this.assets.add(r = new dream.visual.drawing.Rect(0, 0, width, height), "r");
 	this.assets.add(tc1 = new ThreeCircles(0, 0, width/2, width/4, width/6 ), "tc1");
