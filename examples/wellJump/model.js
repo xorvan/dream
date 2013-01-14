@@ -22,16 +22,16 @@ Jumper = function(left, top){
 	
 	var startTween = this.dynamics.add(new Tween({scaleY:0.5}, new interpolator.Sine(1/2), 10), "startTween");
 	startTween.onEnd.add(function(){
-		jumper.dynamics.upTween.play();
+		jumper.dynamics.upTween.init().play();
 	});
 	
-	var upTween = this.dynamics.add(new Tween({top:jumper.top-300}, new interpolator.PowerOut(2), 30), "upTween");
+	var upTween = this.dynamics.add(new Tween({$top:-300}, new interpolator.PowerOut(2), 30), "upTween");
 	upTween.onEnd.add(function(){
 		jumper.stat = 0;
-		jumper.dynamics.downTween.play();
+		jumper.dynamics.downTween.init().rewind().play();
 	});
 	
-	var downTween = this.dynamics.add(new Tween({top:jumper.top+1200}, new interpolator.PowerIn(2), 100), "downTween");
+	var downTween = this.dynamics.add(new Tween({$top:+1200}, new interpolator.PowerIn(2), 100), "downTween");
 	downTween.onEnd.add(function(){
 		console.log("Game Over");
 	});
@@ -43,7 +43,8 @@ var $ = Jumper.prototype;
 
 $.jump = function(){
 	this.stat = 1;
-
+	this.dynamics.upTween.pause();
+	this.dynamics.downTween.pause();
 	this.dynamics.startTween.play();
 };
 

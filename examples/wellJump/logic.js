@@ -14,6 +14,8 @@ init = function(){
 	gameScreen.keyBindings.add(new dream.input.KeyBinding(function(i){jumper.left += Math.min(i,10);}, dream.input.Key.RIGHT));
 	gameScreen.keyBindings.add(new dream.input.KeyBinding(function(i){jumper.left -= Math.min(i,10);}, dream.input.Key.LEFT));
 	
+	gameScreen.input.interval = 1;
+	
 	jumper = new Jumper();
 	jumper.behaviours.add(new dream.behaviour.LeftBounded(0+jumper.radius,640-jumper.radius));
 	classicScene = null;
