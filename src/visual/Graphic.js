@@ -117,10 +117,10 @@ dream.visual.Graphic.prototype.step = function (){
 	
 }; 
 
-dream.visual.Graphic.prototype.checkHover = function (p){
-	var pl = this.rect.transformation.unproject(p);
-	if(pl.isIn(this.rect) && this.image.data[ (((pl.top|0) - this.rect.top) * this.rect.width + ( pl.left|0) - this.rect.left)*4 + 3 ] > this.selectionThreshold){
-		if(!this.isHovered) dream.event.dispatch(this, "onMouseOver");
+dream.visual.Graphic.prototype.checkHover = function (event){
+	var pl;
+	if(event.position.isIn(this.boundary) && (pl = event.localPosition, this.image.data[ (((pl.top|0) - this.rect.top) * this.rect.width + ( pl.left|0) - this.rect.left)*4 + 3 ] > this.selectionThreshold)){
+		if(!this.isHovered) dream.event.dispatch(this, "onMouseEnter", event);
 		this.isHovered = true;
 		return true;
 	}else{
@@ -150,45 +150,52 @@ dream.visual.Graphic.prototype.updateBuffer = function(){
 	this._oldDrawImage(this.buffer.context, new dream.Point(0, 0), this.rect.clone());
 };
 
-dream.visual.Graphic.prototype.raiseMouseDown = function(mouse){
-	dream.event.dispatch(this, "onMouseDown", mouse);
+dream.visual.Graphic.prototype.raiseMouseDown = function(event){
+	dream.event.dispatch(this, "onMouseDown$capture", event);
+	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseDown", event);
 	this.isMouseDown = true;
 };
 
-dream.visual.Graphic.prototype.raiseMouseUp = function(mouse){
-	dream.event.dispatch(this, "onMouseUp", mouse);
+dream.visual.Graphic.prototype.raiseMouseUp = function(event, clickEvent){
+	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseUp$capture", event);
+	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseUp", event);
 	if(this.isMouseDown){
-		dream.event.dispatch(this, "onClick", mouse);
+		if(!event._isPropagationStopped) dream.event.dispatch(this, "onClick$capture", clickEvent);
+		if(!event._isPropagationStopped) dream.event.dispatch(this, "onClick", clickEvent);
 		this.isMouseDown = false;
 	}
 };
 
-dream.visual.Graphic.prototype.raiseMouseMove = function(mouse){
-	dream.event.dispatch(this, "onMouseMove", mouse);
+dream.visual.Graphic.prototype.raiseMouseMove = function(event, dragEvent){
+	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseMove$capture", event);
+	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseMove", event);
 	if(this.isMouseDown){
 		if(!this.isDragging){
-			dream.event.dispatch(this, "onDragStart", mouse);
+			if(!event._isPropagationStopped) dream.event.dispatch(this, "onDragStart$capture", dragEvent);
+			if(!event._isPropagationStopped) dream.event.dispatch(this, "onDragStart", dragEvent);
 			this.isDragging = true;
 		}
 	}
 };
 
-dream.visual.Graphic.prototype.raiseMouseOut = function(mouse){
+dream.visual.Graphic.prototype.raiseMouseLeave = function(event){
 	this.isHovered = false;
 	this.hovered = null;
-	dream.event.dispatch(this, "onMouseOut", mouse);
+	dream.event.dispatch(this, "onMouseLeave", event);
 };
 
 
-dream.visual.Graphic.prototype.raiseDrag = function(mouse){
-	dream.event.dispatch(this, "onDrag", mouse);
+dream.visual.Graphic.prototype.raiseDrag = function(event){
+	dream.event.dispatch(this, "onDrag$capture", event);
+	if(!event._isPropagationStopped) dream.event.dispatch(this, "onDrag", event);
 };
 
-dream.visual.Graphic.prototype.raiseDragStop = function(mouse){
+dream.visual.Graphic.prototype.raiseDragStop = function(event){
 	this.dragging = false;
 	this.isDragging = false;
 	this.isMouseDown = false;
-	dream.event.dispatch(this, "onDragStop", mouse);
+	dream.event.dispatch(this, "onDragStop$capture", event);
+	if(!event._isPropagationStopped) dream.event.dispatch(this, "onDragStop", event);
 };
 
 Object.defineProperty(dream.visual.Graphic.prototype, "left", {

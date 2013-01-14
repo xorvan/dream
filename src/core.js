@@ -42,8 +42,8 @@ dream.VisualAsset = function(){
 	
 }.inherits(dream.Asset);
 
-dream.event.create(dream.VisualAsset.prototype, "onMouseOver", true);
-dream.event.create(dream.VisualAsset.prototype, "onMouseOut", true);
+dream.event.create(dream.VisualAsset.prototype, "onMouseEnter", true);
+dream.event.create(dream.VisualAsset.prototype, "onMouseLeave", true);
 dream.event.create(dream.VisualAsset.prototype, "onMouseMove", true);
 dream.event.create(dream.VisualAsset.prototype, "onMouseDown", true);
 dream.event.create(dream.VisualAsset.prototype, "onMouseUp", true);
@@ -65,17 +65,22 @@ dream.VisualAsset.prototype.raiseMouseDown = function(event){
 	this.isMouseDown = true;
 };
 
-dream.VisualAsset.prototype.raiseMouseUp = function(event, clickEvent){
+dream.VisualAsset.prototype.raiseMouseUp = function(event, clickEvent, dropEvent){
 	if(event._isPropagationStopped && clickEvent._isPropagationStopped) return false;
 	
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseUp$capture", event);
 	if(this.isMouseDown && !clickEvent._isPropagationStopped) dream.event.dispatch(this, "onClick$capture", event);
 	
+	if(dropEvent && !dropEvent._isPropagationStopped) dream.event.dispatch(this, "onDrop$capture", dropEvent);
+	
 	if(this.hovered){
-		this.hovered.raiseMouseUp(event.toLocal(this.hovered), clickEvent.toLocal(this.hovered));
+		this.hovered.raiseMouseUp(event.toLocal(this.hovered), clickEvent.toLocal(this.hovered), dropEvent && dropEvent.toLocal(this.hovered));
 		event.restore();
 		clickEvent.restore();
 	}
+	
+	if(dropEvent && !dropEvent._isPropagationStopped) dream.event.dispatch(this, "onDrop", dropEvent);
+	
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseUp", event);
 	if(this.isMouseDown && !clickEvent._isPropagationStopped){
 		dream.event.dispatch(this, "onClick", event);
@@ -106,23 +111,24 @@ dream.VisualAsset.prototype.raiseMouseMove = function(event, dragEvent){
 	}
 };
 
-dream.VisualAsset.prototype.raiseMouseOut = function(event){
-	dream.event.dispatch(this, "onMouseOut$capture", event);
-	if(this.hovered) this.hovered.raiseMouseOut(event.toLocal(this.hovered)), event.restore();
+dream.VisualAsset.prototype.raiseMouseLeave = function(event){
+	if(this.hovered) this.hovered.raiseMouseLeave(event.toLocal(this.hovered)), event.restore();
 	this.isHovered = false;
 	this.hovered = null;	
-	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseOut", event);
+	dream.event.dispatch(this, "onMouseLeave", event);
 };
 
 dream.VisualAsset.prototype.raiseDrag = function(event){
 	dream.event.dispatch(this, "onDrag$capture", event);
-	if(this.dragging) this.dragging.raiseDrag(event.toLocal(this.dragging)), event.restore();
-	if(!event._isPropagationStopped) dream.event.dispatch(this, "onDrag", event);
+	if(!event._isPropagationStopped){
+		if(this.dragging) this.dragging.raiseDrag(event.toLocal(this.dragging)), event.restore();
+		if(!event._isPropagationStopped) dream.event.dispatch(this, "onDrag", event);
+	}
 };
 
 dream.VisualAsset.prototype.raiseDragStop = function(event){
 	dream.event.dispatch(this, "onDragStop$capture", event);
-	if(this.dragging) this.dragging.raiseDragStop(event.toLocal(this.dragging)), event.restore();
+	if(this.dragging && !event._isPropagationStopped) this.dragging.raiseDragStop(event.toLocal(this.dragging)), event.restore();
 	this.dragging = false;
 	this.isDragging = false;
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onDragStop", event);

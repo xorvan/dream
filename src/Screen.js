@@ -97,7 +97,10 @@ dream.Screen.prototype.render = function(){
 	
 	this.drawImage(this.context, new dream.Point, new dream.Rect(0,0, this.width, this.height));
 	
-	if(checkInput) this.checkHover(this.input.mouse);
+	if(checkInput){
+		this.checkHover(new dream.input.MouseEvent(null, this.input.mouse.position, this));
+		if(this.input.mouse.isDown) this.raiseDrag(new dream.input.MouseEvent(null, this.input.mouse.position, this));
+	}
 	
 	if(!this.isRendering){
 		this.isRendering = true;
@@ -164,13 +167,13 @@ dream.Screen.prototype.drawImage = dream.Screen.prototype.drawImageWithClippingR
 //dream.Screen.prototype.drawImage = dream.Screen.prototype.drawImageWithBufferdRedrawRegion;
 //dream.Screen.prototype.drawImage = dream.Screen.prototype.drawImageWithoutRedrawRegion;
 
-dream.Screen.prototype.checkHover = function (p){
+dream.Screen.prototype.checkHover = function (event){
 	if( this.isHovered ){
 		if(!this.hovered){
 			this.hovered = this.scenes.current;
-			dream.event.dispatch(this, "onMouseOver");
+			dream.event.dispatch(this, "onMouseEnter", event);
 		}
-		this.hovered.checkHover(this.rect.transformation.unproject(p));
+		this.hovered.checkHover(event.toLocal(this.hovered));
 	}
 };
 

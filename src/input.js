@@ -27,7 +27,7 @@ var MouseEvent = function(domEvent, screenPosition, local){
 	InputEvent.call(this);
 	
 	this.screenPosition = screenPosition || new dream.Point; 
-	this.parentPosition = this.screenPosition;
+	this.position = this.screenPosition;
 	
 	this.local = local;
 	this.domEvent = domEvent;
@@ -41,16 +41,16 @@ var $ = MouseEvent.prototype;
 
 $.toLocal = function(local){
 	this._localStack.push(this.local);
-	this._parentStack.push(this.parentPosition);
+	this._parentStack.push(this.position);
 	
-	this.parentPosition = this.localPosition;
+	this.position = this.localPosition;
 	this.local = local;
 	
 	return this;
 };
 
 $.restore = function(){
-	this.parentPosition = this._parentStack.pop();
+	this.position = this._parentStack.pop();
 	this.local = this._localStack.pop();
 	
 	return this;
@@ -58,7 +58,7 @@ $.restore = function(){
 
 Object.defineProperty($, "localPosition", {
 	get : function() {
-		return this.local.rect.transformation.unproject(this.parentPosition);
+		return this.local.rect.transformation.unproject(this.position);
 	}
 });
 
@@ -96,7 +96,7 @@ Object.defineProperty($, "metaKey", {
  * @param {dream.Screen} screen The Screen to handle input.
  * @constructor
  */
-dream.input.InputHandler = function(screen){
+var InputHandler = function(screen){
 	this.mouse = {
 			position: new dream.Point,
 			isDown: false
@@ -114,15 +114,15 @@ dream.input.InputHandler = function(screen){
 		input.mouse.position.top = y - input.screen.canvas.offsetTop + window.scrollY;
 		
 		screen.raiseMouseMove(new MouseEvent(e, input.mouse.position, screen), new MouseEvent(e, input.mouse.position, screen));
-		if(input.mouse.isDown) screen.raiseDrag(new MouseEvent(e, input.mouse.position, screen));
 	}, false);
 	
 	screen.canvas.addEventListener("mousedown",function(e){
+		input.mouse.isDown = true;
 		screen.raiseMouseDown(new MouseEvent(e, input.mouse.position, screen));
 	}, false);
 
 	screen.canvas.addEventListener("mouseout",function(e){
-		screen.raiseMouseOut(new MouseEvent(e, input.mouse.position, screen));
+		screen.raiseMouseLeave(new MouseEvent(e, input.mouse.position, screen));
 	}, false);
 
 	screen.canvas.addEventListener("mouseover",function(e){
@@ -131,7 +131,7 @@ dream.input.InputHandler = function(screen){
 
 	window.addEventListener("mouseup",function(e){
 		input.mouse.isDown = false;
-		screen.raiseMouseUp(new MouseEvent(e, input.mouse.position, screen), new MouseEvent(e, input.mouse.position, screen));
+		screen.raiseMouseUp(new MouseEvent(e, input.mouse.position, screen), new MouseEvent(e, input.mouse.position, screen), screen.isDragging ? new MouseEvent(e, input.mouse.position, screen) : false );
 		screen.raiseDragStop(new MouseEvent(e, input.mouse.position, screen));
 	}, false);
 

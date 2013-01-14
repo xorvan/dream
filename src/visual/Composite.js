@@ -73,9 +73,8 @@ dream.visual.Composite.prototype.drawImage = function(ctx, origin, drawRect) {
 	}
 };
 
-dream.visual.Composite.prototype.checkHover = function(p){
-	if(p.isIn(this.boundary)){
-		var pr = this.rect.transformation.unproject(p);
+dream.visual.Composite.prototype.checkHover = function(event){
+	if(event.position.isIn(this.boundary)){
 		
 		var zs = [];
 		for(var zi in this.renderList.index.z){
@@ -85,22 +84,23 @@ dream.visual.Composite.prototype.checkHover = function(p){
 		var l, z = this.renderList.index.z;
 		while(l = z[zs.pop()])
 			for(var i = l.length -1 , g; g = l[i]; i--){
-				if(g.checkHover(pr)){
+				if(g.checkHover(event.toLocal(g))){
 					if(this.hovered && this.hovered != g){
-						dream.event.dispatch(this.hovered, "onMouseOut");
-						this.hovered.isHovered = false;
+						this.hovered.raiseMouseLeave(event);
 					}
 					this.hovered = g;
-					if(!this.isHovered) dream.event.dispatch(this, "onMouseOver");
+					event.restore();
+					if(!this.isHovered) dream.event.dispatch(this, "onMouseEnter", event);
 					this.isHovered = true;
 					return true;
+				}else{
+					event.restore();
 				}
+				
 			}
 	}
-
 	if(this.hovered){
-		dream.event.dispatch(this.hovered, "onMouseOut");
-		this.hovered.isHovered = false;
+		this.hovered.raiseMouseLeave(event.toLocal(this.hovered));
 		this.hovered = null;
 	}
 
@@ -121,6 +121,6 @@ dream.visual.Composite.prototype.flat = function(){
 dream.visual.Composite.prototype.raiseMouseDown = dream.VisualAsset.prototype.raiseMouseDown;
 dream.visual.Composite.prototype.raiseMouseUp = dream.VisualAsset.prototype.raiseMouseUp;
 dream.visual.Composite.prototype.raiseMouseMove = dream.VisualAsset.prototype.raiseMouseMove;
-dream.visual.Composite.prototype.raiseMouseOut = dream.VisualAsset.prototype.raiseMouseOut;
+dream.visual.Composite.prototype.raiseMouseLeave = dream.VisualAsset.prototype.raiseMouseLeave;
 dream.visual.Composite.prototype.raiseDrag = dream.VisualAsset.prototype.raiseDrag;
 dream.visual.Composite.prototype.raiseDragStop = dream.VisualAsset.prototype.raiseDragStop;
