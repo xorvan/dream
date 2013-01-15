@@ -10,26 +10,23 @@ Star = function(left, top){
 
 Enemy = function(left, top){
 	dream.visual.Sprite.call(this, left, top, new dream.dynamic.SpriteAnimation(enemySprite.textures, true, 5));
-	//this.anchorX = this.anchorY = 50;
-	var exo, eyo;
-	this.onDragStart.add(function(mouse){
-		var mouse = this.rect.transformation.unproject(mouse);
-		exo = mouse.left;
-		eyo = mouse.top;
-		this.anchorX = exo;
-		this.anchorY = eyo;
-		this.left -= exo;
-		this.top -= eyo;		
-		this.steps.add(new dream.dynamic.Dynamic(function(){this.rotation+=5;}), 'main').play();
+	this.onDragStart.add(function(event){
+		var lm = event.localPosition;
+		this.anchorX = lm.left;
+		this.anchorY = lm.top;
+		this.left = event.position.left;
+		this.top = event.position.top;		
+		this.dynamics.add(new dream.dynamic.Dynamic(function(){this.rotation+=5;}), 'rot').play();
 	});
 	
-	this.onDrag.add(function(mouse){
+	this.onDrag.add(function(event){
+		var mouse = event.position;
 		this.left = mouse.left;
 		this.top = mouse.top;
 	});
 	
 	this.onDragStop.add(function(mouse){
-		this.steps.remove('main');
+		this.dynamics.remove('rot');
 	});
 }.inherits(dream.visual.Sprite);
 
@@ -80,8 +77,8 @@ function init(){
 		//anchorY = height /2;
 		//left = top = 200;
 		tween1 = dynamics.add(new dream.dynamic.Tween({scale:2,left:400,top:400,alpha:0.2, rotation:360}, new dream.dynamic.interpolator.Sine, 200, true)).play();
-		onMouseOver.add(function(){console.log("mi");});
-		onMouseOut.add(function(){console.log("mo");});
+		onMouseEnter.add(function(){console.log("me");});
+		onMouseLeave.add(function(){console.log("ml");});
 	}
 	
 	ce = world.assets.add(new CompositeEnemy(400,50));
@@ -102,52 +99,52 @@ function init(){
 			"fillStyle.colorStops[0].position":.5, 
 			"fillStyle.colorStops[1].position":.5
 		}, new dream.dynamic.interpolator.Sine, 200, true)).play();
-		onMouseOut.add(function(){console.log("r1mo");});
-		onMouseOver.add(function(){console.log("r1mi");});
+		onMouseLeave.add(function(){console.log("r1ml");});
+		onMouseEnter.add(function(){console.log("r1me");});
 		onMouseDown.add(function(){console.log("r1md");});
 		onMouseUp.add(function(){console.log("r1mu");});
 		onClick.add(function(){console.log("r1mc");});
+		onMouseDown$capture.add(function(){console.log("C r1md");});
+		onMouseUp$capture.add(function(){console.log("C r1mu");});
+		onClick$capture.add(function(){console.log("C r1mc");});
 	}
 	
 	rect2 = paper.assets.add(new dream.visual.drawing.Rect(0,0,20,20));
 	rect2.fillStyle = "#ff0000";
 	rect2.strokeStyle = "#00ff00";
-	rect2.onMouseOver.add(function(){console.log("r2mi");});
-	rect2.onMouseOut.add(function(){console.log("r2mo");});
+	rect2.onMouseEnter.add(function(){console.log("r2me");});
+	rect2.onMouseLeave.add(function(){console.log("r2ml");});
 	
 	//paper.scale = 2;
-	paper.onMouseOver.add(function(){console.log("pmi");});
-	paper.onMouseOut.add(function(){console.log("pmo");});
+	paper.onMouseEnter.add(function(){console.log("pme");});
+	paper.onMouseLeave.add(function(){console.log("pml");});
+	paper.onMouseMove.add(function(){console.log("pmm");});
 	paper.onMouseDown.add(function(){console.log("pmd");});
 	paper.onMouseUp.add(function(){console.log("pmu");});
 	paper.onClick.add(function(){console.log("pmc");});
-	paper.onMouseMove.add(function(){console.log("pmm");});
-
-	world.onMouseMove.add(function(mouse){
-		var m = this.rect.transformation.unproject(mouse);
-		this.anchorX = m.left;
-		this.anchorY = m.top;
-		
-		this.left = mouse.left;
-		this.top = mouse.top;
-	});
+	paper.onMouseDown$capture.add(function(){console.log("C pmd");});
+	paper.onMouseUp$capture.add(function(){console.log("C pmu");});
+	paper.onClick$capture.add(function(){console.log("C pmc");});
 	
+	paper.onDrop.add(function(){console.log("pdrop");});
+	paper.onDrop$capture.add(function(){console.log("C pdrop");});
+
 	exp.scenes.add(world, "world");	
 	exp.scenes.current = world;//| exp.scenes.select("world");
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.anchorX += Math.min(i,10);}, dream.input.Key.RIGHT));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.anchorX -= Math.min(i,10);}, dream.input.Key.LEFT));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.anchorY -= Math.min(i,10);}, dream.input.Key.UP));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.anchorY += Math.min(i,10);}, dream.input.Key.DOWN));
 	
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.camera.rotation += Math.min(i,5);}, dream.input.Key.SLASH));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.camera.rotation -= Math.min(i,5);}, dream.input.Key.ASTERISK));
+	world.behaviours.addArray(
+			[new dream.behaviour.KeyboardNavigable(),
+			 new dream.behaviour.SnapAnchorToPointer(),
+			 new dream.behaviour.WheelZoomable(),
+			 new dream.behaviour.KeyboardZoomable(),
+			 new dream.behaviour.Draggable()]);
 	
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.camera.scale += i/100;}, dream.input.Key.PLUS));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.camera.scale -= i/100;}, dream.input.Key.MINUS));
 	
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){paper.rotation += i;}, dream.input.Key.Q));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){paper.rotation -= i;}, dream.input.Key.W));
+	world.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.Q, function(i){this.rotation += i;}));
+	world.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.W, function(i){this.rotation -= i;}));
 
+	paper.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.A, function(i){this.rotation += i;}));
+	paper.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.S, function(i){this.rotation -= i;}));
 	
 	stats=new Stats();
 	stats.getDomElement().style.position = 'absolute';

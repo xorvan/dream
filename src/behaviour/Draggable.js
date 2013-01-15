@@ -13,15 +13,15 @@ var $ = dream.behaviour.Draggable.prototype;
 
 $.enable = function(){
 	var ol, ot;
-	this.obj.onDragStart.add(function(mouse){
-		var lm = this.rect.transformation.unproject(mouse);
-		ol = lm.left;
-		ot = lm.top;	
+	this.obj.onDragStart.add(function(event){
+		var lm = event.localPosition;
+		ol = lm.left - this.anchorX;
+		ot = lm.top - this.anchorY;	
 	}, this);
 	
-	this.obj.onDrag.add(function(mouse){
-		this.left = mouse.left - ol;
-		this.top = mouse.top - ot;
+	this.obj.onDrag.add(function(event){
+		this.left = event.position.left - ol;
+		this.top = event.position.top - ot;
 	}, this);
 };
 

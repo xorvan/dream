@@ -261,7 +261,6 @@ var ImageResourceLoader = function(xhr, url, onLoad){
 			var img = new Image();
 			img.onload = function(e) {
 				window.URL.revokeObjectURL(img.src);
-				console.log("Resource '"+url+"' loaded using XHR2 Blob responseType!");
 				onLoad();
 			};
 			img.src = window.URL.createObjectURL(this.response);
@@ -272,7 +271,6 @@ var ImageResourceLoader = function(xhr, url, onLoad){
 		var img = new Image();
 		img.onload = function(){
 			rl.content = img;
-			console.log("Resource '"+url+"' loaded using TagLoading!");
 			onLoad();
 		};
 		img.src = url;

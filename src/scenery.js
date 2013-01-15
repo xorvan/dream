@@ -24,13 +24,13 @@ dream.scenery.Camera = function(scene){
 }.inherits(dream.Rect);
 
 Object.defineProperty(dream.scenery.Camera.prototype, "left", {
-	set : function(v){this.scene.left = v * -1;},
-	get : function(){ return this.scene.left * -1;}
+	set : function(v){this.scene.anchorX = v;},
+	get : function(){ return this.scene.anchorX;}
 });
 
 Object.defineProperty(dream.scenery.Camera.prototype, "top", {
-	set : function(v){this.scene.top = v * -1;},
-	get : function(){ return this.scene.top * -1;}
+	set : function(v){this.scene.anchorY = v;},
+	get : function(){ return this.scene.anchorY;}
 });
 
 Object.defineProperty(dream.scenery.Camera.prototype, "width", {

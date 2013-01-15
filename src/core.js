@@ -43,64 +43,96 @@ dream.VisualAsset = function(){
 	
 }.inherits(dream.Asset);
 
-dream.event.create(dream.VisualAsset.prototype, "onMouseOver");
-dream.event.create(dream.VisualAsset.prototype, "onMouseOut");
-dream.event.create(dream.VisualAsset.prototype, "onMouseMove");
-dream.event.create(dream.VisualAsset.prototype, "onMouseDown");
-dream.event.create(dream.VisualAsset.prototype, "onMouseUp");
-dream.event.create(dream.VisualAsset.prototype, "onClick");
-dream.event.create(dream.VisualAsset.prototype, "onDrag");
-dream.event.create(dream.VisualAsset.prototype, "onDragStart");
-dream.event.create(dream.VisualAsset.prototype, "onDragStop");
-dream.event.create(dream.VisualAsset.prototype, "onDrop");
-dream.event.create(dream.VisualAsset.prototype, "onKeyDown");
-dream.event.create(dream.VisualAsset.prototype, "onKeyUp");
+dream.event.create(dream.VisualAsset.prototype, "onMouseEnter", true);
+dream.event.create(dream.VisualAsset.prototype, "onMouseLeave", true);
+dream.event.create(dream.VisualAsset.prototype, "onMouseMove", true);
+dream.event.create(dream.VisualAsset.prototype, "onMouseDown", true);
+dream.event.create(dream.VisualAsset.prototype, "onMouseUp", true);
+dream.event.create(dream.VisualAsset.prototype, "onClick", true);
+dream.event.create(dream.VisualAsset.prototype, "onDrag", true);
+dream.event.create(dream.VisualAsset.prototype, "onDragStart", true);
+dream.event.create(dream.VisualAsset.prototype, "onDragStop", true);
+dream.event.create(dream.VisualAsset.prototype, "onDrop", true);
 
-dream.VisualAsset.prototype.raiseMouseDown = function(mouse){
-	if(this.hovered) this.hovered.raiseMouseDown(this.rect.transformation.unproject(mouse));
-	dream.event.dispatch(this, "onMouseDown", mouse);
+dream.VisualAsset.prototype.raiseMouseDown = function(event){
+	dream.event.dispatch(this, "onMouseDown$capture", event);
+	if(event._isPropagationStopped) return false;
+	if(this.hovered) {
+		this.hovered.raiseMouseDown(event.toLocal(this.hovered));
+		if(event._isPropagationStopped) return false;
+		event.restore();
+	}
+	dream.event.dispatch(this, "onMouseDown", event);
 	this.isMouseDown = true;
 };
 
-dream.VisualAsset.prototype.raiseMouseUp = function(mouse){
-	if(this.hovered) this.hovered.raiseMouseUp(this.rect.transformation.unproject(mouse));
-	dream.event.dispatch(this, "onMouseUp", mouse);
-	if(this.isMouseDown){
-		dream.event.dispatch(this, "onClick", mouse);
+dream.VisualAsset.prototype.raiseMouseUp = function(event, clickEvent, dropEvent){
+	if(event._isPropagationStopped && clickEvent._isPropagationStopped) return false;
+	
+	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseUp$capture", event);
+	if(this.isMouseDown && !clickEvent._isPropagationStopped) dream.event.dispatch(this, "onClick$capture", event);
+	
+	if(dropEvent && !dropEvent._isPropagationStopped) dream.event.dispatch(this, "onDrop$capture", dropEvent);
+	
+	if(this.hovered){
+		this.hovered.raiseMouseUp(event.toLocal(this.hovered), clickEvent.toLocal(this.hovered), dropEvent && dropEvent.toLocal(this.hovered));
+		event.restore();
+		clickEvent.restore();
+	}
+	
+	if(dropEvent && !dropEvent._isPropagationStopped) dream.event.dispatch(this, "onDrop", dropEvent);
+	
+	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseUp", event);
+	if(this.isMouseDown && !clickEvent._isPropagationStopped){
+		dream.event.dispatch(this, "onClick", event);
 		this.isMouseDown = false;
 	}
 };
 
-dream.VisualAsset.prototype.raiseMouseMove = function(mouse){
-	if(this.hovered) this.hovered.raiseMouseMove(this.rect.transformation.unproject(mouse));
-	dream.event.dispatch(this, "onMouseMove", mouse);
-	if(this.isMouseDown){
-		if(!this.isDragging){
-			dream.event.dispatch(this, "onDragStart", mouse);
+dream.VisualAsset.prototype.raiseMouseMove = function(event, dragEvent){
+	dream.event.dispatch(this, "onMouseMove$capture", event);
+	
+	if(this.isMouseDown && !this.isDragging)
+		dream.event.dispatch(this, "onDragStart$capture", dragEvent);
+
+	if(this.hovered){
+		this.hovered.raiseMouseMove(event.toLocal(this.hovered), dragEvent.toLocal(this.hovered));
+		event.restore();
+		dragEvent.restore();
+	}
+	
+	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseMove", event);
+	
+	if(this.isMouseDown && !this.isDragging){
+		if(!dragEvent._isPropagationStopped) dream.event.dispatch(this, "onDragStart", event);
+		if(!dragEvent._isDefaultPrevented){
 			this.isDragging = true;
-			if(this.hovered) this.dragging = this.hovered;
+			if(this.hovered) this.dragging = this.hovered;		
 		}
-		
 	}
 };
 
-dream.VisualAsset.prototype.raiseMouseOut = function(mouse){
-	if(this.hovered) this.hovered.raiseMouseOut(this.rect.transformation.unproject(mouse));
+dream.VisualAsset.prototype.raiseMouseLeave = function(event){
+	if(this.hovered) this.hovered.raiseMouseLeave(event.toLocal(this.hovered)), event.restore();
 	this.isHovered = false;
 	this.hovered = null;	
-	dream.event.dispatch(this, "onMouseOut", mouse);
+	dream.event.dispatch(this, "onMouseLeave", event);
 };
 
-dream.VisualAsset.prototype.raiseDrag = function(mouse){
-	if(this.dragging) this.dragging.raiseDrag(this.rect.transformation.unproject(mouse));
-	dream.event.dispatch(this, "onDrag", mouse);
+dream.VisualAsset.prototype.raiseDrag = function(event){
+	dream.event.dispatch(this, "onDrag$capture", event);
+	if(!event._isPropagationStopped){
+		if(this.dragging) this.dragging.raiseDrag(event.toLocal(this.dragging)), event.restore();
+		if(!event._isPropagationStopped) dream.event.dispatch(this, "onDrag", event);
+	}
 };
 
-dream.VisualAsset.prototype.raiseDragStop = function(mouse){
-	if(this.dragging) this.dragging.raiseDragStop(this.rect.transformation.unproject(mouse));
+dream.VisualAsset.prototype.raiseDragStop = function(event){
+	dream.event.dispatch(this, "onDragStop$capture", event);
+	if(this.dragging && !event._isPropagationStopped) this.dragging.raiseDragStop(event.toLocal(this.dragging)), event.restore();
 	this.dragging = false;
 	this.isDragging = false;
-	dream.event.dispatch(this, "onDragStop", mouse);
+	if(!event._isPropagationStopped) dream.event.dispatch(this, "onDragStop", event);
 };
 
 /**
