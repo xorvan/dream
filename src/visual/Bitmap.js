@@ -62,7 +62,7 @@ Object.defineProperty($, "height", {
 		this.isImageChanged = true;	}
 });
 
-$.drawImage = function(ctx, origin){
+$.drawImage = function(ctx, origin, drawRect){
 	//console.log("wowww bitmap");
 	if (! this.source){
 		this.source = (new dream.static.Resource(this.url)).content;
@@ -72,7 +72,16 @@ $.drawImage = function(ctx, origin){
 			this._height = this.rect.height = this.source.height;
 		this.isBoundaryChanged = true;
 	}
-	ctx.drawImage(this.source, 0, 0, this.source.width, this.source.height, origin.left|0, origin.top|0, this._width, this._height);
+	//TODO to get fixed after snaptopixel issue
+	if( false && drawRect && !drawRect.covers(this.boundary)){
+		var ldr = this.rect.transformation.unprojectRect(drawRect).boundary.getIntersectWith(this.rect);
+		var xf = this.source.width / this.rect.width, yf = this.source.height / this.rect.height;
+		//console.log(ldr);
+		ctx.drawImage(this.source, ldr.left * xf, ldr.top * yf, (ldr.width -1) * xf, (ldr.height -1) * yf, (origin.left|0) + ldr.left|0, (origin.top|0) + ldr.top|0, ldr.width, ldr.height);
+	}else{
+		ctx.drawImage(this.source, 0, 0, this.source.width, this.source.height, origin.left|0, origin.top|0, this._width, this._height);
+	}
+	
 };
 
 // exports

@@ -5,8 +5,8 @@
 /**
  * @constructor
  */
-var Shape = function(left, top, width, height){
-	Shape._superClass.call(this, left, top, width, height);
+var Shape = function(left, top){
+	Shape._superClass.call(this, left, top);
 	
 	this.strokeOffset = 1;
 }.inherits(dream.visual.Graphic);
@@ -91,6 +91,27 @@ $.drawImage = function(context, origin){
 
 };
 
+
+
+/**
+ * @constructor
+ */
+var Rect = function(left, top, width, height){
+	Shape.call(this, left, top);
+	
+	this._width = 0;
+	this._height = 0;
+	this.width = width;
+	this.height = height;
+	
+}.inherits(Shape);
+
+Rect.prototype.drawImage = function(context, origin){
+	Shape.prototype.drawImage.call(this, context, origin);
+	if(this.fillStyle) context.fillRect(origin.left, origin.top, this.width, this.height);
+	if(this.strokeStyle) context.strokeRect(origin.left, origin.top, this.width, this.height);
+};
+
 Object.defineProperty($, "width", {
 	get: function() {
 		return this._width;
@@ -116,27 +137,6 @@ Object.defineProperty($, "height", {
 		this.isBoundaryChanged = true;
 	}
 });
-
-/**
- * @constructor
- */
-var Rect = function(left, top, width, height){
-	Shape.call(this, left, top);
-	
-	this._width = 0;
-	this._height = 0;
-	this.width = width;
-	this.height = height;
-	
-}.inherits(Shape);
-
-Rect.prototype.drawImage = function(context, origin){
-	Shape.prototype.drawImage.call(this, context, origin);
-	if(this.fillStyle) context.fillRect(origin.left, origin.top, this.width, this.height);
-	if(this.strokeStyle) context.strokeRect(origin.left, origin.top, this.width, this.height);
-};
-
-
 
 /**
  * @constructor
@@ -181,42 +181,52 @@ Circle.prototype.drawImage = function(context, origin){
 /**
  * @constructor
  */
-//ellipse does ot work we have to fix it after rectangology
-/*
-dream.visual.drawing.Ellipse = function(left, top, width, height){
-	//this._width = width;
-	//this._height = height;
-	dream.visual.drawing.Shape._superClass.call(this, left, top, width, height);
+
+var Ellipse = function(left, top, radiusX, radiusY){
+	Shape.call(this, left, top);	
+	this.radiusX = radiusX;
+	this.radiusY = radiusY;
 	
-}.inherits(dream.visual.drawing.Shape);
+}.inherits(Shape);
 
-//dream.util.createFlagProperty(dream.visual.drawing.Ellipse.prototype,"width","isImageChanged");
-//dream.util.createFlagProperty(dream.visual.drawing.Ellipse.prototype,"height","isImageChanged");
+var $ = Ellipse.prototype;
 
-dream.visual.drawing.Ellipse.prototype.drawImage = function(context, rect){
-	context.save();
-	dream.visual.drawing.Ellipse._superClass.prototype.drawImage.call(this, context, rect);
-	var rad, scalex, scaley;
-	if (this._width < this.height) { 
-		rad = this.width;
-		scalex = 1;
-		scaley = this.height/this.width;
-	} else {
-		rad = this.height;
-		scaley = 1;
-		scalex = this.width/this._height;
-	}
-	context.translate(rect.left + this.width, rect.top + this.height);
-	//context.scale(scalex, scaley);
+$.drawImage = function(context, origin){
+	Shape.prototype.drawImage.call(this, context, origin);
+	context.scale(1, this._radiusY / this._radiusX);
 	context.beginPath();
-	context.arc(0, 0, rad, 0, Math.PI * 2, true);
+	context.arc(origin.left, origin.top * this._radiusX / this._radiusY, this._radiusX, 0, Math.PI * 2, true);
 	context.closePath();
 	if(this.fillStyle) context.fill();
 	if(this.strokeStyle) context.stroke();
-	context.restore();
-}; // end ellipse draw image
+}; 
 
-*/
+Object.defineProperty($, "radiusX", {
+	get: function() {
+		return this._radiusX;
+	},
+	set: function(v){
+		this._radiusX = v;
+		this.rect.left = -v - this.strokeOffset;
+		this.rect.width = (v + this.strokeOffset) * 2;
+		this.isImageChanged = true;
+		this.isBoundaryChanged = true;
+	}
+});
+
+Object.defineProperty($, "radiusY", {
+	get: function() {
+		return this._radiusY;
+	},
+	set: function(v){
+		this._radiusY = v;
+		this.rect.top = -v - this.strokeOffset;
+		this.rect.height = (v + this.strokeOffset) * 2;
+		this.isImageChanged = true;
+		this.isBoundaryChanged = true;
+	}
+});
+
 
 /**
  * 
@@ -672,6 +682,7 @@ dream.visual.drawing = {
 		CircularShape:CircularShape,
 		Circle:Circle,
 		CircleSlice:CircleSlice,
+		Ellipse:Ellipse,
 		Star:Star,
 		Poly:Poly,
 		Style:Style,

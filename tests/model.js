@@ -28,10 +28,6 @@ Cube = function(left, top){
 	dream.visual.Sprite.call(this, left, top, new dream.dynamic.SpriteAnimation(cubesprite.textures, true, 3));
 }.inherits(dream.visual.Sprite);
 
-Enemy = function(left, top){
-	dream.visual.Sprite.call(this, left, top, new dream.dynamic.SpriteAnimation(enemySprite.textures, true, 5));
-}.inherits(dream.visual.Sprite);
-
 Poly1 = function(left, top){
 	dream.visual.Bitmap.call(this, "res/poly1.png", left, top, 150, 150);
 	//this.updateBuffer();
@@ -105,7 +101,7 @@ Enemy = function(left, top){
 		var lm = this.rect.transformation.unproject(mouse);
 		this.anchorX = lm.left;
 		this.anchorY = lm.top;	
-		this.Dynamics.add(new dream.dynamic.Dynamic(function(){this.rotation+=5;}), 'main');
+		this.dynamics.add(new dream.dynamic.Dynamic(function(){this.rotation+=5;}), 'main').play();
 	});
 	
 	this.onDrag.add(function(mouse){
@@ -114,7 +110,7 @@ Enemy = function(left, top){
 	});
 	
 	this.onDragStop.add(function(mouse){
-		this.Dynamics.remove('main');
+		this.dynamics.remove('main');
 	});
 }.inherits(dream.visual.Sprite);
 
