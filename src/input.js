@@ -104,7 +104,7 @@ var InputHandler = function(screen){
 	
 	this.screen = screen;
 	
-	this.interval = 2;
+	this.interval = 1;
 	
 	var input = this;
 	window.addEventListener("mousemove",function(e){
@@ -228,5 +228,12 @@ if (window.DeviceMotionEvent){
 		dream.event.dispatch(dream.input, "onDeviceMotion", e);
 	}, false);
 }
+
+Object.defineProperty(dream.input, "deviceOrientation", {
+	get : function() {
+		return window.orientation;
+	}
+});
+
 
 })(window);

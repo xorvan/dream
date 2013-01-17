@@ -16,9 +16,18 @@ Jumper = function(left, top){
 	this.z = 10;
 	this.updateBuffer();
 	
+	var jumper = this;
+	
 	this.behaviours.add(new behaviour.Moving, "moving");
 	
-	var jumper = this;
+	dream.input.onDeviceMotion.add(function(event){
+		var a = dream.input.deviceOrientation ? event.accelerationIncludingGravity.y : event.accelerationIncludingGravity.x;
+		jumper.behaviours.moving.vx = a * 3;
+	});
+
+	this.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.RIGHT, function(i){jumper.left += Math.min(i,10);}));
+	this.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.LEFT, function(i){jumper.left -= Math.min(i,10);}));
+
 	
 	var startTween = this.dynamics.add(new Tween({scaleY:0.5}, new interpolator.Sine(1/2), 10), "startTween");
 	startTween.onEnd.add(function(){

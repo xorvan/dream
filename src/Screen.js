@@ -250,12 +250,6 @@ Object.defineProperty(dream.Screen.prototype, "frameRate", {
 	}
 });
 
-Object.defineProperty(dream.Screen.prototype, "orientation", {
-	get : function() {
-		return window.orientation;
-	}
-});
-
 dream.Screen.ScaleMode = {
 	EXACT_FIT: 0,
 	SHOW_ALL: 1,

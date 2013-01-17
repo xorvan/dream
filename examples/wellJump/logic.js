@@ -11,20 +11,10 @@ init = function(){
 	
 	gameScreen = new dream.Screen(document.getElementById("mainCanvas"), 640, 400, 640, 1200);
 	
-	gameScreen.keyBindings.add(new dream.input.KeyBinding(function(i){jumper.left += Math.min(i,10);}, dream.input.Key.RIGHT));
-	gameScreen.keyBindings.add(new dream.input.KeyBinding(function(i){jumper.left -= Math.min(i,10);}, dream.input.Key.LEFT));
-	
-	gameScreen.input.interval = 1;
-	
 	jumper = new Jumper();
-	jumper.behaviours.add(new dream.behaviour.LeftBounded(0+jumper.radius,640-jumper.radius));
+	jumper.behaviours.add(new dream.behaviour.LeftBounded(0 + jumper.radius, 640 - jumper.radius), "leftBounded");
 	classicScene = null;
-	
-	gameScreen.onDeviceMotion.add(function(event){
-		var a = this.orientation ? event.accelerationIncludingGravity.y : event.accelerationIncludingGravity.x;
-		jumper.behaviours.moving.vx = a * 3;
-	});
-	
+		
 	startGame();
 	
 };
