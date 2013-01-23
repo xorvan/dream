@@ -8,6 +8,30 @@ dream.scenery = {};
  */
 dream.scenery.Scene = function(){
 	dream.scenery.Scene._superClass.call(this);
+	this.drawDistanceX = 0;
+	this.drawDistanceY = 0;
+	
+	this.providers = new dream.util.ArrayList;
+	this.providers.add(new dream.provider.StaticProvider(this.renderList), "static");
+	
+	this.assets = this.providers.static.assets;
+	
+	var scene = this;
+	this.renderList.onAdd.add(function(a){
+		scene.addToRect(a);
+		
+		a.isImageChanged = true;
+		
+		a.onBoundaryChange.add(function(){
+			scene.addToRect(this);
+		}, scene);
+		
+		if(!scene._isDirty)
+			a.onImageChange.add(function(rects){
+				scene.redrawRegions.addArray(rects);
+			}, scene);
+				
+	});
 	
 	this.camera = new dream.scenery.Camera(this);
 }.inherits(dream.visual.Composite);
