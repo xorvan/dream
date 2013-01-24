@@ -19,6 +19,7 @@ var Action = function (frame, fn, execOnSeek){
 var Dynamic = function(fn, interval) {
 	if (fn) this.fn = fn;
 	this.isPlaying = false;
+	this.isPassive = false;
 	this.interval = interval || 1;
 };
 var $ = Dynamic.prototype;
@@ -244,6 +245,7 @@ $.step = function(frame){
 
 var SpriteAnimation = function(textureArray, loop, interval, startFrame){
 	SpriteAnimation._superClass.call(this, textureArray.length, loop, interval, startFrame);
+	this.isPassive = true;
 	this.frames = new dream.util.ArrayList();
 	this.frames.addArray(textureArray);	
 }.inherits(Animation);
@@ -285,8 +287,13 @@ var DynamicList = function(host){
 var $ = DynamicList.prototype;
 
 $.step = function(){
-	for (var i = 0, dyn ; dyn = this[i]; i++)
-		if (dyn.isPlaying && ++this._counter % dyn.interval == 0) dyn.step();
+	if(this.host.isPresent){
+		for (var i = 0, dyn ; dyn = this[i]; i++)
+			if (dyn.isPlaying && ++this._counter % dyn.interval == 0) dyn.step();		
+	}else{
+		for (var i = 0, dyn ; dyn = this[i]; i++)
+			if (!dyn.isPassive && dyn.isPlaying && ++this._counter % dyn.interval == 0) dyn.step();		
+	}
 };
 
 $.pause = function(){

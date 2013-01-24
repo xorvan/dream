@@ -10,6 +10,7 @@ dream.scenery.Scene = function(){
 	dream.scenery.Scene._superClass.call(this);
 	
 	this.screenBoundary = new dream.Rect; 
+	this.viewport = new dream.Rect; 
 	
 	this.drawDistanceX = 1;
 	this.drawDistanceY = 1;
@@ -17,30 +18,40 @@ dream.scenery.Scene = function(){
 	this.areaChangeRate = .5;
 	
 	this.providers = new dream.util.ArrayList;
-	this.providers.add(new dream.provider.StaticProvider(this.renderList), "static");
+	this.providers.add(new dream.provider.StaticProvider(this.pool), "static");
 	
 	this.assets = this.providers.static.assets;
 	
 	var scene = this;
-	this.renderList.onAdd.add(function(a){
+	this.pool.onAdd.add(function(a){
+				
 		scene.addToRect(a);
 		
 		a.isImageChanged = true;
 		
 		a.onBoundaryChange.add(function(){
 			scene.addToRect(this);
+			scene.checkPresence(this);
 		}, scene);
 		
 		if(!scene._isDirty)
 			a.onImageChange.add(function(rects){
 				scene.redrawRegions.addArray(rects);
 			}, scene);
-				
+	});
+	
+	
+	this.pool.onRemove.add(function(o){
+		o.onBoundaryChange.removeByOwner(scene);
+		o.onImageChange.removeByOwner(scene);
+		o.onZChange.removeByOwner(scene);
+		if(o.isPresent) scene.renderList[o.z].splice(scene.renderList[o.z].indexOf(o),1);
 	});
 	
 	this.area = new dream.Rect;
 	this.onResize.add(this.onBoundaryChange.add(function(){
-		var area = scene.rect.transformation.unprojectRect(scene.screenBoundary).boundary.clone();
+		scene.viewport = scene.rect.transformation.unprojectRect(scene.screenBoundary).boundary;
+		var area = scene.viewport.clone();
 		var vpw = area.width;
 		var vph = area.height;
 		area.left -= area.width * scene.drawDistanceX;
@@ -52,23 +63,50 @@ dream.scenery.Scene = function(){
 				area.height - intersection.height > vph * scene.drawDistanceY * scene.areaChangeRate){
 			
 			scene.area = area;
+
+			for(var i=0, o; o = scene.pool[i]; i++){
+				if(!o.boundary.hasIntersectWith(area)){
+					scene.pool.removeByIndex(i);
+				}
+			}
+			
 			console.log("Area changed!!");
 			for(var i=0, p; p = scene.providers[i]; i++){
 				p.area = area;
 			}
 			
-			for(var i=0, o; o = scene.renderList[i]; i++){
-				if(!o.boundary.hasIntersectWith(area)){
-					scene.renderList.removeByIndex(i);
-				}
-			}
 		}
+		
+		for(var i = 0, o; o = scene.pool[i]; i++ ){
+			scene.checkPresence(o);
+
+		}
+
 	}));
 	
 	this.camera = new dream.scenery.Camera(this);
 }.inherits(dream.visual.Composite);
 
 dream.event.create(dream.scenery.Scene.prototype, "onResize");
+
+dream.scenery.Scene.prototype.checkPresence = function(o){
+	var scene = this;
+	if(!o.isPresent && scene.viewport.hasIntersectWith(o.boundary)){
+		o.isPresent = true;
+		var z = o.z;
+		(scene.renderList[z] || (scene.renderList[z] = [])).push(o);
+		o.onZChange.add(function(oldZ){
+			var ol = scene.renderList[oldZ];
+			ol.splice(ol.indexOf(this), 1);
+			(scene.renderList[this.z] || (scene.renderList[this.z] = [])).push(this);
+		}, scene);
+
+	}else if(o.isPresent && !scene.viewport.hasIntersectWith(o.boundary)){
+		o.isPresent = false;
+		scene.renderList[o.z].splice(scene.renderList[o.z].indexOf(o),1);
+		o.onZChange.removeByOwner(scene);
+	}
+};
 
 
 /**
