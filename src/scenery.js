@@ -8,8 +8,13 @@ dream.scenery = {};
  */
 dream.scenery.Scene = function(){
 	dream.scenery.Scene._superClass.call(this);
-	this.drawDistanceX = 0;
-	this.drawDistanceY = 0;
+	
+	this.screenBoundary = new dream.Rect; 
+	
+	this.drawDistanceX = 1;
+	this.drawDistanceY = 1;
+	
+	this.areaChangeRate = .5;
 	
 	this.providers = new dream.util.ArrayList;
 	this.providers.add(new dream.provider.StaticProvider(this.renderList), "static");
@@ -32,6 +37,33 @@ dream.scenery.Scene = function(){
 			}, scene);
 				
 	});
+	
+	this.area = new dream.Rect;
+	this.onResize.add(this.onBoundaryChange.add(function(){
+		var area = scene.rect.transformation.unprojectRect(scene.screenBoundary).boundary.clone();
+		var vpw = area.width;
+		var vph = area.height;
+		area.left -= area.width * scene.drawDistanceX;
+		area.top -= area.height * scene.drawDistanceY;
+		area.width += area.width * 2 * scene.drawDistanceX;
+		area.height += area.height * 2 * scene.drawDistanceY;
+		var intersection = scene.area.getIntersectWith(area);
+		if(area.width - intersection.width > vpw * scene.drawDistanceX * scene.areaChangeRate ||  
+				area.height - intersection.height > vph * scene.drawDistanceY * scene.areaChangeRate){
+			
+			scene.area = area;
+			console.log("Area changed!!");
+			for(var i=0, p; p = scene.providers[i]; i++){
+				p.area = area;
+			}
+			
+			for(var i=0, o; o = scene.renderList[i]; i++){
+				if(!o.boundary.hasIntersectWith(area)){
+					scene.renderList.removeByIndex(i);
+				}
+			}
+		}
+	}));
 	
 	this.camera = new dream.scenery.Camera(this);
 }.inherits(dream.visual.Composite);

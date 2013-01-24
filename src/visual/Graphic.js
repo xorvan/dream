@@ -104,7 +104,7 @@ dream.visual.Graphic.prototype.step = function (){
 
 dream.visual.Graphic.prototype.checkHover = function (event){
 	var pl;
-	if(event.position.isIn(this.boundary) && (pl = event.localPosition, this.image.data[ (((pl.top|0) - this.rect.top) * this.rect.width + ( pl.left|0) - this.rect.left)*4 + 3 ] > this.selectionThreshold)){
+	if(event.position.isIn(this.boundary) && (pl = event.localPosition, this.imageData.data[ (((pl.top|0) - this.rect.top) * this.rect.width + ( pl.left|0) - this.rect.left)*4 + 3 ] > this.selectionThreshold)){
 		if(!this.isHovered) dream.event.dispatch(this, "onMouseEnter", event);
 		this.isHovered = true;
 		return true;
@@ -284,6 +284,14 @@ Object.defineProperty(dream.visual.Graphic.prototype, "z", {
 });
 
 Object.defineProperty(dream.visual.Graphic.prototype, "image", {
+	get: function() {
+		var buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
+		this.drawImage(buffer.context, new dream.Point(-this.rect.left, -this.rect.top));
+		return buffer.canvas;
+	}
+});
+
+Object.defineProperty(dream.visual.Graphic.prototype, "imageData", {
 	get: function() {
 		var buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
 		this.drawImage(buffer.context, new dream.Point(-this.rect.left, -this.rect.top));
