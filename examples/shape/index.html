@@ -33,6 +33,7 @@ html,body {
 	<script type="text/javascript" src="../../src/transform.js"></script>
 	<script type="text/javascript" src="../../src/visual.js"></script>
 	<script type="text/javascript" src="../../src/dynamic.js"></script>
+	<script type="text/javascript" src="../../src/provider.js"></script>
 	<script type="text/javascript" src="../../src/visual/Graphic.js"></script>
 	<script type="text/javascript" src="../../src/visual/Composite.js"></script>
 	<script type="text/javascript" src="../../src/visual/Sprite.js"></script>
@@ -54,10 +55,13 @@ html,body {
 			
 			scene = shapeScreen.scenes.current = new dream.scenery.Scene;
 			
-			with(p1 = scene.assets.add(new drawing.Poly(200,150,100,0), "p1")){
-				fillStyle = new drawing.Color("#f00");
-				dynamics.add(new Tween({sides:12, "fillStyle.blue":255}, new interpolator.Sine, 700, true)).play();
-			}
+			var p1 = scene.assets.add(new drawing.Poly(200,150,100,0));
+			//with(p1){
+				p1.fillStyle = new drawing.Color("#f00");
+				p1.dynamics.add(new Tween({sides:12, "fillStyle.blue":255}, new interpolator.Sine, 700, true)).play();
+			
+			
+			console.log("here");
 			
 			with(rect1 = scene.assets.add(new drawing.Rect(150,300,150,150), 'rect1')){
 				anchorX = anchorY = 75;
@@ -76,8 +80,11 @@ html,body {
 			p2.fillStyle=new dream.visual.drawing.Color(125,125,255,0.8);
 			
 			//p2.dynamics.add(new dream.visual.animation.Tween({'fillStyle.brightness':0},200,null, true))
+			
+			
 			scene.assets.add(p2, 'p2');
 			
+
 			p5 = new drawing.Poly(100,100,80,6);
 			p5.strokeStyle = new drawing.Color("#5f6");
 			p5.lineStyle = new drawing.LineStyle(5,drawing.LineStyle.Cap.BUTT);

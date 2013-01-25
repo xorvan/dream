@@ -42,15 +42,19 @@ $.play = function(){
 	return this;
 };
 
-var Animation = function(duration, loop, interval, startFrame){
+var Animation = function(duration, loop, interval){
 	Dynamic.call(this, null, interval);
 	this.duration = duration || 1;
 	if (this.duration < 1) this.duration = 1;
-	this.startFrame = startFrame || 0;
 	this.loop = loop;
 	this.isBackward = false;
 	this.actions = new dream.util.IndexedArrayList({frame:false});
 	this._counter = 0;
+	
+	var anim = this;
+	this.actions.onAdd.add(function(o){
+		anim.isPassive = false;
+	});
 }.inherits(Dynamic);
 
 var $ = Animation.prototype;
@@ -115,7 +119,7 @@ Object.defineProperty($, "seeker", {
 		
 		if (this.animations)
 			for ( var i = 0, anim; anim = this.animations[i]; i++)
-				anim.seeker = frame - anim.startFrame;
+				anim.seeker = frame - anim._startFrame;
 		this.step(frame);
 	}
 });
@@ -166,10 +170,13 @@ $.step = function(frame) {
 /**
  * @constructor
  */
-var Tween = function(valueMap, interpolator, duration, loop, interval, startFrame){
-	Tween._superClass.call(this, duration, loop, interval, startFrame);
+var Tween = function(valueMap, interpolator, duration, loop, interval){
+	Tween._superClass.call(this, duration, loop, interval);
 	this.valueMap = valueMap;
 	this.interpolator = interpolator && interpolator.fn || dream.dynamic.interpolator.Linear.prototype.fn;
+	if(!('left' in valueMap || 'top' in valueMap || 'right' in valueMap || 'bottom' in valueMap || 'rotation' in valueMap))
+		this.isPassive = true;
+	
 }.inherits(Animation);
 
 var $ = Tween.prototype;
@@ -211,13 +218,18 @@ $.step = function(frame){
  * @constructor
  */
 
-var Timeline = function(duration, loop, interval, startFrame){
-	Timeline._superClass.call(this, duration, loop, interval, startFrame);
+var Timeline = function(duration, loop, interval){
+	Timeline._superClass.call(this, duration, loop, interval);
+	this.isPassvie = true;
 	this.animations = new dream.util.ArrayList();
+	
+	var timeline = this;
 	this.animations.onAdd.add(function(obj){
 		dream.util.assert(obj instanceof dream.dynamic.Animation,"you can only add animations to timeline");
 		obj.isPlaying = true;
 		obj._isInTimeline = true;
+		if(!obj.isPassive)
+			timeline.isPassive = false;
 		
 		
 	});
@@ -226,6 +238,11 @@ var Timeline = function(duration, loop, interval, startFrame){
 }.inherits(Animation);
 
 var $ = Timeline.prototype;
+
+$.addAt = function(frame, anim, id){
+	anim._startFrame = frame;
+	this.animations.add(anim, id);
+};
 
 $.init = function(host){
 	this.host = host;
@@ -237,14 +254,14 @@ $.step = function(frame){
 	Animation.prototype.step.call(this, frame);
 	var localCounter; 
 	for ( var i = 0, anim; anim = this.animations[i]; i++)
-		if (anim.isPlaying && anim.startFrame <= this._counter && anim.startFrame + anim.duration * anim.interval >= this._counter && (localCounter = this._counter - anim.startFrame, localCounter % anim.interval == 0))
+		if (anim.isPlaying && anim._startFrame <= this._counter && anim._startFrame + anim.duration * anim.interval >= this._counter && (localCounter = this._counter - anim._startFrame, localCounter % anim.interval == 0))
 			anim.step(localCounter/anim.interval);
 };
 
 
 
-var SpriteAnimation = function(textureArray, loop, interval, startFrame){
-	SpriteAnimation._superClass.call(this, textureArray.length, loop, interval, startFrame);
+var SpriteAnimation = function(textureArray, loop, interval){
+	SpriteAnimation._superClass.call(this, textureArray.length, loop, interval);
 	this.isPassive = true;
 	this.frames = new dream.util.ArrayList();
 	this.frames.addArray(textureArray);	

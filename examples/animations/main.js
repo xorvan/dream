@@ -75,10 +75,10 @@ function init(){
 	enemy.dynamics.main.stop();
 	enemy.dynamics.main.step(1);
 	t = new dream.dynamic.Timeline(300, true, 1);
-	t.animations.add(new dream.dynamic.Tween({left:600}, null, 100, false, 1, 3));
+	t.addAt(3, new dream.dynamic.Tween({left:600}, null, 100, false, 1));
 	t.actions.add(new dream.dynamic.Action(101,function(ph){if(ph == 1)enemy.dynamics.main.play();else enemy.dynamics.main.stop();},true));
 	t.actions.add(new dream.dynamic.Action(201,function(ph){if(ph == 1)enemy.dynamics.main.stop();else enemy.dynamics.main.play();},true));
-	t.animations.add(new dream.dynamic.Tween({rotation:355}, null, 100, false, 1, 200));
+	t.addAt(200, new dream.dynamic.Tween({rotation:355}, null, 100, false, 1));
 	enemy.dynamics.add(t,"t");
 	enemy.dynamics.t.play();
 	
@@ -169,19 +169,12 @@ function init(){
 	
 	exp.scenes.add(world, "world");	
 	exp.scenes.current = world;//| exp.scenes.select("world");
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.anchorX += Math.min(i,10);}, dream.input.Key.RIGHT));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.anchorX -= Math.min(i,10);}, dream.input.Key.LEFT));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.anchorY -= Math.min(i,10);}, dream.input.Key.UP));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.anchorY += Math.min(i,10);}, dream.input.Key.DOWN));
-	
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.camera.rotation += Math.min(i,5);}, dream.input.Key.SLASH));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.camera.rotation -= Math.min(i,5);}, dream.input.Key.ASTERISK));
-	
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.camera.scale += i/100;}, dream.input.Key.PLUS));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){world.camera.scale -= i/100;}, dream.input.Key.MINUS));
-	
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){paper.rotation += i;}, dream.input.Key.Q));
-	exp.keyBindings.add(new dream.input.KeyBinding(function(i){paper.rotation -= i;}, dream.input.Key.W));
+	world.behaviours.addArray(
+			[new dream.behaviour.KeyboardNavigable(),
+			 new dream.behaviour.SnapAnchorToPointer(),
+			 new dream.behaviour.WheelZoomable(),
+			 new dream.behaviour.KeyboardZoomable()
+			 ]);
 
 	
 	stats=new Stats();
