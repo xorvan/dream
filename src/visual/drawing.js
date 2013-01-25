@@ -343,6 +343,109 @@ $.drawImage = function(context, origin){
 /**
  * @constructor
  */
+
+var Text = function(left, top, text, font){
+	Shape.call(this, left, top);
+	this.text = text;
+	this.font = font;
+	this._calcWidth = true;
+	
+}.inherits(Shape);
+
+var $ = Text.prototype;
+
+Object.defineProperty($, "text", {
+	get: function() {
+		return this._text;
+	},
+	set: function(v){
+		this._text = v;
+		this.isImageChanged = true;
+		this._update = true;
+	}
+});
+Object.defineProperty($, "font", {
+	get: function() {
+		return this._font;
+	},
+	set: function(v){
+		this._font = v;
+		this.isImageChanged = true;
+		this._update = true;
+	}
+});
+Object.defineProperty($, "fontSize", {
+	get: function() {
+		return this._font ? parseInt(this._font.split('px')[0]):10;
+	},
+	set: function(v){
+		if (this._font)
+			this._font = v+"px"+this._font.split('px')[1];
+		else
+			this._font = v+"px arial";
+		this.isImageChanged = true;
+		this._update = true;
+	}
+});
+Object.defineProperty($, "fontFace", {
+	get: function() {
+		return this._font ? this._font.split('px')[1].trim():"arial";
+	},
+	set: function(v){
+		if (this._font)
+			this._font = this._font.split('px')[0]+"px "+v;
+		else
+			this._font = "10px "+v;
+		this.isImageChanged = true;
+		this._update = true;
+	}
+});
+Object.defineProperty($, "align", {
+	get: function() {
+		return this._align;
+	},
+	set: function(v){
+		this._align = v;
+		this.isImageChanged = true;
+		this._update = true;
+	}
+});
+Object.defineProperty($, "baseline", {
+	get: function() {
+		return this._baseline;
+	},
+	set: function(v){
+		this._baseline = v;
+		this.isImageChanged = true;
+		this._update = true;
+	}
+});
+
+$.updateRect = function(context){
+	var m = context.measureText(this._text);
+	this.rect.width = m.width;
+	this.rect.height = parseInt(context.font.split('px')[0]);
+	this._update = false;
+	this.isBoundaryChanged = true;	
+};
+
+$.drawImage = function(context, origin){
+	context.save();
+	context.font = this._font;
+	context.textAlign = this.align;
+	context.textBaseline = this.baseline;
+	if (this._update)
+		this.updateRect(context);
+	Shape.prototype.drawImage.call(this, context, origin);
+	context.fillText(this._text, origin.left, origin.top);
+	if(this.fillStyle) context.fill();
+	if(this.strokeStyle) context.stroke();
+	context.restore();
+};
+
+/**
+ * @constructor
+ */
 var Path = function(){};
 
 //       definig styles it may become another file alltoghether
@@ -723,6 +826,7 @@ dream.visual.drawing = {
 		Ellipse:Ellipse,
 		Star:Star,
 		Poly:Poly,
+		Text:Text,
 		Style:Style,
 		Color:Color,
 		LineStyle:LineStyle,

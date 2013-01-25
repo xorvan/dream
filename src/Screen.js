@@ -239,7 +239,7 @@ dream.Screen.prototype.updateSize = function() {
 	dream.event.dispatch(this, "onResize");
 };
 
-dream.Screen.prototype.highlite = function(rect) {
+dream.Screen.prototype.highlight = function(rect) {
 	this.context.strokeStyle = "#f00";this.context.strokeRect(rect.left, rect.top, rect.width, rect.height);
 };
 
