@@ -235,5 +235,4 @@ Object.defineProperty(dream.input, "deviceOrientation", {
 	}
 });
 
-
 })(window);

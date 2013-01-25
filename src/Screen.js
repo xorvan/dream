@@ -38,7 +38,6 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 		//scene.rect.height = screen.height;
 		screen.hovered = null;
 		
-		dream.event.dispatch(scene, "onResize");
 		
 		screen.redrawRegions.add(new dream.Rect(0,0, screen.width, screen.height));
 		scene.onBoundaryChange.add(function(oldRect){
@@ -53,6 +52,11 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 		scene.assets.prepare(function(){
 			screen.render(scene);
 		});
+		
+		scene.screenBoundary.width = screen.width;
+		scene.screenBoundary.height = screen.height;
+		dream.event.dispatch(scene, "onResize");
+
 	});
 	
 	this.updateSize();
@@ -225,8 +229,8 @@ dream.Screen.prototype.updateSize = function() {
 	this.rect.transformation.y = this.scaleY;
 	
 	if(this.scenes.current){
-		this.scenes.current.width = this.width;
-		this.scenes.current.height = this.height;
+		this.scenes.current.screenBoundary.width = this.width;
+		this.scenes.current.screenBoundary.height = this.height;
 		dream.event.dispatch(this.scenes.current, "onResize");
 	}
 	

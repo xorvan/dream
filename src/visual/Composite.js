@@ -7,15 +7,26 @@ dream.visual.Composite = function(left, top){
 	
 	//this.rect = new dream.Rect(left, top);
 	this._isDirty = false;
+	this._isPresent = false;
 	this.assets = new dream.util.AssetLibrary();
-	this.renderList = new dream.util.IndexedArrayList({"z": "onZChange"});
+	this.renderList = [];
+	this.pool = new dream.util.ArrayList;
 	
 	this.redrawRegions = new dream.util.RedrawRegionList();
 	
 	this.assets.onAdd.add(function(a){
 		if(a instanceof dream.visual.Graphic){
 			
-			composite.renderList.add(a);
+			composite.pool.add(a);
+			var z = a.z;
+			(composite.renderList[z] || (composite.renderList[z] = [])).push(a);
+			a.onZChange.add(function(oldZ){
+				var ol = composite.renderList[oldZ];
+				ol.splice(ol.indexOf(this), 1);
+				(composite.renderList[this.z] || (composite.renderList[this.z] = [])).push(this);
+			}, this);
+			
+			
 			composite.addToRect(a);
 			
 			a.isImageChanged = true;
@@ -28,14 +39,16 @@ dream.visual.Composite = function(left, top){
 				a.onImageChange.add(function(rects){
 					composite.redrawRegions.addArray(rects);
 				}, composite);
-					
+			
 		};
 	});
 	this.assets.onRemove.add(function(a){
 		if(a instanceof dream.visual.Graphic){
 			a.onBoundaryChange.removeByOwner(composite);
 			a.onImageChange.removeByOwner(composite);
-			composite.renderList.remove(a);
+			a.onZChange.removeByOwner(composite);
+			composite.renderList[a.z].splice(composite.renderList[a.z].indexOf(a),1);
+			composite.pool.remove(a);
 		}
 	});
 }.inherits(dream.visual.Graphic);
@@ -59,6 +72,18 @@ Object.defineProperty(dream.visual.Composite.prototype, "isDirty", {
 	}
 });
 
+Object.defineProperty(dream.visual.Composite.prototype, "isPresent", {
+	set: function(v){
+		if(this._isPresent == v) return v;
+		this._isPresent = v;
+		for(var i=0, obj; obj = this.pool[i]; i++)
+			obj.isPresent = v;
+	},
+	get : function () {
+		return this._isPresent;
+	}
+});
+
 dream.visual.Composite.prototype.addToRect = function(g){
 	var vr = g.boundary;
 	if(!this.rect.covers(vr)){
@@ -71,7 +96,7 @@ dream.visual.Composite.prototype.addToRect = function(g){
 dream.visual.Composite.prototype.step = function (){
 	dream.visual.Composite._superClass.prototype.step.call(this);
 	
-	this.renderList.forEach(function(g){
+	this.pool.forEach(function(g){
 		g.step();
 	});
 	
@@ -87,14 +112,14 @@ dream.visual.Composite.prototype.step = function (){
 dream.visual.Composite.prototype.drawImage = function(ctx, origin, drawRect) {
 	var ldr;
 	if(!drawRect || (ldr = this.rect.transformation.unprojectRect(drawRect).boundary, ldr.covers(this.rect))){
-		for(var zi in this.renderList.index.z){
-			this.renderList.index.z[zi].forEach(function(g){
+		for(var zi in this.renderList){
+			this.renderList[zi].forEach(function(g){
 				g.draw(ctx, origin, this.rect);
 			});		
 		}		
 	}else{
-		for(var zi in this.renderList.index.z){
-			this.renderList.index.z[zi].forEach(function(g){
+		for(var zi in this.renderList){
+			this.renderList[zi].forEach(function(g){
 				if(g.boundary.hasIntersectWith(ldr)){
 					g.draw(ctx, origin, ldr);
 				}
@@ -107,11 +132,11 @@ dream.visual.Composite.prototype.checkHover = function(event){
 	if(event.position.isIn(this.boundary)){
 		
 		var zs = [];
-		for(var zi in this.renderList.index.z){
+		for(var zi in this.renderList){
 			zs.push(zi);
 		}
 
-		var l, z = this.renderList.index.z;
+		var l, z = this.renderList;
 		while(l = z[zs.pop()])
 			for(var i = l.length -1 , g; g = l[i]; i--){
 				if(g.checkHover(event.toLocal(g))){

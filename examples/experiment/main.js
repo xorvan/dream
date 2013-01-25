@@ -83,7 +83,11 @@ function init(){
 	
 	ce = world.assets.add(new CompositeEnemy(400,50));
 	ce.rotation = 90;
-	ce.dynamics.add(new dream.dynamic.Tween({rotation:180}, new dream.dynamic.interpolator.Sine, 100, true)).play();
+	ce.dynamics.add(new dream.dynamic.Tween({rotation:180}, new dream.dynamic.interpolator.Sine, 100, true),"rotate").play();
+	ce.dynamics.add(new dream.dynamic.Tween({alpha:0}, null, 80, true),"alpha").play();
+//	ce.dynamics.alpha.actions.add(new dream.dynamic.Action(20,function(p){var x="booboo";},false));
+//	ce.dynamics.alpha.onCycle.add(function(){console.log("alpha cycle ended");});
+//	ce.dynamics.rotate.onCycle.add(function(){console.log("rotation cycle ended");});
 	
 	paper = world.assets.add(new dream.visual.Composite(-400,100));
 	with(rect1 = paper.assets.add(new dream.visual.drawing.Rect(0,0,100,100))){

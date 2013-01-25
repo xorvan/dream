@@ -33,6 +33,7 @@ html,body {
 	<script type="text/javascript" src="../src/transform.js"></script>
 	<script type="text/javascript" src="../src/visual.js"></script>
 	<script type="text/javascript" src="../src/dynamic.js"></script>
+	<script type="text/javascript" src="../src/provider.js"></script>
 	<script type="text/javascript" src="../src/visual/Graphic.js"></script>
 	<script type="text/javascript" src="../src/visual/Bitmap.js"></script>
 	<script type="text/javascript" src="../src/visual/Composite.js"></script>
@@ -41,19 +42,29 @@ html,body {
 	<script type="text/javascript" src="../src/scenery.js"></script>
 	<script type="text/javascript" src="../src/visual/drawing.js"></script>
 	<script type="text/javascript" src="../src/visual/Map.js"></script>
+	<script type="text/javascript" src="../src/behaviour.js"></script>
+	<script type="text/javascript" src="../src/behaviour/KeyBinding.js"></script>
+	<script type="text/javascript" src="../src/behaviour/KeyboardNavigable.js"></script>
+	<script type="text/javascript" src="../src/behaviour/WheelZoomable.js"></script>
+	<script type="text/javascript" src="../src/behaviour/KeyboardZoomable.js"></script>
+	<script type="text/javascript" src="../src/behaviour/SnapAnchorToPointer.js"></script>
+	<script type="text/javascript" src="../src/behaviour/Draggable.js"></script>
 	<script type="text/javascript" src="Stats.js"></script>
 	
 	<script type="text/javascript" src="model.js"></script>
 	<script type="text/javascript">
 		function init(){
-			test = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 800, 600);
+			test = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 1600, 1200);
 			
 			scene = new dream.scenery.Scene;
 			
-			for(var i = 0; i < 3000; i++ ){
+			console.log("init");
+			
+			for(var i = 0; i < 300; i++ ){
 				var c = new Poly1(Math.random() * 6000, Math.random() * 6000);
 				scene.assets.add(c, "p"+i);
 			}
+			console.log("poly loaded");
 			
 			for(var i = 0; i < 50; i++ ){
 				var cr = new Aj(Math.random() * 6000, Math.random() * 6000 - 200);
@@ -86,18 +97,21 @@ html,body {
 				scene.assets.add(cr, "en"+i);
 			}
 
+			
+			scene.behaviours.addArray(
+					[new dream.behaviour.KeyboardNavigable(),
+					 new dream.behaviour.SnapAnchorToPointer(),
+					 new dream.behaviour.WheelZoomable(),
+					 new dream.behaviour.KeyboardZoomable()
+					]);
+			
+			
+			scene.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.Q, function(i){this.rotation += i;}));
+			scene.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.W, function(i){this.rotation -= i;}));
+
+			
 			test.scenes.current = scene;
 			
-			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.anchorX += Math.min(i,10);}, dream.input.Key.RIGHT));
-			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.anchorX -= Math.min(i,10);}, dream.input.Key.LEFT));
-			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.anchorY -= Math.min(i,10);}, dream.input.Key.UP));
-			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.anchorY += Math.min(i,10);}, dream.input.Key.DOWN));
-			
-			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.camera.rotation += Math.min(i,5);}, dream.input.Key.SLASH));
-			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.camera.rotation -= Math.min(i,5);}, dream.input.Key.ASTERISK));
-			
-			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.camera.scale += i/100;}, dream.input.Key.PLUS));
-			test.keyBindings.add(new dream.input.KeyBinding(function(i){scene.camera.scale -= i/100;}, dream.input.Key.MINUS));
 			
 			stats=new Stats();
 			stats.getDomElement().style.position = 'absolute';
