@@ -1,7 +1,5 @@
 (function(){
 
-
-
 /**
  * @constructor
  */
@@ -363,26 +361,14 @@ dream.event.create(Style.prototype,"onChange");
  * @constructor
  */
 var Color = function(sr,g,b,a){
-	if (typeof sr == 'string'){
-		if (sr.length == 4){
-			this._red=parseInt('0x'+sr[1])*16;
-			this._green=parseInt('0x'+sr[2])*16;
-			this._blue=parseInt('0x'+sr[3])*16;
-			this._alpha=1;
-		} else if (sr.length == 7){
-			this._red=parseInt('0x'+sr[1]+sr[2]);
-			this._green=parseInt('0x'+sr[3]+sr[4]);
-			this._blue=parseInt('0x'+sr[5]+sr[6]);
-			this._alpha= 1;
-		}
-	}// end of string parsing
-	else {
-		this._red = sr;
-		this._green = g;
-		this._blue = b;
-		this._alpha = a == undefined ? 1:a;
-	}
-	this.colorChanged = true;
+	this._hue = 0;
+	this._saturation = 0;
+	this._brightness = 0;
+	this._red = 0;
+	this._green = 0;
+	this._blue= 0;
+	this._alpha = 1;
+	if(sr) this.setRGBA.call(this, sr, g, b, a);
 }.inherits(Style);
 
 var $ = Color.prototype;
@@ -391,10 +377,59 @@ $.createStyle = function(){
 	return 'rgba('+(this.red | 0)+','+(this.green | 0)+','+(this.blue | 0)+','+this.alpha+')';
 };
 
-$.getHSB = function (){
-	var r = this._red / 255;
-	var g = this._green / 255;
-	var bl = this._blue / 255;
+$.setRGBA = function(sr,g,b,a){
+	var red, green, blue;
+	if (typeof sr == 'string'){
+		if (sr.length == 4){
+			red=parseInt('0x'+sr[1])*16;
+			green=parseInt('0x'+sr[2])*16;
+			blue=parseInt('0x'+sr[3])*16;
+			this._alpha=1;
+		} else if (sr.length == 7){
+			red=parseInt('0x'+sr[1]+sr[2]);
+			green=parseInt('0x'+sr[3]+sr[4]);
+			blue=parseInt('0x'+sr[5]+sr[6]);
+			this._alpha= 1;
+		}
+	}// end of string parsing
+	else {
+		red = sr;
+		green = g;
+		blue = b;
+		alpha = a == undefined ? 1:a;
+	}
+	this._red = red;
+	this._green = green;
+	this._blue = blue;
+	this._rgbChanged = true;
+};
+
+$.setHSB = function(h, s, b){
+	this._hue = h;
+	this._saturation = s;
+	this._brightness = b;
+	this._hsbChanged = true;
+};
+
+$.updateRGB = function(){
+	var arr = this.HSB2RGB(this._hue, this._saturation, this._brightness);
+	this._red = arr[0];
+	this._green = arr[1];
+	this._blue = arr[2];
+	this._hsbChanged = false;
+};
+$.updateHSB = function(){
+	var arr = this.RGB2HSB(this._red, this._green, this._blue);
+	this._hue = arr[0];
+	this._saturation = arr[1];
+	this._brightness = arr[2];
+	this._rgbChanged = false;
+};
+
+$.RGB2HSB = function (r, g, b){
+	var r = r / 255;
+	var g = g / 255;
+	var bl = b / 255;
     var max = Math.max(r, g, bl), min = Math.min(r, g, bl);
     var h, s, b;
    var delta = max - min;
@@ -409,20 +444,15 @@ $.getHSB = function (){
    else h= 4 + (r - g)/ delta;
    h *= 60;
    if (h < 0) h += 360;
-   this.colorChanged = false;
    this.bufferHSB = [h,s,b];
    
     return [h, s, b];
 };
 
-$.setHSB = function(nh, ns, nb){
-	var arr = this.colorChanged ? this.getHSB():this.bufferHSB;
-	var h = arr[0];
-	var s = arr[1];
-	var l = arr[2];
-	if (nh != null) h=nh;
-	if (ns != null) s=ns;
-	if (nb != null) l=nb;
+$.HSB2RGB = function(hue, saturation, brightness){
+	var h = hue;
+	var s = saturation;
+	var l = brightness;
 	var r, g, b;
 	var f, p, q, t;
 	    if(s == 0){
@@ -468,72 +498,80 @@ $.setHSB = function(nh, ns, nb){
 		} // end switch
 	    	
 	    }
-
-	    this._red = r * 255;
-	    this._green = g * 255;
-	    this._blue = b * 255;
-	
+	    return  [r * 255, g * 255, b * 255];	
 };
 
 
 Object.defineProperty($, "hue", {
 	get: function() {
-		return this.colorChanged ? this.getHSB()[0]:this.bufferHSB[0];
+		if (this._rgbChanged)
+			this.updateHSB();
+		return this._hue;
 	},
 	set: function(v){ 
-		this.setHSB(v, null, null);	
-		this.colorChanged = true;
+		this._hue = v;
+		this._hsbChanged = true;
 		dream.event.dispatch(this, "onChange");
 	}
 });
 Object.defineProperty($, "saturation", {
 	get: function() {
-		return this.colorChanged ? this.getHSB()[1]:this.bufferHSB[1];
+		if (this._rgbChanged)
+			this.updateHSB();
+		return this._saturation;
 	},
 	set: function(v){ 
-		this.setHSB(null, v, null);
-		this.colorChanged = true;
+		this._saturation = v;
+		this._hsbChanged = true;
 		dream.event.dispatch(this, "onChange");
 	}
 });
 Object.defineProperty($, "brightness", {
 	get: function() {
-		return this.colorChanged ? this.getHSB()[2]:this.bufferHSB[2];
+		if (this._rgbChanged)
+			this.updateHSB();
+		return this._brightness;
 	},
 	set: function(v){ 
-		this.setHSB(null, null, v);	
-		this.colorChanged = true;
+		this._brightness = v;
+		this._hsbChanged = true;
 		dream.event.dispatch(this, "onChange");
 	}
 });
 
 Object.defineProperty($, "red", {
 	get: function() {
+		if (this._hsbChanged)
+			this.updateRGB();
 		return this._red;
 	},
 	set: function(v){ 
-		this.colorChanged = true;
 		this._red = v;
+		this._rgbChanged = true;
 		dream.event.dispatch(this, "onChange");
 	}
 });
 Object.defineProperty($, "green", {
 	get: function() {
+		if (this._hsbChanged)
+			this.updateRGB();
 		return this._green;
 	},
 	set: function(v){ 
-		this.colorChanged = true;
-		this._green = v;	
+		this._green = v;
+		this._rgbChanged = true;
 		dream.event.dispatch(this, "onChange");
 	}
 });
 Object.defineProperty($, "blue", {
 	get: function() {
+		if (this._hsbChanged)
+			this.updateRGB();
 		return this._blue;
 	},
 	set: function(v){ 
-		this.colorChanged = true;
-		this._blue = v;	
+		this._blue = v;
+		this._rgbChanged = true;
 		dream.event.dispatch(this, "onChange");
 	}
 });

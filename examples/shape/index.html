@@ -78,7 +78,8 @@ html,body {
 			};
 			p2 = new dream.visual.drawing.Poly(300,70,70,6);
 			p2.fillStyle=new dream.visual.drawing.Color(125,125,255,0.8);
-			
+			p2.dynamics.add(new Tween({'fillStyle.brightness':0}, new interpolator.Sine, 200,  true)).play();
+
 			//p2.dynamics.add(new dream.visual.animation.Tween({'fillStyle.brightness':0},200,null, true))
 			
 			
