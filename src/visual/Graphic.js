@@ -61,6 +61,7 @@ dream.visual.Graphic.prototype.draw = function(ctx, origin, drawRect) {
 //	ctx.transform(m.x0, m.y0, m.x1, m.y1, m.dx|0, m.dy |0);
 	var o = this.rect.transformation.apply(ctx, origin);
 //	o.left |= 0, o.top |= 0;
+	
 	this.drawImage(ctx, o, drawRect);
 	ctx.restore();
 };
@@ -296,5 +297,31 @@ Object.defineProperty(dream.visual.Graphic.prototype, "imageData", {
 		var buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
 		this.drawImage(buffer.context, new dream.Point(-this.rect.left, -this.rect.top));
 		return buffer.context.getImageData(0, 0, this.rect.width, this.rect.height);
+	}
+});
+
+Object.defineProperty(dream.visual.Graphic.prototype, "mask", {
+	get : function() {
+		return this._mask;
+	},
+	set : function(v) {
+		if (v instanceof dream.visual.drawing.Shape && v.applyPath){
+			this._mask = v;
+			this.draw = function(context, origin, drawRect){
+				context.save();	
+				if(this.a != 1) context.globalAlpha = this.alpha;
+				var o = this.rect.transformation.apply(context, origin);
+// TODO change it to reverse matrix and thus reducing one save/restore after rectangology optimization
+				context.save();
+				var mo = v.rect.transformation.apply(context, o);
+				v.applyPath(context, mo);
+				context.restore();
+				context.clip();
+				this.drawImage(context, o, drawRect);
+				context.restore();
+			};
+		}
+		else
+			console.log("mask object should be instance of Shape and have a path");
 	}
 });

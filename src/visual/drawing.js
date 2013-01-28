@@ -74,19 +74,29 @@ Object.defineProperty($, "lineStyle", {
 });
 
 
-$.drawImage = function(context, origin){
+$.paint = function(context, origin){
 	var r = this.rect;
-	if(this._fs) context.fillStyle = this._fs instanceof Style ? this._fs.createStyle(context, new dream.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._fs;
-	if(this._ss) context.strokeStyle = this._ss instanceof Style ? this._ss.createStyle(context, new dream.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._ss;
-		
 	if(this._ls){
 		context.lineWidth=this._ls._width;
 		context.lineCap=this._ls._cap;
 		context.lineJoin=this._ls._join;
 		if (this._ls._join == LineStyle.Join.MITER)
 			context.miterLimit= this._ls._miterLimit;
+		}
+	if(this._fs) {
+		context.fillStyle = this._fs instanceof Style ? this._fs.createStyle(context, new dream.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._fs;
+		context.fill();
 	}
+	if(this._ss){
+		context.strokeStyle = this._ss instanceof Style ? this._ss.createStyle(context, new dream.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._ss;
+		context.stroke();
+	}
+};
 
+$.drawImage = function(context, origin){
+	//console.log(this);
+	this.applyPath(context, origin);
+	Shape.prototype.paint.call(this,context, origin);
 };
 
 
@@ -96,7 +106,6 @@ $.drawImage = function(context, origin){
  */
 var Rect = function(left, top, width, height){
 	Shape.call(this, left, top);
-	
 	this._width = 0;
 	this._height = 0;
 	this.width = width;
@@ -104,7 +113,20 @@ var Rect = function(left, top, width, height){
 	
 }.inherits(Shape);
 
-Rect.prototype.drawImage = function(context, origin){
+var $ = Rect.prototype;
+
+$.applyPath = function(context, origin){
+	var right = origin.left + this.width;
+	var bottom = origin.top + this.height;
+	context.beginPath();
+	context.moveTo(origin.left, origin.top);
+	context.lineTo(right, origin.top);
+	context.lineTo(right, bottom);
+	context.lineTo(origin.left, bottom);
+	context.closePath();
+}
+
+$.drawImage = function(context, origin){
 	Shape.prototype.drawImage.call(this, context, origin);
 	if(this.fillStyle) context.fillRect(origin.left, origin.top, this.width, this.height);
 	if(this.strokeStyle) context.strokeRect(origin.left, origin.top, this.width, this.height);
@@ -167,13 +189,10 @@ var Circle = function(left, top, radius){
 	CircularShape.call(this, left, top, radius);
 }.inherits(CircularShape);
 
-Circle.prototype.drawImage = function(context, origin){
-	CircularShape.prototype.drawImage.call(this, context, origin);
+Circle.prototype.applyPath = function(context, origin){
 	context.beginPath();
 	context.arc(origin.left, origin.top, this._radius, 0, Math.PI * 2, true);
 	context.closePath();
-	if(this.fillStyle) context.fill();
-	if(this.strokeStyle) context.stroke();
 };
 
 /**
@@ -189,14 +208,11 @@ var Ellipse = function(left, top, radiusX, radiusY){
 
 var $ = Ellipse.prototype;
 
-$.drawImage = function(context, origin){
-	Shape.prototype.drawImage.call(this, context, origin);
+$.applyPath = function(context, origin){
 	context.scale(1, this._radiusY / this._radiusX);
 	context.beginPath();
 	context.arc(origin.left, origin.top * this._radiusX / this._radiusY, this._radiusX, 0, Math.PI * 2, true);
 	context.closePath();
-	if(this.fillStyle) context.fill();
-	if(this.strokeStyle) context.stroke();
 }; 
 
 Object.defineProperty($, "radiusX", {
@@ -238,7 +254,7 @@ var $ = CircleSlice.prototype;
 
 dream.util.createFlagProperty($,"angle","isImageChanged");
 
-$.drawImage = function(context, origin){
+$.applyPath = function(context, origin){
 	context.translate(origin.left, origin.top);
 	context.beginPath();
 	var angs = this._angle * Math.PI / 180;
@@ -246,11 +262,7 @@ $.drawImage = function(context, origin){
 	context.moveTo(0, 0);
 	context.arc(0, 0, this._radius, 0, angs, false);
 	context.rotate(angs);
-	
 	context.closePath();
-	CircularShape.prototype.drawImage.call(this, context, new dream.Point);
-	if(this.fillStyle) context.fill();
-	if(this.strokeStyle) context.stroke();
 };
 
 /**
@@ -264,7 +276,7 @@ var $ = Poly.prototype;
 
 dream.util.createFlagProperty($,"sides","isImageChanged");
 
-$.drawImage = function(context, origin){
+$.applyPath = function(context, origin){
 	context.translate(origin.left, origin.top);
 	var ang = 2  * Math.PI / this.sides;
 	context.rotate(Math.PI / -2);
@@ -275,9 +287,6 @@ $.drawImage = function(context, origin){
 		context.lineTo(this.radius, 0);
 	}
 	context.closePath();
-	CircularShape.prototype.drawImage.call(this, context, new dream.Point);
-	if(this.fillStyle) context.fill();
-	if(this.strokeStyle) context.stroke();
 };
 
 /**
@@ -322,7 +331,7 @@ Object.defineProperty($, "radius2", {
 });
 dream.util.createFlagProperty($,"points","isImageChanged");
 
-$.drawImage = function(context, origin){
+$.applyPath = function(context, origin){
 	var ang = Math.PI/(this.points);
 	context.translate(origin.left, origin.top);
 	context.rotate(Math.PI/-2);
@@ -335,9 +344,6 @@ $.drawImage = function(context, origin){
 		}else context.lineTo(this.radius2, 0);
 	} // end for
 	context.closePath();
-	Shape.prototype.drawImage.call(this, context, new dream.Point);
-	if(this.fillStyle) context.fill();
-	if(this.strokeStyle) context.stroke();
 };
 
 /**
@@ -429,18 +435,16 @@ $.updateRect = function(context){
 	this.isBoundaryChanged = true;	
 };
 
-$.drawImage = function(context, origin){
-	context.save();
+$.applyPath = function(context, origin){
+	//context.save();
 	context.font = this._font;
 	context.textAlign = this.align;
 	context.textBaseline = this.baseline;
 	if (this._update)
 		this.updateRect(context);
-	Shape.prototype.drawImage.call(this, context, origin);
+	
 	context.fillText(this._text, origin.left, origin.top);
-	if(this.fillStyle) context.fill();
-	if(this.strokeStyle) context.stroke();
-	context.restore();
+	//context.restore();
 };
 
 /**

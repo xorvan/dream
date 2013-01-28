@@ -121,6 +121,12 @@ html,body {
 			cs1.dynamics.add(new Tween({'fillStyle.hue':0},null, 500, true)).play();
 			scene.assets.add(cs1);
 			
+			cc=new dream.visual.drawing.Circle(0,0,40);
+			cc.scaleX = 2;
+			cc.rotation = 45;
+			cs1.mask = cc;
+			
+			
 			s1=new dream.visual.drawing.Star(430,175,50,50,5);
 			s1.fillStyle = new drawing.RadialGradient([new drawing.ColorStop(0, new drawing.Color("#8b0596")), 
 				                                        new drawing.ColorStop(1, new drawing.Color("#Eb55F9"))], .5, .5, 0, .5, .5, .4);
