@@ -44,6 +44,7 @@ function init(){
 	exp = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 1600, 1200, dream.Screen.ScaleMode.SHOW_ALL );
 	
 	world = new dream.scenery.Scene();
+	//console.log("i am here");
 	
 	world.left = exp.width/2;
 	world.top = exp.height/2;		
@@ -57,7 +58,7 @@ function init(){
 	//world.assets.add(worldMap, "worldMap");
 
 	for(var i=1; i<=2; i++){
-		var s = world.assets.add(new Enemy(Math.random() * 500 | 0, Math.random() * 500 | 0), "enemy" + i);
+		enn = world.assets.add(new Enemy(Math.random() * 500 | 0, Math.random() * 500 | 0));
 		//s.steps.add(new dream.visual.animation.Step(function(){this.rotation += 5;}));
 	}
 	

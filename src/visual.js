@@ -14,7 +14,7 @@ var Texture = function(img, left, top, width, height, anchorX, anchorY){
 };
 	
 var SpriteSheet = function(data){
-	this.textures = new dream.util.ArrayList();
+	this.textures = new dream.collection.List();
 	data && this.textures.addJson(data);
 };
 

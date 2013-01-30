@@ -18,6 +18,7 @@ Function.prototype.inherits = function(base){
 })();
 
 window.URL = window.URL || window.webkitURL;
+if(window.performance) window.performance.now = window.performance.now || window.performance.webkitNow();
 
 /**
  * @namespace This is DreamJS root package.

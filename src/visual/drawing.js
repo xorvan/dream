@@ -760,7 +760,7 @@ Object.defineProperty($, "color", {
  * @constructor
  */
 var Gradient = function(colorStops){
-	this.colorStops = new dream.util.ArrayList;
+	this.colorStops = new dream.collection.List;
 	
 	this.colorStops.onAdd.propagate(this, "onChange");
 	this.colorStops.onRemove.propagate(this, "onChange");

@@ -265,7 +265,7 @@ $.apply = function(context, origin){
 var Composite = function(transformations){
 	Composite._superClass.call(this);
 	var composite = this;
-	this.transformations = new dream.util.ArrayList;
+	this.transformations = new dream.collection.Dict;
 	this.transformations.onAdd.add(function(obj){
 		obj.onChange.propagate(composite);
 		obj.onPositionChange.propagate(composite);

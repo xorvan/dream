@@ -7,8 +7,7 @@
  * @constructor for actions
  */
 	
-var Action = function (frame, fn, execOnSeek){
-	this.frame = frame;
+var Action = function (fn, execOnSeek){
 	this.fn = fn;
 	this.execOnSeek = execOnSeek;
 };
@@ -48,7 +47,7 @@ var Animation = function(duration, loop, interval){
 	if (this.duration < 1) this.duration = 1;
 	this.loop = loop;
 	this.isBackward = false;
-	this.actions = new dream.util.IndexedArrayList({frame:false});
+	this.actions = new dream.collection.List;
 	this._counter = 0;
 	
 	var anim = this;
@@ -104,17 +103,12 @@ Object.defineProperty($, "seeker", {
 			else 
 				min = this._counter, max = frame, direction = true;
 			
-			var actionFrames = [];
-			for(var i in this.actions.index.frame) if (min < i < max) actionFrames.push(i);
-			
+			var action;
 			if(direction)
-				for (var i = 0, actions; actions = this.actions.index.frame[actionFrames[i]]; i++)
-					for(var j=0, action; action = actions[j]; j++)
-						 action.execOnSeek && action.fn.call(this.host, 1);
+				for (var i = min; i <= max; i++) if (action = this.actions[i]) action.execOnSeek && action.fn.call(this.host, 1);
+
 			else
-				for (var i = actionFrames.length, actions; actions = this.actions.index.frame[actionFrames[i]]; i--)
-					for(var j=0, action; action = actions[j]; j++)
-						 action.execOnSeek && action.fn.call(this.host, -1);
+				for (var i = max; i <= min; i--) if (action = this.actions[i]) action.execOnSeek && action.fn.call(this.host, -1);
 		}
 		
 		if (this.animations)
@@ -159,9 +153,9 @@ $.step = function(frame) {
 				}
 			}
 		}
-		if(this.actions.index.frame[this._counter])
-			for ( var i = 0, action; action = this.actions.index.frame[this._counter][i]; i++)
-				action.fn.call(this.host, this.isBackward ? -1 : 1);
+		var action;
+		if(action = this.actions[this._counter])
+			action.fn.call(this.host, this.isBackward ? -1 : 1);
 };
 
 
@@ -221,7 +215,7 @@ $.step = function(frame){
 var Timeline = function(duration, loop, interval){
 	Timeline._superClass.call(this, duration, loop, interval);
 	this.isPassvie = true;
-	this.animations = new dream.util.ArrayList();
+	this.animations = new dream.collection.List();
 	
 	var timeline = this;
 	this.animations.onAdd.add(function(obj){
@@ -263,7 +257,7 @@ $.step = function(frame){
 var SpriteAnimation = function(textureArray, loop, interval){
 	SpriteAnimation._superClass.call(this, textureArray.length, loop, interval);
 	this.isPassive = true;
-	this.frames = new dream.util.ArrayList();
+	this.frames = new dream.collection.List();
 	this.frames.addArray(textureArray);	
 }.inherits(Animation);
 
@@ -299,7 +293,7 @@ var DynamicList = function(host){
 			obj.init(this.host);
 	});
 	
-}.inherits(dream.util.ArrayList);
+}.inherits(dream.collection.Dict);
 
 var $ = DynamicList.prototype;
 

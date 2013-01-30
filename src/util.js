@@ -284,7 +284,7 @@ dream.util.AssetLibrary = function(){
 	dream.util.AssetLibrary._superClass.call(this);
 	
 	this.loader = new dream.static.Loader();
-}.inherits(dream.util.ArrayList);
+}.inherits(dream.collection.List);
 
 dream.util.AssetLibrary.prototype.prepare = function(callBack){
 	if(this.loader.isRequestSent){
@@ -417,8 +417,22 @@ dream.util.createEventFlagProperty = function(obj, name, changeEvent, changeFlag
 	});
 };
 
-dream.util.profile = function(fn){
-	var t0 = performance.now && performance.now() || performance.webkitNow && performance.webkitNow();
-	fn();
-	return performance.now && performance.now() || performance.webkitNow && performance.webkitNow() - t0;
-}
+dream.util.profile = function(fn, samples){
+	var s = samples || 100;
+	var sum = 0, min = 0, max = 0;
+	for(var i = 0; i < s; i++){
+		var t0 = performance.now();
+		fn();
+		var r = performance.now() - t0;
+		
+		if(i == 0){
+			sum = min = max = r;
+		}else{
+			sum += r;
+			min = r < min ? r : min;
+			max = r > max ? r : max;
+		}
+	}
+	
+	return {avg: sum/s, min: min, max: max, samples: s, toString: function(){return this.avg+"x"+this.samples+" +"+this.max+" -"+this.min}};
+};

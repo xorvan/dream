@@ -25,6 +25,7 @@ html,body {
 <body onload="init()">
 	<script type="text/javascript" src="../src/event.js"></script>
 	<script type="text/javascript" src="../src/core.js"></script>
+	<script type="text/javascript" src="../src/collection.js"></script>
 	<script type="text/javascript" src="../src/Screen.js"></script>
 	<script type="text/javascript" src="../src/util.js"></script>
 	<script type="text/javascript" src="../src/static.js"></script>
@@ -52,18 +53,18 @@ html,body {
 			for(var i = 0; i < 100; i++ ){
 				var c = new Cube(Math.random() * 700 + 100, Math.random() * 200 + 200);
 				c.z = 3;
-				scene.assets.add(c, "c"+i);
+				scene.assets.add(c);
 			}
 			
 			for(var i = 0; i < 200; i++ ){
 				var c = new Poly1(Math.random() * 900, Math.random() * 200);
-				scene.assets.add(c, "p"+i);
+				scene.assets.add(c);
 			}
 			
 			
 			for(var i = 0; i < 5; i++ ){
 				cr = new CompositeRect(Math.random() * 900, Math.random() * 200 + 200, Math.random() * 50 + 50, Math.random() * 50 + 50);
-				scene.assets.add(cr, "cr"+i);
+				scene.assets.add(cr);
 			}
 			
 			

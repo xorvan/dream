@@ -26,6 +26,7 @@ html,body {
 <body onload="init()">
 	<script type="text/javascript" src="../src/event.js"></script>
 	<script type="text/javascript" src="../src/core.js"></script>
+	<script type="text/javascript" src="../src/collection.js"></script>
 	<script type="text/javascript" src="../src/Screen.js"></script>
 	<script type="text/javascript" src="../src/util.js"></script>
 	<script type="text/javascript" src="../src/static.js"></script>
@@ -60,41 +61,41 @@ html,body {
 			
 			console.log("init");
 			
-			for(var i = 0; i < 300; i++ ){
+			for(var i = 0; i < 3000; i++ ){
 				var c = new Poly1(Math.random() * 6000, Math.random() * 6000);
-				scene.assets.add(c, "p"+i);
+				scene.assets.add(c);
 			}
 			console.log("poly loaded");
 			
 			for(var i = 0; i < 50; i++ ){
 				var cr = new Aj(Math.random() * 6000, Math.random() * 6000 - 200);
-				scene.assets.add(cr, "aj"+i);
+				scene.assets.add(cr);
 			}
 			
 			
 			for(var i = 0; i < 200; i++ ){
 				var c = new Cube(Math.random() * 6000 + 100, Math.random() * 6000);
-				scene.assets.add(c, "c"+i);
+				scene.assets.add(c);
 			}
 
 			for(var i = 0; i < 250; i++ ){
 				var cr = new Fire(Math.random() * 6000, Math.random() * 6000 - 200);
-				scene.assets.add(cr, "fi"+i);
+				scene.assets.add(cr);
 			}
 
 			for(var i = 0; i < 1; i++ ){
 				var cr = new Paper2(Math.random() * 6000, Math.random() * 6000 - 200);
-				scene.assets.add(cr, "pp"+i);
+				scene.assets.add(cr);
 			}
 
 			for(var i = 0; i < 10; i++ ){
 				var cr = new CompositeRect(Math.random() * 6000, Math.random() * 6000 - 200, 150, 150);
-				scene.assets.add(cr, "cr"+i);
+				scene.assets.add(cr);
 			}
 
 			for(var i = 0; i < 100; i++ ){
 				var cr = new Enemy(Math.random() * 6000, Math.random() * 6000);
-				scene.assets.add(cr, "en"+i);
+				scene.assets.add(cr);
 			}
 
 			

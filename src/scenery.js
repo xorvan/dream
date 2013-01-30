@@ -17,7 +17,7 @@ dream.scenery.Scene = function(){
 	
 	this.areaChangeRate = .5;
 	
-	this.providers = new dream.util.ArrayList;
+	this.providers = new dream.collection.Dict;
 	this.providers.add(new dream.provider.StaticProvider(this.pool), "static");
 	
 	this.assets = this.providers.static.assets;
@@ -64,9 +64,10 @@ dream.scenery.Scene = function(){
 			
 			scene.area = area;
 
-			for(var i=0, o; o = scene.pool[i]; i++){
-				if(!o.boundary.hasIntersectWith(area)){
+			for(var i=0; i<scene.pool.length; i++){
+				if(!scene.pool[i].boundary.hasIntersectWith(area)){
 					scene.pool.removeByIndex(i);
+					i--;
 				}
 			}
 			

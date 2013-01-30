@@ -11,7 +11,7 @@
 				this.dynamics.add(data, "main");
 				this.dynamics.main.play();
 			}else
-				this.steps.addJson(data);
+				this.dynamics.addJson(data);
 		
 	}.inherits(dream.visual.Graphic);
 
@@ -47,7 +47,7 @@
 		
 Object.defineProperty($, "requiredResources", {
 	get : function () {
-		var r = new dream.util.ArrayList;
+		var r = new dream.collection.List;
 		for(var i=0, sa; sa = this.dynamics[i]; i++)
 			if (sa instanceof dream.dynamic.SpriteAnimation)
 				for(var j = 0; j < sa.frames.length; j++ )

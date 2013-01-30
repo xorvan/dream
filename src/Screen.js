@@ -27,8 +27,6 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 	this.redrawRegions = new dream.util.RedrawRegionList();
 	this.redrawBuffer = new dream.util.BufferCanvas(0, 0);
 	
-	this.keyBindings = new dream.util.IndexedArrayList({"key": null});
-
 	this.input = new dream.input.InputHandler(this);
 	this.scenes = new dream.util.Selector;
 

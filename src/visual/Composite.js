@@ -10,7 +10,7 @@ dream.visual.Composite = function(left, top){
 	this._isPresent = false;
 	this.assets = new dream.util.AssetLibrary();
 	this.renderList = [];
-	this.pool = new dream.util.ArrayList;
+	this.pool = new dream.collection.Set;
 	
 	this.redrawRegions = new dream.util.RedrawRegionList();
 	

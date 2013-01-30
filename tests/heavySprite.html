@@ -26,6 +26,7 @@ html,body {
 <body onload="init()">
 	<script type="text/javascript" src="../src/event.js"></script>
 	<script type="text/javascript" src="../src/core.js"></script>
+	<script type="text/javascript" src="../src/collection.js"></script>
 	<script type="text/javascript" src="../src/Screen.js"></script>
 	<script type="text/javascript" src="../src/util.js"></script>
 	<script type="text/javascript" src="../src/static.js"></script>
@@ -54,23 +55,23 @@ html,body {
 			
 			for(var i = 0; i < 250; i++ ){
 				var c = new Poly1(Math.random() * 900, Math.random() * 600);
-				scene.assets.add(c, "p"+i);
+				scene.assets.add(c);
 			}
 			
 			for(var i = 0; i < 250; i++ ){
 				var cr = new Aj(Math.random() * 900, Math.random() * 800 - 200);
-				scene.assets.add(cr, "aj"+i);
+				scene.assets.add(cr);
 			}
 			
 			
 			for(var i = 0; i < 250; i++ ){
 				var c = new Cube(Math.random() * 700 + 100, Math.random() * 600);
-				scene.assets.add(c, "c"+i);
+				scene.assets.add(c);
 			}
 
 			for(var i = 0; i < 250; i++ ){
 				var cr = new Fire(Math.random() * 900, Math.random() * 800 - 200);
-				scene.assets.add(cr, "fi"+i);
+				scene.assets.add(cr);
 			}
 
 			test.scenes.current = scene;
