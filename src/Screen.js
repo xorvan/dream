@@ -123,7 +123,8 @@ dream.Screen.prototype.drawImageWithClippingRedrawRegion = function(ctx, origin,
 	var scene = this.scenes.current;
 	scene.step();
 	var rg;
-	this.redrawRegions.forEach(function(rr){
+	for(var i = 0, ll = this.redrawRegions.length; i < ll; i++){
+		var rr = this.redrawRegions[i];
 		if(rg = rr.getIntersectWith(drawRect)){
 			var l = (rg.left | 0) - 1, t = (rg.top | 0) - 1, w = (rg.width | 0) + 2 , h = (rg.height | 0) + 2;
 			ctx.save();
@@ -137,7 +138,7 @@ dream.Screen.prototype.drawImageWithClippingRedrawRegion = function(ctx, origin,
 			ctx.restore();
 			//console.log(rr+"");
 		}
-	}, this);
+	}
 	this.redrawRegions.clear();
 	//if(rgCount) console.log(rgCount +" redraw regions." );
 };
@@ -149,7 +150,7 @@ dream.Screen.prototype.drawImageWithBufferdRedrawRegion = function(ctx, rect, dr
 	scene.step();
 		
 	var rg;
-	this.redrawRegions.forEach(function(rr){
+	for(var i = 0, l = this.redrawRegions.length; i < l; i++){
 		if(rg = rr.getIntersectWith(drawRect)){
 			var rb = this.redrawBuffer;
 			rb.canvas.width = rg.width;
@@ -160,7 +161,7 @@ dream.Screen.prototype.drawImageWithBufferdRedrawRegion = function(ctx, rect, dr
 			ctx.drawImage(rb.canvas, 0, 0, rg.width, rg.height, rg.left, rg.top, rg.width, rg.height);
 			//console.log(rr+"");
 		}
-	}, this);
+	}
 	this.redrawRegions.clear();
 	//if(rgCount) console.log(rgCount +" redraw regions." );
 };

@@ -211,15 +211,22 @@ dream.util.EventDispatcher = function(obj, name){
 	
 	this.listeners = {};
 	
-}.inherits(dream.util.ArrayList);
+}.inherits(dream.collection.List);
 
-dream.util.EventDispatcher.prototype.add = function(object, owner){
-	var h = dream.util.EventDispatcher._superClass.prototype.add.call(this, object, typeof owner == "string" ? owner : null);
+dream.util.EventDispatcher.prototype.add = function(fn, owner){
+	var h = dream.util.EventDispatcher._superClass.prototype.add.call(this, fn, typeof owner == "string" ? owner : null);
 	if(owner){
 		var oid = dream.util.getId(owner);
 		var l = this.listeners[oid] || (this.listeners[oid] = []);
-		l.push(h);
+		l.push(this.length);
 	}
+	
+	if(this.length == 1){
+		this.dispatch = this[0].bind(this.obj);
+	}else{
+		delete this.dispatch;
+	}
+	
 	return h;
 };
 
@@ -234,17 +241,17 @@ dream.util.EventDispatcher.prototype.addTemp = function(object, owner){
 dream.util.EventDispatcher.prototype.removeByOwner = function(owner){
 	var oid = dream.util.getId(owner), l;
 	if(l = this.listeners[oid]){
-		l.forEach(this.remove, this);
+		for(var i = 0, ll = l.length; i < ll; i++)
+			this.removeByIndex(i);
 		delete this.listeners[oid];
 	}
 };
 
 dream.util.EventDispatcher.prototype.dispatch = function(){
 	var obj = this.obj;
-	var args = arguments;
-	this.forEach(function(l){
-		l.apply(obj, args);
-	});
+	for(var i = 0, l = this.length; i < l; i++)
+		this[i].apply(obj, arguments);
+		
 };
 
 dream.util.EventDispatcher.prototype.propagate = function(target, event){

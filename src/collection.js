@@ -79,6 +79,11 @@ $.add = function(obj){
 	dream.event.dispatch(this, "onAdd", obj);
 	return obj;
 };
+
+$.removeByIndex = function(index){
+	delete this._GIDs[dream.util.getId(this[index])];
+	return List.prototype.removeByIndex.call(this, index);
+}
 	
 
 var Dict = function(){

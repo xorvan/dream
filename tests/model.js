@@ -97,20 +97,23 @@ CompositeRect = function(left, top, width, height){
 
 Enemy = function(left, top){
 	dream.visual.Sprite.call(this, left, top, new dream.dynamic.SpriteAnimation(enemySprite.textures, true, 5));
-	this.onDragStart.add(function(mouse){
-		var lm = this.rect.transformation.unproject(mouse);
+	this.onDragStart.add(function(event){
+		var lm = event.localPosition;
 		this.anchorX = lm.left;
-		this.anchorY = lm.top;	
-		this.dynamics.add(new dream.dynamic.Dynamic(function(){this.rotation+=5;}), 'main').play();
+		this.anchorY = lm.top;
+		this.left = event.position.left;
+		this.top = event.position.top;		
+		this.dynamics.add(new dream.dynamic.Dynamic(function(){this.rotation+=5;}), 'rot').play();
 	});
 	
-	this.onDrag.add(function(mouse){
+	this.onDrag.add(function(event){
+		var mouse = event.position;
 		this.left = mouse.left;
 		this.top = mouse.top;
 	});
 	
 	this.onDragStop.add(function(mouse){
-		this.dynamics.remove('main');
+		this.dynamics.remove('rot');
 	});
 }.inherits(dream.visual.Sprite);
 
