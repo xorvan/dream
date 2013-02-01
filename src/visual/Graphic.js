@@ -10,7 +10,6 @@ dream.visual.Graphic = function(left, top){
 	this.origin = new dream.Point(left, top);
 	this.boundary = new dream.Rect(left, top);
 	this.rect = new dream.Rect(0, 0, 0, 0, new dream.transform.Generic(left, top));
-	this.oldBoundary = this.boundary.clone();
 	 
 	var graphic = this;
 	
@@ -70,28 +69,29 @@ dream.visual.Graphic.prototype.step = function (){
 	
 	if (this.dynamics.isPlaying) this.dynamics.step();
 
+	var oldBoundary = this.boundary
 	if(this.isBoundaryChanged){
 		this.boundary = this.rect.boundary;
 		
 		if(this.isImageChanged){
-			dream.event.dispatch(this, "onImageChange", this.boundary.hasIntersectWith(this.oldBoundary) ? [this.boundary.add(this.oldBoundary)] : [this.boundary, this.oldBoundary]);
+			dream.event.dispatch(this, "onImageChange", this.boundary.hasIntersectWith(oldBoundary) ? [this.boundary.add(oldBoundary)] : [this.boundary, oldBoundary]);
 			this.isImageChanged = false;
 		}
 		
-		if(!this.boundary.isEqualWith(this.oldBoundary)){
-			dream.event.dispatch(this, "onBoundaryChange", this.oldBoundary);
-			this.oldBoundary = this.boundary.clone();
+		if(!this.boundary.isEqualWith(oldBoundary)){
+			dream.event.dispatch(this, "onBoundaryChange", oldBoundary);
+			oldBoundary = this.boundary.clone();
 		}
 		
 		this.isBoundaryChanged = false;
 	}else if(this.isPositionChanged){
 		this.boundary = this.rect.boundary;
-		if(!this.boundary.isEqualWith(this.oldBoundary)){
-			dream.event.dispatch(this, "onBoundaryChange", this.oldBoundary);
-			dream.event.dispatch(this, "onImageChange", this.boundary.hasIntersectWith(this.oldBoundary) ? [this.boundary.add(this.oldBoundary)] : [this.boundary, this.oldBoundary]);
-			this.oldBoundary = this.boundary.clone();
+		if(!this.boundary.isEqualWith(oldBoundary)){
+			dream.event.dispatch(this, "onBoundaryChange", oldBoundary);
+			dream.event.dispatch(this, "onImageChange", this.boundary.hasIntersectWith(oldBoundary) ? [this.boundary.add(oldBoundary)] : [this.boundary, oldBoundary]);
+			oldBoundary = this.boundary.clone();
 		}else if(this.isImageChanged){
-			dream.event.dispatch(this, "onImageChange", this.boundary.hasIntersectWith(this.oldBoundary) ? [this.boundary.add(this.oldBoundary)] : [this.boundary, this.oldBoundary]);
+			dream.event.dispatch(this, "onImageChange", this.boundary.hasIntersectWith(oldBoundary) ? [this.boundary.add(oldBoundary)] : [this.boundary, oldBoundary]);
 		}
 		this.isPositionChanged = false;
 		this.isImageChanged = false;

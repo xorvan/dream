@@ -94,11 +94,12 @@ dream.visual.Composite.prototype.addToRect = function(g){
 
 
 dream.visual.Composite.prototype.step = function (){
-	dream.visual.Composite._superClass.prototype.step.call(this);
 	
 	this.pool.forEach(function(g){
 		g.step();
 	});
+
+	dream.visual.Composite._superClass.prototype.step.call(this);
 	
 	if(this._isDirty){
 		dream.event.dispatch(this, "onImageChange", [this.boundary]);
