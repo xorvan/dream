@@ -40,7 +40,7 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 		screen.redrawRegions.add(new dream.Rect(0,0, screen.width, screen.height));
 		scene.onBoundaryChange.add(function(oldRect){
 			//console.log("vc");
-			screen.redrawRegions.add(this.rect.transformation.projectRect(this.viewport).boundary);
+			screen.redrawRegions.add(new dream.Rect(0, 0, this.viewport.width, this.viewport.height));
 		});
 		
 		scene.onImageChange.add(function(rects){
