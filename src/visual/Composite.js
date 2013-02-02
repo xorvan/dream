@@ -96,8 +96,7 @@ dream.visual.Composite.prototype.addToRect = function(g){
 dream.visual.Composite.prototype.step = function (){
 	
 	for(var i = 0, l = this.pool.length; i < l; i++){
-		var g = this.pool[i];
-		g.step();
+		this.pool[i].step();
 	}
 
 	dream.visual.Composite._superClass.prototype.step.call(this);
@@ -112,8 +111,7 @@ dream.visual.Composite.prototype.step = function (){
 }; 
 
 dream.visual.Composite.prototype.drawImage = function(ctx, origin, drawRect) {
-	var ldr;
-	if(!drawRect || (ldr = this.rect.transformation.unprojectRect(drawRect).boundary, ldr.covers(this.rect))){
+	if(!drawRect || drawRect.covers(this.boundary)){
 		for(var zi in this.renderList){
 			var rl = this.renderList[zi];
 			for(var i = 0, l = rl.length; i < l; i++){
@@ -121,6 +119,7 @@ dream.visual.Composite.prototype.drawImage = function(ctx, origin, drawRect) {
 			}		
 		}		
 	}else{
+		var ldr = this.rect.transformation.unprojectRect(drawRect).boundary;
 		for(var zi in this.renderList){
 			var rl = this.renderList[zi];
 			for(var i = 0, l = rl.length; i < l; i++){
