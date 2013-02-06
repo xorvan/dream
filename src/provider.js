@@ -1,12 +1,14 @@
 (function(window){
 
-var Provider = function(list){
+var Provider = function(){
 	this._area = new dream.Rect();
-	this.list = list; 
-	
 };
 
 var $ = Provider.prototype;
+
+$.init = function(pool){
+	this.pool = pool; 	
+};
 
 $.provide = function(area){
 	return null;		
@@ -23,17 +25,17 @@ Object.defineProperty($, "area", {
 	}
 });
 
-var StaticProvider = function(list){
-	Provider.call(this, list);
+var StaticProvider = function(){
+	Provider.call(this);
 	
 	this.assets = new dream.util.AssetLibrary();
 	var provider = this;
 	this.assets.onAdd.add(function(obj){
 		if(obj.boundary.hasIntersectWith(provider._area))
-			provider.list.add(obj);
+			provider.pool.add(obj);
 	});
 	this.assets.onRemove.add(function(obj){
-		this.list.remove(obj);
+		this.pool.remove(obj);
 	});
 	
 }.inherits(Provider);
@@ -43,7 +45,7 @@ var $ = StaticProvider.prototype;
 $.provide = function(area){
 	for (var i = 0, obj; obj = this.assets[i]; i++)
 		if(obj.boundary.hasIntersectWith(area))
-			this.list.add(obj);
+			this.pool.add(obj);
 };
 
 Object.defineProperty($, "requiredResources", {

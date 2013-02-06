@@ -176,6 +176,10 @@ dream.visual.Composite.prototype.flat = function(){
 	return new dream.visual.Bitmap(this.image, 0, 0, this.rect.width, this.rect.height);	
 };
 
+dream.visual.Composite.prototype.destroy = function(){
+	this.pool.clear();		
+};
+
 
 dream.visual.Composite.prototype.raiseMouseDown = dream.VisualAsset.prototype.raiseMouseDown;
 dream.visual.Composite.prototype.raiseMouseUp = dream.VisualAsset.prototype.raiseMouseUp;

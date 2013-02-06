@@ -33,7 +33,7 @@ dream.visual.Graphic = function(left, top){
 		dyn.init(graphic);
 	});
 	
-	this.behaviours = new dream.collection.List();
+	this.behaviours = new dream.collection.Dict();
 	this.behaviours.onAdd.add(function(behaviour){
 		behaviour.obj = graphic;
 		behaviour.enable();

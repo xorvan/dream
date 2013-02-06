@@ -28,33 +28,36 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 	this.redrawBuffer = new dream.util.BufferCanvas(0, 0);
 	
 	this.input = new dream.input.InputHandler(this);
-	this.scenes = new dream.util.Selector;
+	this.scenes = new dream.collection.Selector;
 
 	this.scenes.onSelect.add(function(scene){
-		//TODO: scene width & height
-		//scene.rect.width = screen.width;
-		//scene.rect.height = screen.height;
+		scene.screenBoundary.width = screen.width;
+		scene.screenBoundary.height = screen.height;
 		screen.hovered = null;
-		
 		
 		screen.redrawRegions.add(new dream.Rect(0,0, screen.width, screen.height));
 		scene.onBoundaryChange.add(function(oldRect){
-			//console.log("vc");
 			screen.redrawRegions.add(new dream.Rect(0, 0, this.viewport.width, this.viewport.height));
-		});
+		}, screen);
 		
 		scene.onImageChange.add(function(rects){
 			screen.redrawRegions.addArray(rects/*.map(function(r){return r.clone();})*/);
-		});
+		}, screen);
 
 		scene.assets.prepare(function(){
 			screen.render(scene);
 		});
 		
-		scene.screenBoundary.width = screen.width;
-		scene.screenBoundary.height = screen.height;
 		dream.event.dispatch(scene, "onResize");
-
+	});
+	
+	this.scenes.onDeselect.add(function(scene){
+		scene.onBoundaryChange.removeByOwner(screen);
+		scene.onImageChange.removeByOwner(screen);
+		scene.screenBoundary.width = 0;
+		scene.screenBoundary.height = 0;
+		dream.event.dispatch(scene, "onResize");
+		prevScene = scene
 	});
 	
 	this.updateSize();

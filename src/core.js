@@ -37,6 +37,10 @@ dream.Asset = function(){
 	this.requiredResources = [];
 };
 
+dream.Asset.prototype.destroy = function(){
+	
+};
+
 /**
  * @constructor
  */

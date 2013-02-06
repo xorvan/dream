@@ -4,6 +4,9 @@
 var drawing = dream.visual.drawing,
 	interpolator = dream.dynamic.interpolator,
 	Tween = dream.dynamic.Tween,
+	Provider = dream.provider.Provider,
+	List = dream.collection.List,
+	Text = dream.visual.drawing.Text,
 	Dynamic = dream.dynamic.Dynamic;
 
 
@@ -20,47 +23,71 @@ init = function(){
 };
 
 
-startGame = function(){	
-	classicScene = new ClassicScene(jumper, gameScreen);
+startGame = function(){
+	
+	classicScene = gameScreen.scenes.current = new ClassicScene(jumper, gameScreen);
 	classicScene.onGameOver.add(function(){
+		console.log("Game Over!");
 		startGame();
 	});
-	
-	gameScreen.scenes.current = classicScene;
-	jumper.jump();
 };
 
 ClassicScene = function(jumper, gameScreen){
 	dream.scenery.Scene.call(this);
+
+	this.rate = 10000;
 	
 	this.top = gameScreen.height;
 	this.onResize.add(function(){
 		this.top = gameScreen.height;
 	});
-	
 	jumper.top = 0;
 	jumper.left = 320;
+	jumper.step();
 	this.assets.add(jumper, "jumper");
+	jumper.jump();
 	
-	this.barManager = new BarManager(this);
+	this.score = this.assets.add(new Text(10, -100, "Score"));
+	//this.score.fillStyle = "#000";
 	
-	this.barManager.altitude = 0;
+	this.providers.add(new BarProvider, "bars");
+	
+	this.bars = new List;
+	
+	var scene = this;
+	this.pool.onAdd.add(function(obj){
+		if(obj instanceof Bar)
+			scene.bars.add(obj);
+	});
+
+	this.pool.onRemove.add(function(obj){
+		scene.bars.remove(obj);
+	});
 	
 	this.dynamics.add(new Dynamic(function(){
 		if(!jumper.stat){
-			for(var i=0, bar; bar = this.barManager.bars[i]; i++){
+			for(var i=0, bar; bar = this.bars[i]; i++){
 				if(jumper.boundary.right > bar.boundary.left && jumper.boundary.left < bar.boundary.right && Math.abs(bar.boundary.top - jumper.boundary.bottom) < 10){
-					jumper.top = bar.top;
-					jumper.jump();
-					break;
+					var t;
+					if(t = bar.hit(jumper.origin)){
+						jumper.top = bar.top;
+						jumper.jump(t);
+						break;
+					}
 				}			
 			}
-			if(jumper.top - jumper.rect.height > this.anchorY) dream.event.dispatch(this, "onGameOver");
+			if(jumper.boundary.top > this.anchorY){
+				console.log("go")
+				dream.event.dispatch(this, "onGameOver");
+			}
 		}else{
 			var y = jumper.top + 400;
 			if(y < this.anchorY){
+				this.score.top = jumper.top;
+				var s = -y|0;
+				this.score.text = s;
 				this.anchorY = y;
-				this.barManager.altitude = -y;
+				this.providers.bars.difficulty = 1-(this.rate-s)/this.rate;
 			}
 		}
 	})).play();
@@ -70,46 +97,46 @@ var $ = ClassicScene.prototype;
 
 dream.event.create($, "onGameOver");
 
-BarManager = function(scene){
-	this.bars = [];
-	this._altitude = 0;
-	this.area = -1;
-	this.height = 1500;
-	
-	this.scene = scene;
-};
-var $ = BarManager.prototype;
 
-$.generateBars = function(){
-	var y = this.height * this.area;
+var BarProvider = function(){
+	Provider.call(this);
+	this.lastArea = new dream.Rect;
+	this.lastH = 0;
 	
-	var c = 20;
+	this.difficulty = 0;
 	
-	for(var i=0; i<=30; i++){
-		var e = Math.random() > 0.4;
-		if (e) {
-			var b = new Bar(Math.random()*540, -(i*50 + y));
-			this.bars.push(b);
-			this.scene.assets.add(b);
+}.inherits(Provider);
+	
+var $ = BarProvider.prototype;
+
+$.provide = function(area){
+
+	var step = 50,
+		jumpHeight = 200;
+	
+	var y = area.bottom,
+		c = area.height / step;
+	
+	for(var i=0; i<=c; i++){
+		var h = y - i*step;
+		if (h < this.lastArea.top){
+			if(this.lastH - h > jumpHeight || Math.random() > this.difficulty){
+				this.lastH = h;
+				if(Math.random() > 0.9){
+					this.pool.add(new ElasticBar(Math.random()*540, h));
+				}else{
+					this.pool.add(new Bar(Math.random()*540, h));
+				}
+			}else{
+				if(Math.random() > 0.5)
+					this.pool.add(new BreakableBar(Math.random()*540, h));
+			}
+			
 		}
 		
 	}
+	this.lastArea = area;
 };
 
-Object.defineProperty($, "altitude", {
-	get : function() {
-		return this._altitude;
-	},
-	set : function(v) {
-		var o = this._altitude;
-		this._altitude = v;
-		
-		if(v >= this.height * (this.area) ){
-			this.area++;
-			var bm = this;
-			bm.generateBars();
-		}
-	}
-});
 
 })(window);

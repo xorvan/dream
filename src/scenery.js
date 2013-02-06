@@ -8,6 +8,7 @@ dream.scenery = {};
  */
 dream.scenery.Scene = function(){
 	dream.scenery.Scene._superClass.call(this);
+	var scene = this;
 	
 	this.screenBoundary = new dream.Rect; 
 	this.viewport = new dream.Rect; 
@@ -18,11 +19,13 @@ dream.scenery.Scene = function(){
 	this.areaChangeRate = .5;
 	
 	this.providers = new dream.collection.Dict;
-	this.providers.add(new dream.provider.StaticProvider(this.pool), "static");
+	this.providers.onAdd.add(function(provider){
+		provider.init(scene.pool);
+	});
+	this.providers.add(new dream.provider.StaticProvider, "static");
 	
 	this.assets = this.providers.static.assets;
 	
-	var scene = this;
 	this.pool.onAdd.add(function(a){
 				
 		scene.addToRect(a);
@@ -45,12 +48,14 @@ dream.scenery.Scene = function(){
 		o.onBoundaryChange.removeByOwner(scene);
 		o.onImageChange.removeByOwner(scene);
 		o.onZChange.removeByOwner(scene);
+		o.isPresent = false;
 		if(o.isPresent) scene.renderList[o.z].splice(scene.renderList[o.z].indexOf(o),1);
 	});
 	
 	this.area = new dream.Rect;
 	this.onResize.add(this.onBoundaryChange.add(function(){
 		scene.viewport = scene.rect.transformation.unprojectRect(scene.screenBoundary).boundary;
+		if(scene.viewport.width == 0 && scene.viewport.height == 0) this.pool.clear();
 		var area = scene.viewport.clone();
 		var vpw = area.width;
 		var vph = area.height;

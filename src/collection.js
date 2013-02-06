@@ -62,6 +62,10 @@ $.remove = function(obj)	{
 };
 
 $.clear = function(){
+	
+	for(var i = 0, l = this.length; i < l; i++)
+		dream.event.dispatch(this, "onRemove", this[i]);
+	
 	this.length = 0;
 };
 
@@ -136,13 +140,17 @@ var $ = Selector.prototype;
 dream.event.create($, "onSelect");	
 dream.event.create($, "onDeselect");
 
-$.select = function(id){
+$.select = function(obj){
+	if(this._current)
+		dream.event.dispatch(this, "onDeselect", this._current);
+	this._current = obj;
+	dream.event.dispatch(this, "onSelect", obj);
+};
+
+$.selectById = function(id){
 	var obj;
 	if (obj = this[id])
-		this._current = obj;
-		if(this._current)
-			dream.event.dispatch(this, "onDeselect", this._current);
-		dream.event.dispatch(this, "onSelect", obj);
+		this.select(obj);
 };
 
 Object.defineProperty($, "current", {
@@ -161,7 +169,7 @@ dream.collection = {
 	List: List,
 	Set: Set,
 	Dict: Dict,
-	Set: Set
+	Selector: Selector,
 };
 	
 })();
