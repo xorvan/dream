@@ -18,13 +18,21 @@ dream.scenery.Scene = function(){
 	
 	this.areaChangeRate = .5;
 	
+	
+	this.loader = new dream.static.Loader();
+	
+	this.assets = new dream.util.AssetLibrary();
+	
+	this.assets.onAdd.add(function(o){
+		o.__IS_PERSIST = true;
+		scene.pool.add(o);
+	});
+	this.assets.onRemove.add(this.pool.remove.bind(this.pool));
+	
 	this.providers = new dream.collection.Dict;
 	this.providers.onAdd.add(function(provider){
 		provider.init(scene.pool);
 	});
-	this.providers.add(new dream.provider.StaticProvider, "static");
-	
-	this.assets = this.providers.static.assets;
 	
 	this.pool.onAdd.add(function(a){
 				
@@ -68,17 +76,19 @@ dream.scenery.Scene = function(){
 				area.height - intersection.height > vph * scene.drawDistanceY * scene.areaChangeRate){
 			
 			scene.area = area;
-
-			for(var i=0; i<scene.pool.length; i++){
-				if(!scene.pool[i].boundary.hasIntersectWith(area)){
-					scene.pool.removeByIndex(i);
-					i--;
-				}
-			}
 			
-			console.log("Area changed!!");
-			for(var i=0, p; p = scene.providers[i]; i++){
-				p.area = area;
+			if(this.providers.length){
+				for(var i=0; i<scene.pool.length; i++){
+					var o = scene.pool[i];
+					if(!o.__IS_PERSIST && !o.boundary.hasIntersectWith(area)){
+						scene.pool.removeByIndex(i);
+						i--;
+					}
+				}
+				
+				for(var i=0, p; p = scene.providers[i]; i++){
+					p.area = area;
+				}				
 			}
 			
 		}
@@ -114,6 +124,22 @@ dream.scenery.Scene.prototype.checkPresence = function(o){
 	}
 };
 
+Object.defineProperty(dream.scenery.Scene.prototype, "requiredResources", {
+	get : function () {
+		var r = this.assets.requiredResources;
+		for(var i=0; i<this.providers.length; i++)
+			r.addArray(this.providers[i].requiredResources);
+		return r;
+	}
+});
+
+dream.scenery.Scene.prototype.prepare = function(callBack){
+	if(this.loader.isRequestSent){
+		this.loader.abort();
+	}
+	this.loader.resources = this.requiredResources;
+	this.loader.load(callBack);
+};
 
 /**
  * @constructor

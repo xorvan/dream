@@ -303,7 +303,7 @@ dream.util.AssetLibrary.prototype.prepare = function(callBack){
 
 Object.defineProperty(dream.util.AssetLibrary.prototype, "requiredResources", {
 	get : function () {
-		var r = new dream.util.ArrayList;
+		var r = new dream.collection.Set;
 		for(var i=0,asset; asset=this[i]; i++ )
 			r.addArray(asset.requiredResources);
 		return r;

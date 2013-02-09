@@ -31,14 +31,10 @@ dream.visual.Composite = function(left, top){
 			
 			a.isImageChanged = true;
 			
-			a.onBoundaryChange.add(function(){
-				composite.addToRect(this);
-			}, composite);
+			a.onBoundaryChange.add(composite.addToRect.bind(composite, a), composite);
 			
 			if(!composite._isDirty)
-				a.onImageChange.add(function(rects){
-					composite.redrawRegions.addArray(rects);
-				}, composite);
+				a.onImageChange.add(composite.redrawRegions.addArray.bind(composite.redrawRegions), composite);
 			
 		};
 	});

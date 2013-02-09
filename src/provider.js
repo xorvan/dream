@@ -25,7 +25,7 @@ Object.defineProperty($, "area", {
 	}
 });
 
-var StaticProvider = function(){
+var OfflineProvider = function(){
 	Provider.call(this);
 	
 	this.assets = new dream.util.AssetLibrary();
@@ -40,7 +40,7 @@ var StaticProvider = function(){
 	
 }.inherits(Provider);
 	
-var $ = StaticProvider.prototype;
+var $ = OfflineProvider.prototype;
 
 $.provide = function(area){
 	for (var i = 0, obj; obj = this.assets[i]; i++)
@@ -54,10 +54,9 @@ Object.defineProperty($, "requiredResources", {
 	}
 });
 	
-	
 dream.provider = {
 		Provider: Provider,
-		StaticProvider: StaticProvider
+		OfflineProvider: OfflineProvider
 };
 	
 })(window);

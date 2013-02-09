@@ -44,7 +44,7 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 			screen.redrawRegions.addArray(rects/*.map(function(r){return r.clone();})*/);
 		}, screen);
 
-		scene.assets.prepare(function(){
+		scene.prepare(function(){
 			screen.render(scene);
 		});
 		
