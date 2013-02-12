@@ -169,17 +169,7 @@ dream.collection = {
 	List: List,
 	Set: Set,
 	Dict: Dict,
-	Selector: Selector,
+	Selector: Selector
 };
 	
 })();
-
-
-
-
-
-
-
-
-
-

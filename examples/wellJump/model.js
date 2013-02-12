@@ -6,6 +6,7 @@ var drawing = dream.visual.drawing,
 	behaviour = dream.behaviour,
 	Dynamic = dream.dynamic.Dynamic,
 	Timeline = dream.dynamic.Timeline,
+	Composite = dream.visual.Composite,
 	Tween = dream.dynamic.Tween;
 
 Jumper = function(left, top){
@@ -65,7 +66,6 @@ Bar = function(left, top){
 	drawing.Rect.call(this, left, top, 75, 12);
 	
 	this.fillStyle = new drawing.LinearGradient([new drawing.ColorStop(0, "#68aefe"), new drawing.ColorStop(1, "#3657de")], 0, 0, 0, 1);
-//	this.fillStyle = "#3657de"; 
 	this.behaviours.add(new dream.behaviour.Draggable);
 	this.updateBuffer();
 }.inherits(drawing.Rect);
@@ -115,5 +115,16 @@ ElasticBar.prototype.hit = function(){
 	return 2;
 };
 
+
+StartGameButton = function(left, top){
+	Composite.call(this, left, top);
+	
+	this.border = this.assets.add(new drawing.Rect(0,0,200,70));
+	this.border.strokeStyle = "#666";
+	this.border.fillStyle = "#eee";
+	
+	this.caption = this.assets.add(new drawing.Text(55, 50, "Start"));
+	this.caption.fontSize = 40;
+}.inherits(Composite);
 
 })();

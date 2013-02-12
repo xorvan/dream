@@ -9,33 +9,57 @@ var drawing = dream.visual.drawing,
 	Text = dream.visual.drawing.Text,
 	Dynamic = dream.dynamic.Dynamic;
 
+width = 640;
 
 init = function(){
 	
-	gameScreen = new dream.Screen(document.getElementById("mainCanvas"), 640, 400, 640, 1200);
+	gameScreen = new dream.Screen(document.getElementById("mainCanvas"), width, 400, width, 1200);
 	
 	jumper = new Jumper();
-	jumper.behaviours.add(new dream.behaviour.LeftBounded(0 + jumper.radius, 640 - jumper.radius), "leftBounded");
-	classicScene = null;
-		
-	startGame();
+	jumper.behaviours.add(new dream.behaviour.LeftBounded(0 + jumper.radius, width - jumper.radius), "leftBounded");
+	gameScene = null;
+	
+	menuScene = gameScreen.scenes.add(new MenuScene);
+	gameScreen.scenes.current = menuScene;
+	
+	//startGame();
 	
 };
 
 
 startGame = function(){
 	
-	classicScene = gameScreen.scenes.current = new ClassicScene(jumper, gameScreen);
-	classicScene.onGameOver.add(function(){
+	gameScene = gameScreen.scenes.current = new GameScene(jumper, gameScreen);
+	gameScene.onGameOver.add(function(){
 		console.log("Game Over!");
-		startGame();
+		menuScene.score.text = "Score: " + gameScene.score.text;
+		gameScreen.scenes.current = menuScene;
+		
 	});
 };
 
-ClassicScene = function(jumper, gameScreen){
+MenuScene = function(jumper, gameScreen){
+	dream.scenery.Scene.call(this);
+	
+	this.title = this.assets.add(new Text(width/2, 100, "Well Jump"));	
+	this.title.fontSize = 60;
+	this.title.align = drawing.Align.CENTER;
+
+	this.score = this.assets.add(new Text(width/2, 200, ""));	
+	this.score.fontSize = 40;
+	this.score.align = drawing.Align.CENTER;
+	
+	this.startButton = this.assets.add(new StartGameButton((width - 200)/2, 400));
+	this.startButton.onClick.add(function(){
+		startGame();
+	});
+	
+}.inherits(dream.scenery.Scene);
+
+GameScene = function(jumper, gameScreen){
 	dream.scenery.Scene.call(this);
 
-	this.rate = 10000;
+	this.rate = 50000;
 	
 	this.top = gameScreen.height;
 	this.onResize.add(function(){
@@ -47,7 +71,9 @@ ClassicScene = function(jumper, gameScreen){
 	this.assets.add(jumper, "jumper");
 	jumper.jump();
 	
-	this.score = this.assets.add(new Text(10, -100, "Score"));
+	this.score = this.assets.add(new Text(30, -30, "0"));
+	this.score.fontSize = 30;
+	this.score.z = 5;
 	//this.score.fillStyle = "#000";
 	
 	this.providers.add(new BarProvider, "bars");
@@ -83,7 +109,7 @@ ClassicScene = function(jumper, gameScreen){
 		}else{
 			var y = jumper.top + 400;
 			if(y < this.anchorY){
-				this.score.top = jumper.top;
+				this.score.top = y - 30;
 				var s = -y|0;
 				this.score.text = s;
 				this.anchorY = y;
@@ -93,7 +119,7 @@ ClassicScene = function(jumper, gameScreen){
 	})).play();
 	
 }.inherits(dream.scenery.Scene);
-var $ = ClassicScene.prototype;
+var $ = GameScene.prototype;
 
 dream.event.create($, "onGameOver");
 

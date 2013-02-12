@@ -831,6 +831,11 @@ dream.visual.drawing = {
 		Star:Star,
 		Poly:Poly,
 		Text:Text,
+		Align: {
+			LEFT: "left",
+			CENTER: "center",
+			RIGHT: " right"
+		},
 		Style:Style,
 		Color:Color,
 		LineStyle:LineStyle,
