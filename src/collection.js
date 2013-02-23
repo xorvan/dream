@@ -2,15 +2,15 @@
 
 var Collection = function(){
 	
-}.inherits(Array)
+}.inherits(Array);
 var $ = Collection.prototype;
 
 dream.event.create($, "onAdd");	
 dream.event.create($, "onRemove");
 
 $.indexOf = function(obj){
-	var l = this.length;
-	for( var i = 0; i < l; i++)
+	var i=0, l = this.length-1;
+	while(i++ != l)
 		if(this[i] == obj) return i;
 };
 
@@ -21,18 +21,36 @@ $.addArray = function(items){
 	
 };
 
-var List = function(){
-	
-	
+var List = function(arr){
+	if (arr){
+		for(var i=0; i< arr.length;i++)
+			this.push(arr[i]);
+	}
 }.inherits(Collection);	
 	
 var $ = List.prototype;
-
 
 $.add = function(obj){
 	this.push(obj);
 	dream.event.dispatch(this, "onAdd", obj);
 	return obj;
+};
+
+$.pop = function(){
+	var obj = this[this.length-1];
+	this.length--;
+	dream.event.dispatch(this, "onRemove", obj);
+	return obj;
+};
+
+$.shift = function(){
+	var obj = this[0];
+	dream.event.dispatch(this, "onRemove", obj);
+	return obj;
+};
+
+$.at = function(n){
+	return this[n];
 };
 
 $.insert = function(index, obj){
@@ -162,11 +180,120 @@ Object.defineProperty($, "current", {
 	}
 });
 
+var Linkedlist = function(){
+	this.length = 0;
+	this.first = this.last = null;
+};
+
+var $ = Linkedlist.prototype;
+dream.event.create($, "onAdd");	
+dream.event.create($, "onRemove");
+
+$.push = function(obj){
+	if(obj.hasOwnProperty("previous") || obj.hasOwnProperty("next"))
+		throw Error("can't add object with next and previous attributes, may be duplicate!");
+	if (!this.first) this.first = obj;
+	obj.previous = this.last;
+	if(obj.previous) obj.previous.next = obj;
+	obj.next = null;
+	this.last = obj;
+	this.length++;
+	dream.event.dispatch(this, "onAdd", obj);
+};
+
+$.pop = function(){
+	var obj = this.last;
+	this.last = obj.previous;
+	this.last.next = null;
+	this.length--;
+	if(this.length == 0) this.first = null;
+	dream.event.dispatch(this, "onRemove", obj);
+	return obj;
+};
+
+$.shift = function(){
+	var node = this.first;
+	if(node){
+		this.first = node.next;
+		node.next.previous = undefined;
+		dream.event.dispatch(this, "onRemove", node);
+		this.length--;
+		return node;
+	}
+};
+
+$.unshift = function(obj){
+	var node = this.first;
+	if(!node) this.push(obj);
+	this.addAt(obj, 0);
+};
+
+$.at = function(ind){
+	if (ind < 0 || ind >= this.length) 
+		throw Error("index out of Linklist range:  " + ind);
+	var node = this.first;
+	for (var i=0; i < ind; i++)
+		node = node.next;
+	return node;
+};
+
+$.indexOf = function(obj){
+	for (var i = 0, node = this.first; i < this.length; i++, node = node.next)
+		if (node == obj)
+			return i;
+		return -1;
+}; 
+
+$.add = $.push;
+
+$.addAt = function(obj, ind){
+	if(obj.hasOwnProperty("previous") || obj.hasOwnProperty("next"))
+		throw Error("can't add object with next and previous attributes, may be duplicate!");
+	var node = this.at(ind);
+	if(node.previous) node.previous.next = obj;
+	else this.first = obj;
+	obj.previous = node.previous;
+	obj.next = node;
+	node.previous = obj;
+	if(ind == this.length - 1) this.last = obj;
+	this.length++;
+	dream.event.dispatch(this, "onAdd", obj);
+};
+
+$.addAfter = function(obj, node){
+	var ind = this.indexOf(node);
+	this.addAt(ind+1);
+};
+
+$.addBefore = function(obj, node){
+	var ind = this.indexOf(node);
+	this.addAt(ind);
+};
+
+
+$.removeByIndex = function(ind){
+	var node = this.at(ind);
+	if(node.next) node.next.previous = node.previous;
+	else this.last = node.previous;
+	if(node.previous) node.previous.next = node.next;
+	else this.first = node.next;
+	dream.event.dispatch(this, "onRemove", node);
+	delete node.next;
+	delete node.previous;
+	this.length--;
+};
+
+$.remove = function(obj){
+	var ind = this.indexOf(obj);
+	this.removeByIndex(ind);
+};
+
 
 
 // export
 dream.collection = {
 	List: List,
+	Linkedlist: Linkedlist,
 	Set: Set,
 	Dict: Dict,
 	Selector: Selector

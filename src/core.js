@@ -48,16 +48,16 @@ dream.VisualAsset = function(){
 	
 }.inherits(dream.Asset);
 
-dream.event.create(dream.VisualAsset.prototype, "onMouseEnter", true);
-dream.event.create(dream.VisualAsset.prototype, "onMouseLeave", true);
-dream.event.create(dream.VisualAsset.prototype, "onMouseMove", true);
-dream.event.create(dream.VisualAsset.prototype, "onMouseDown", true);
-dream.event.create(dream.VisualAsset.prototype, "onMouseUp", true);
-dream.event.create(dream.VisualAsset.prototype, "onClick", true);
-dream.event.create(dream.VisualAsset.prototype, "onDrag", true);
-dream.event.create(dream.VisualAsset.prototype, "onDragStart", true);
-dream.event.create(dream.VisualAsset.prototype, "onDragStop", true);
-dream.event.create(dream.VisualAsset.prototype, "onDrop", true);
+dream.event.createWithCapture(dream.VisualAsset.prototype, "onMouseEnter");
+dream.event.createWithCapture(dream.VisualAsset.prototype, "onMouseLeave");
+dream.event.createWithCapture(dream.VisualAsset.prototype, "onMouseMove");
+dream.event.createWithCapture(dream.VisualAsset.prototype, "onMouseDown");
+dream.event.createWithCapture(dream.VisualAsset.prototype, "onMouseUp");
+dream.event.createWithCapture(dream.VisualAsset.prototype, "onClick");
+dream.event.createWithCapture(dream.VisualAsset.prototype, "onDrag");
+dream.event.createWithCapture(dream.VisualAsset.prototype, "onDragStart");
+dream.event.createWithCapture(dream.VisualAsset.prototype, "onDragStop");
+dream.event.createWithCapture(dream.VisualAsset.prototype, "onDrop");
 
 dream.VisualAsset.prototype.raiseMouseDown = function(event){
 	dream.event.dispatch(this, "onMouseDown$capture", event);
@@ -147,6 +147,13 @@ dream.Point = function(left, top){
 	this.left = left || 0;
 	this.top = top || 0;
 };
+
+dream.event.create(dream.Point.prototype, "onChange", function(){
+	this._left = this.left;
+	this._top = this.top;
+	dream.util.createEventProperty(this, "left");
+	dream.util.createEventProperty(this, "top");
+});
 
 dream.Point.prototype.toString = function(){return "Point["+this.left+", "+this.top+"]";};
 

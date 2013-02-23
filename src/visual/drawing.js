@@ -450,7 +450,35 @@ $.applyPath = function(context, origin){
 /**
  * @constructor
  */
-var Path = function(){};
+var Freehand = function(left, top, path){
+	Shape.call(this, left, top);
+	this.path = path;
+}.inherits(Shape);
+
+var $ = Freehand.prototype;
+
+$.applyPath = function(context, origin){
+	context.translate(origin.left, origin.top);
+	this.path.draw(context, origin);
+};
+
+Object.defineProperty($, "path", {
+	get: function() {
+		return this._path;
+	},
+	set: function(v){
+		var fh = this;
+		this._path = v;
+		this._path.onChange.add(function(obj){
+			fh.rect.left = v.rect.left;
+			fh.rect.top = v.rect.top;
+			fh.rect.width = v.rect.width;
+			fh.rect.height = v.rect.height;
+			fh.isBoundaryChanged = true;
+			fh.isImageChanged = true;
+		})();
+	}
+});
 
 //       definig styles it may become another file alltoghether
 
@@ -830,6 +858,7 @@ dream.visual.drawing = {
 		Ellipse:Ellipse,
 		Star:Star,
 		Poly:Poly,
+		Freehand : Freehand,
 		Text:Text,
 		Align: {
 			LEFT: "left",

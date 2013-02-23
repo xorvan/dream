@@ -53,6 +53,11 @@ dream.event.create(dream.visual.Graphic.prototype, "onZChange");
 
 dream.visual.Graphic.prototype.selectionThreshold = 4;
 
+dream.visual.Graphic.prototype.translate = function(point){
+	this.left = point.left;
+	this.top = point.top;
+};
+
 dream.visual.Graphic.prototype.draw = function(ctx, origin, drawRect) {
 	ctx.save();	
 	if(this.a != 1) ctx.globalAlpha = this.alpha;

@@ -6,13 +6,28 @@ if(!window.dream) dream = {};
 
 dream.event = {};
 
-dream.event.create = function(obj, name, withCapture){
+dream.event.create = function(obj, name, callBack){
 	Object.defineProperty(obj, name, {
+		configurable: true,
 		get : function () {
-			return (this.hasOwnProperty("__events") && this.__events[name]) || ((this.hasOwnProperty("__events") || (this.__events = {})) && (this.__events[name] = new dream.util.EventDispatcher(this, name)));
+			if(!this.hasOwnProperty("__events")) 
+				this.__events = {};
+			
+			var d =  this.__events[name] = new dream.util.EventDispatcher(this, name);
+			
+			Object.defineProperty(this, name, {
+				value:d
+			});
+			if(callBack) callBack.call(this);
+			
+			return d;
 		}
 	});
-	if(withCapture) dream.event.create(obj, name+"$capture"); 
+};
+
+dream.event.createWithCapture = function(obj, name, callBack, captureCallBack){
+	dream.event.create(obj, name, callBack);
+	dream.event.create(obj, name + "$capture", captureCallBack);
 };
 
 dream.event.dispatch = function(obj, name){

@@ -56,7 +56,8 @@ html,body {
 	<script type="text/javascript">
 		function init(){
 			test = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 1600, 1200);
-			
+			test.frameRate = 250;
+
 			scene = new dream.scenery.Scene;
 			
 			var assets = scene.providers.add(new dream.provider.OfflineProvider, "allAssets").assets;

@@ -151,12 +151,27 @@ function init(){
 	paper.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.A, function(i){this.rotation += i;}));
 	paper.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.S, function(i){this.rotation -= i;}));
 	
-	stats=new Stats();
-	stats.getDomElement().style.position = 'absolute';
-	stats.getDomElement().style.left = '0px';
-	stats.getDomElement().style.top = '0px';
-	document.getElementById("container").appendChild(stats.getDomElement() );
-	var stp=new dream.dynamic.Dynamic(function(){stats.update();});
+	st = new dream.bench.Stat();
+	st.element.style.position = 'absolute';
+	st.element.style.left = '0px';
+	st.element.style.top = '0px';
+	document.body.appendChild(st.element);
+	
+	var fps = new dream.bench.Probe("fps");
+	var rr = new dream.bench.Probe("redraw Regions");
+	st.probes.addArray([fps,rr]);
+	var stp=new dream.dynamic.Dynamic(function(){
+		fps.cnt ++;
+		world.redrawRegions.length;
+	});
+	
+	
+//	stats=new Stats();
+//	stats.getDomElement().style.position = 'absolute';
+//	stats.getDomElement().style.left = '0px';
+//	stats.getDomElement().style.top = '0px';
+//	document.getElementById("container").appendChild(stats.getDomElement() );
+//	var stp = new dream.dynamic.Dynamic(function(){stats.update();});
 	world.dynamics.add(stp).play();
 };
 
