@@ -28,11 +28,21 @@ var Path = function(s){
 	var pth = this;
 	this.segments = new dream.collection.Linkedlist;
 	this.segments.onAdd.add(function(obj){
-		
+		// manage change of segments
 		obj.onChange.add(function(){
 			pth.updateLength();
 			dream.event.dispatch(pth, "onChange");
 		});
+		dream.event.dispatch(pth, "onChange");
+		// manage adding move for zooms
+		
+		// manage adding for smooth curves
+		
+	});
+	this.segments.onRemove.add(function(obj){
+		pth.length -= obj.length;
+		obj.onChange.removeByOwner(pth);
+		dream.event.dispatch(pth, "onChange");
 	});
 	this.length = 0;
 	this.rect = new dream.Rect;
@@ -85,11 +95,12 @@ $.parse = function(s){
 		.map(function(c){if(c != "") return /^[a-zA-Z]{1}$/.test(c) ? c : c.trim().split(/\s+/g);});
 
 	var cn, lcn, ox = 0, oy = 0;
+	console.log(tokens);
 	while(tokens.length){
 		cn = tokens.shift();
 		if(!cn) continue;
-		args = tokens.shift();
 		lcn = cn.toLowerCase();
+		args = tokens.shift();
 		isRel = lcn == cn;
 		var c = false;
 		switch(lcn){
@@ -109,6 +120,12 @@ $.parse = function(s){
 				oy = y;
 				this.segments.push(new c(x, y));
 				break;
+			case "z":
+				args = [];
+				var com = new Zline(0, 0);
+				this.segments.push(com);
+				com.init();
+				break;
 			case "c":
 				if(args.length < 6) throw PathArgumentError(s, cn);
 				var x1 = +args.shift(), y1 = +args.shift(),
@@ -127,6 +144,21 @@ $.parse = function(s){
 				oy = y;
 				this.segments.push(new CubicBezier(x1, y1, x2, y2, x, y));
 				break;
+			case "s":
+				if(args.length < 4) throw PathArgumentError(s, cn);
+				var x1 = +args.shift(), y1 = +args.shift(),
+					x = +args.shift(), y = +args.shift();
+				
+				if(isRel){
+					x += ox;
+					y += oy;
+					x1 += ox;
+					y1 += oy;
+				}
+				ox = x;
+				oy = y;
+				this.segments.push(new SmoothCubicBezier(x1, y1, x, y));
+				break;	
 			case "q":
 				if(args.length < 4) throw PathArgumentError(s, cn);
 				var x1 = +args.shift(), y1 = +args.shift(),
@@ -141,6 +173,17 @@ $.parse = function(s){
 				ox = x;
 				oy = y;
 				this.segments.push(new QuadraticBezier(x1, y1, x, y));
+				break;
+			case "t":
+				if(args.length < 2) throw PathArgumentError(s, cn);
+				var x = +args.shift(), y = +args.shift();
+				if(isRel){
+					x += ox;
+					y += oy;
+				}
+				ox = x;
+				oy = y;
+				this.segments.push(new SmoothQuadraticBezier(x, y));
 				break;
 			default:
 				throw new Error("Invalid SVG Path '"+s+"', command is not defined! At Command:  "+ cn+".");
@@ -163,7 +206,7 @@ var Segment = function(x, y){
 var $ = Segment.prototype;
 dream.event.create($, "onChange");
 
-
+createPointProperty($, "dest");
 
 Object.defineProperty($, "previous", {
 	get: function() {
@@ -181,8 +224,6 @@ Object.defineProperty($, "previous", {
 		});
 	}
 });
-
-createPointProperty($, "dest");
 
 $.getOrigin = function(t){
 	var t = t == undefined ? 0:t;
@@ -228,7 +269,7 @@ var $ = Line.prototype;
 
 $.solve = function(t){
 	var orig = this.getOrigin(t);
-	return new dream.Point((this.dest.left - orig.left) * t, (this.dest.top - orig.top) * t);
+	return new dream.Point((this.dest.left - orig.left) * t + orig.left, (this.dest.top - orig.top) * t + orig.top);
 };
 // line specific length calc
 $.updateLength = function(){
@@ -246,6 +287,28 @@ $.updateLength = function(){
 
 $.draw = function(ctx, origin){
 	ctx.lineTo(this.dest.left, this.dest.top);
+};
+
+var Zline = function(x, y){
+	Line.call(this, x, y);
+}.inherits(Line);
+
+var $ = Zline.prototype;
+
+$.getLastMove = function(){
+	var node = this.previous;
+	while (node){
+		if(node instanceof Move)
+			return node;
+		node = node.previous;	
+	}
+};
+
+$.init = function(){
+	var lastMove = this.getLastMove();
+	if(lastMove){
+		this.dest = lastMove.dest;
+	}
 };
 
 var Move = function(x, y){
@@ -272,11 +335,9 @@ var Arc = function(){
 }.inherits(Segment);
 
 var CubicBezier = function(cpx1, cpy1, cpx2, cpy2, x, y){
-	this._cp1 = new dream.Point(cpx1, cpy1);
-	this._cp2 = new dream.Point(cpx2, cpy2);
 	Segment.call(this, x, y);
-	this.cp1 = this._cp1;
-	this.cp2 = this._cp2;
+	this.cp1 = new dream.Point(cpx1, cpy1);
+	this.cp2 = new dream.Point(cpx2, cpy2);
 }.inherits(Segment);
 
 var $ = CubicBezier.prototype;
@@ -285,15 +346,16 @@ createPointProperty($, "cp1");
 createPointProperty($, "cp2");
 
 $.solve = function(t){
+	if ((! this.cp1) || (! this.cp2) || (! this.dest)) return 0;
 	var orig = this.getOrigin(t);
 	var t2= t*t, t3= t*t2, point = new dream.Point;
 	// calc left
-	var origleft = orig.left, cp1left = this.cp1.left, cp2left = this.cp2.left;
+	var origleft = orig.left, cp1left = this._cp1._left, cp2left = this._cp2._left;
 	point.left = (origleft + t * (-origleft * 3 + t * (3 * origleft-origleft*t)))+
 					t*(3*cp1left+t*(-6*cp1left+cp1left*3*t))+
 					t2*(cp2left*3-cp2left*3*t)+this.dest.left * t3;
 	// calc top
-	var origtop = orig.top, cp1top = this.cp1.top, cp2top = this.cp2.top;
+	var origtop = orig.top, cp1top = this._cp1._top, cp2top = this._cp2._top;
 	point.top = (origtop+t*(-origtop*3+t*(3*origtop-origtop*t)))+
 				t*(3*cp1top+t*(-6*cp1top+cp1top*3*t))+t2*(cp2top*3-cp2top*3*t)+this.dest.top * t3;
 	
@@ -304,20 +366,52 @@ $.draw = function(ctx, origin){
 	ctx.bezierCurveTo(this.cp1.left, this.cp1.top,this.cp2.left, this.cp2.top, this.dest.left, this.dest.top);
 };
 
+var SmoothCubicBezier = function(cp2x, cp2y, x, y){
+	CubicBezier.call(this, 0, 0, cp2x, cp2y, x, y);
+}.inherits(CubicBezier);
+
+var $ = SmoothCubicBezier.prototype;
+
+$.solve = function(t){
+	if ((! this.cp1) || (! this.cp2) || (! this.dest)) return 0;
+	var orig = this.getOrigin(t);
+	var t2= t*t, t3= t*t2, point = new dream.Point;
+	// calc first control point
+	var lc = this.previous;
+	if(lc instanceof CubicBezier || lc instanceof SmoothCubicBezier ){
+		this._cp1._left = 2 * orig.left - lc.cp2.left;
+		this._cp1._top = 2 * orig.top - lc.cp2.top;
+	} else {
+		this._cp1._left = orig.left;
+		this._cp1._top = orig.top;
+	}
+	// calc left
+	var origleft = orig.left, cp1left = this._cp1._left, cp2left = this._cp2._left;
+	point.left = (origleft + t * (-origleft * 3 + t * (3 * origleft-origleft*t)))+
+					t*(3*cp1left+t*(-6*cp1left+cp1left*3*t))+
+					t2*(cp2left*3-cp2left*3*t)+this.dest.left * t3;
+	// calc top
+	var origtop = orig.top, cp1top = this._cp1._top, cp2top = this._cp2._top;
+	point.top = (origtop+t*(-origtop*3+t*(3*origtop-origtop*t)))+
+				t*(3*cp1top+t*(-6*cp1top+cp1top*3*t))+t2*(cp2top*3-cp2top*3*t)+this.dest.top * t3;
+	
+	return point;
+};
+
 var QuadraticBezier = function(cpx, cpy, x, y){
-	this._cp = new dream.Point(cpx, cpy);
 	Segment.call(this, x, y);
-	this.cp = this._cp;
+	this.cp = new dream.Point(cpx, cpy);
 }.inherits(Segment);
 
 var $ = QuadraticBezier.prototype;
 createPointProperty($, "cp");
 
 $.solve = function(t){
+	if ((! this.cp) || (! this.dest)) return 0;
 	var orig = this.getOrigin(t);
 	var t1= 1-t, point = new dream.Point;
-	point.left= t1*t1*orig.left + 2*t1*t*this.cp.left + t*t*this.dest.left;
-	point.top= t1*t1*orig.top + 2*t1*t*this.cp.top + t*t*this.dest.top;
+	point.left= t1*t1*orig.left + 2*t1*t*this._cp._left + t*t*this.dest.left;
+	point.top= t1*t1*orig.top + 2*t1*t*this._cp._top + t*t*this.dest.top;
 	return point;
 };
 
@@ -325,18 +419,46 @@ $.draw = function(ctx, origin){
 	ctx.quadraticCurveTo(this.cp.left, this.cp.top, this.dest.left, this.dest.top);
 };
 
+var SmoothQuadraticBezier = function(x, y){
+	QuadraticBezier.call(this, 0, 0, x, y);
+}.inherits(QuadraticBezier);
+
+var $ = SmoothQuadraticBezier.prototype;
+
+$.solve = function(t){
+	if ((! this.cp) || (! this.dest)) return 0;
+	var t1= 1-t, point = new dream.Point;
+	var orig = this.getOrigin(t);
+	// calc control point
+	var lq = this.previous;
+	if(lq instanceof QuadraticBezier || lq instanceof SmoothQuadraticBezier ){
+		this._cp._left = 2 * orig.left - lq.cp.left;
+		this._cp._top = 2 * orig.top - lq.cp.top;
+	} else {
+		this._cp._left = orig.left;
+		this._cp._top = orig.top;
+	}
+	point.left= t1*t1*orig.left + 2*t1*t*this._cp._left + t*t*this.dest.left;
+	point.top= t1*t1*orig.top + 2*t1*t*this._cp._top + t*t*this.dest.top;
+	return point;
+};
 
 
 //exports
 
 dream.geometry = {
 		Path: Path,
-		Line: Line,
-		QuadraticBezier: QuadraticBezier,
-		CubicBezier : CubicBezier,
-		Move: Move
+		PathSegment : {
+			Move: Move,
+			Line: Line,
+			Zline : Zline,
+			QuadraticBezier : QuadraticBezier,
+			CubicBezier : CubicBezier,
+			SmoothQuadraticBezier : SmoothQuadraticBezier,
+			SmoothCubicBezier : SmoothCubicBezier
+				}
 		
-}
+};
 	
 	
 	

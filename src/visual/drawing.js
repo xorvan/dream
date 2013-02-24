@@ -468,6 +468,7 @@ Object.defineProperty($, "path", {
 	},
 	set: function(v){
 		var fh = this;
+		if(this._path) this._path.onChange.removeByOwner(fh);
 		this._path = v;
 		this._path.onChange.add(function(obj){
 			fh.rect.left = v.rect.left;
@@ -476,6 +477,7 @@ Object.defineProperty($, "path", {
 			fh.rect.height = v.rect.height;
 			fh.isBoundaryChanged = true;
 			fh.isImageChanged = true;
+			console.log("free hand changed");
 		})();
 	}
 });
