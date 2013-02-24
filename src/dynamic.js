@@ -165,7 +165,7 @@ $.step = function(frame) {
  * @constructor
  */
 var Tween = function(valueMap, interpolator, duration, loop, interval){
-	Tween._superClass.call(this, duration, loop, interval);
+	Animation.call(this, duration, loop, interval);
 	this.valueMap = valueMap;
 	this.interpolator = interpolator && interpolator.fn || dream.dynamic.interpolator.Linear.prototype.fn;
 	if(!('left' in valueMap || 'top' in valueMap || 'right' in valueMap || 'bottom' in valueMap || 'rotation' in valueMap))
@@ -206,6 +206,26 @@ $.step = function(frame){
 	var multiplier = this.interpolator( (this._counter - 1) / this.duration );
 	for(var i in this.diffMap)
 		this.setHostValue(i, this.initialMap[i] + this.diffMap[i] * multiplier); 	
+};
+
+var PathTween = function(path, offset, duration, loop, interval){
+	Animation.call(this, duration, loop, interval);
+	this.path = path;
+	this.offset = offset || new dream.Point;
+	
+}.inherits(Animation);
+
+var $ = PathTween.prototype;
+
+$.init = function(host){
+	this.host = host;
+};
+
+$.step = function(frame){
+	Animation.prototype.step.call(this, frame);
+	var point = this.path.solve((this._counter - 1) / this.duration);
+	this.host.left = point.left + this.offset.left;
+	this.host.top  = point.top  + this.offset.top;
 };
 
 /**
@@ -503,12 +523,24 @@ var ElasticInOut = function(amplitude, period){
 	};
 }.inherits(Interpolator);
 
+var Path = function(path){
+	if (path instanceof dream.geometry.Path)
+		this.path = path
+	else
+		throw Error("Path Interpolator Only Accepts a path as Input");
+	var pt = this;
+	this.fn = function(x){
+		return point = pt.path.solve(x).top / 100;
+	};
+}.inherits(Interpolator);
+
 //Exporting
 dream.dynamic = {
 		Action:Action,
 		Dynamic: Dynamic,
 		Animation:Animation,
 		Tween: Tween,
+		PathTween: PathTween,
 		SpriteAnimation:SpriteAnimation,
 		DynamicList:DynamicList,
 		Interpolator:Interpolator,
@@ -531,7 +563,8 @@ dream.dynamic = {
 			CircOut:CircOut,
 			ElasticIn: ElasticIn,
 			ElasticOut: ElasticOut,
-			ElasticInOut: ElasticInOut
+			ElasticInOut: ElasticInOut,
+			Path : Path
 		}
 		
 };

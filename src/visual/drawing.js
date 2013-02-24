@@ -477,7 +477,6 @@ Object.defineProperty($, "path", {
 			fh.rect.height = v.rect.height;
 			fh.isBoundaryChanged = true;
 			fh.isImageChanged = true;
-			console.log("free hand changed");
 		})();
 	}
 });

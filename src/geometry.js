@@ -95,7 +95,7 @@ $.parse = function(s){
 		.map(function(c){if(c != "") return /^[a-zA-Z]{1}$/.test(c) ? c : c.trim().split(/\s+/g);});
 
 	var cn, lcn, ox = 0, oy = 0;
-	console.log(tokens);
+	//console.log(tokens);
 	while(tokens.length){
 		cn = tokens.shift();
 		if(!cn) continue;
