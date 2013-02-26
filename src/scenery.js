@@ -13,8 +13,8 @@ dream.scenery.Scene = function(){
 	this.screenBoundary = new dream.Rect; 
 	this.viewport = new dream.Rect; 
 	
-	this.drawDistanceX = 1;
-	this.drawDistanceY = 1;
+	this.renderDistanceX = 1;
+	this.renderDistanceY = 1;
 	
 	this.areaChangeRate = .5;
 	
@@ -67,13 +67,13 @@ dream.scenery.Scene = function(){
 		var area = scene.viewport.clone();
 		var vpw = area.width;
 		var vph = area.height;
-		area.left -= area.width * scene.drawDistanceX;
-		area.top -= area.height * scene.drawDistanceY;
-		area.width += area.width * 2 * scene.drawDistanceX;
-		area.height += area.height * 2 * scene.drawDistanceY;
+		area.left -= area.width * scene.renderDistanceX;
+		area.top -= area.height * scene.renderDistanceY;
+		area.width += area.width * 2 * scene.renderDistanceX;
+		area.height += area.height * 2 * scene.renderDistanceY;
 		var intersection = scene.area.getIntersectWith(area);
-		if(area.width - intersection.width > vpw * scene.drawDistanceX * scene.areaChangeRate ||  
-				area.height - intersection.height > vph * scene.drawDistanceY * scene.areaChangeRate){
+		if(area.width - intersection.width > vpw * scene.renderDistanceX * scene.areaChangeRate ||  
+				area.height - intersection.height > vph * scene.renderDistanceY * scene.areaChangeRate){
 			
 			scene.area = area;
 			

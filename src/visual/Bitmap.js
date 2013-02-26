@@ -75,11 +75,11 @@ Object.defineProperty($, "height", {
 		this.isImageChanged = true;	}
 });
 
-$.drawImage = function(ctx, origin, drawRect){
+$.paint = function(ctx, origin, renderRect){
 	//TODO to get fixed after snaptopixel issue
 	var c = this.source.content;
-	if( false && drawRect && !drawRect.covers(this.boundary)){
-		var ldr = this.rect.transformation.unprojectRect(drawRect).boundary.getIntersectWith(this.rect);
+	if( false && renderRect && !renderRect.covers(this.boundary)){
+		var ldr = this.rect.transformation.unprojectRect(renderRect).boundary.getIntersectWith(this.rect);
 		var xf = c.width / this.rect.width, yf = c.height / this.rect.height;
 		//console.log(ldr);
 		ctx.drawImage(c, ldr.left * xf, ldr.top * yf, (ldr.width -1) * xf, (ldr.height -1) * yf, (origin.left|0) + ldr.left|0, (origin.top|0) + ldr.top|0, ldr.width, ldr.height);

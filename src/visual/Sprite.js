@@ -36,7 +36,7 @@
 		}
 	});
 
-	$.drawImage = function(ctx, origin) {
+	$.paint = function(ctx, origin) {
 		var f, content;
 		if(f = this.texture)
 			if(content = this.texture.img.content)

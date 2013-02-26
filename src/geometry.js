@@ -91,11 +91,11 @@ $.solve = function(t){
 };
 
 $.parse = function(s){
-	var tokens = s.replace(/,/g, " ").split(/([a-zA-Z])([0-9,\s]+)/)
+	var tokens = s.replace(/,/g, " ").split(/([a-zA-Z])([\-0-9,\s]+)/)
 		.map(function(c){if(c != "") return /^[a-zA-Z]{1}$/.test(c) ? c : c.trim().split(/\s+/g);});
 
 	var cn, lcn, ox = 0, oy = 0;
-	//console.log(tokens);
+	//console.log(TT = tokens);return 0;
 	while(tokens.length){
 		cn = tokens.shift();
 		if(!cn) continue;
@@ -372,31 +372,39 @@ var SmoothCubicBezier = function(cp2x, cp2y, x, y){
 
 var $ = SmoothCubicBezier.prototype;
 
-$.solve = function(t){
-	if ((! this.cp1) || (! this.cp2) || (! this.dest)) return 0;
-	var orig = this.getOrigin(t);
-	var t2= t*t, t3= t*t2, point = new dream.Point;
-	// calc first control point
-	var lc = this.previous;
-	if(lc instanceof CubicBezier || lc instanceof SmoothCubicBezier ){
-		this._cp1._left = 2 * orig.left - lc.cp2.left;
-		this._cp1._top = 2 * orig.top - lc.cp2.top;
+$._updateCp2 = function(v){
+	if(v.cp2){
+		this.cp1.left = 2 * v.dest.left - v.cp2.left;
+		this.cp1.top =  2 * v.dest.top  - v.cp2.top;
 	} else {
-		this._cp1._left = orig.left;
-		this._cp1._top = orig.top;
+		this.cp1.left = v.dest.left;
+		this.cp1.top =  v.dest.top;
 	}
-	// calc left
-	var origleft = orig.left, cp1left = this._cp1._left, cp2left = this._cp2._left;
-	point.left = (origleft + t * (-origleft * 3 + t * (3 * origleft-origleft*t)))+
-					t*(3*cp1left+t*(-6*cp1left+cp1left*3*t))+
-					t2*(cp2left*3-cp2left*3*t)+this.dest.left * t3;
-	// calc top
-	var origtop = orig.top, cp1top = this._cp1._top, cp2top = this._cp2._top;
-	point.top = (origtop+t*(-origtop*3+t*(3*origtop-origtop*t)))+
-				t*(3*cp1top+t*(-6*cp1top+cp1top*3*t))+t2*(cp2top*3-cp2top*3*t)+this.dest.top * t3;
-	
-	return point;
 };
+Object.defineProperty($, "previous", {
+	get: function() {
+		return this._previous;
+	},
+	set: function(v){
+		var seg = this;
+		if(this._previous) this._previous.dest.onChange.removeByOwner(this);
+		if(this._previous) this._previous.cp2.onChange.removeByOwner(this);
+		this._previous = v;
+		this._updateCp2(v);
+		this.updateLength();
+		dream.event.dispatch(seg, "onChange");
+		this._previous.dest.onChange.add(function(){
+			seg._updateCp2(seg._previous);
+			seg.updateLength();
+			dream.event.dispatch(seg, "onChange");
+		});
+		this._previous.cp2.onChange.add(function(){
+			seg._updateCp2(seg._previous);
+			seg.updateLength();
+			dream.event.dispatch(seg, "onChange");
+		});
+	}
+});
 
 var QuadraticBezier = function(cpx, cpy, x, y){
 	Segment.call(this, x, y);
@@ -425,30 +433,46 @@ var SmoothQuadraticBezier = function(x, y){
 
 var $ = SmoothQuadraticBezier.prototype;
 
-$.solve = function(t){
-	if ((! this.cp) || (! this.dest)) return 0;
-	var t1= 1-t, point = new dream.Point;
-	var orig = this.getOrigin(t);
-	// calc control point
-	var lq = this.previous;
-	if(lq instanceof QuadraticBezier || lq instanceof SmoothQuadraticBezier ){
-		this._cp._left = 2 * orig.left - lq.cp.left;
-		this._cp._top = 2 * orig.top - lq.cp.top;
+$._updateCp = function(v){
+	if(v.cp){
+		this.cp.left = 2 * v.dest.left - v.cp.left;
+		this.cp.top =  2 * v.dest.top  - v.cp.top;
 	} else {
-		this._cp._left = orig.left;
-		this._cp._top = orig.top;
+		this.cp.left = v.dest.left;
+		this.cp.top =  v.dest.top;
 	}
-	point.left= t1*t1*orig.left + 2*t1*t*this._cp._left + t*t*this.dest.left;
-	point.top= t1*t1*orig.top + 2*t1*t*this._cp._top + t*t*this.dest.top;
-	return point;
 };
 
+Object.defineProperty($, "previous", {
+	get: function() {
+		return this._previous;
+	},
+	set: function(v){
+		var seg = this;
+		if(this._previous) this._previous.dest.onChange.removeByOwner(this);
+		if(this._previous) this._previous.cp.onChange.removeByOwner(this);
+		this._previous = v;
+		this._updateCp(v);
+		this.updateLength();
+		dream.event.dispatch(seg, "onChange");
+		this._previous.dest.onChange.add(function(){
+			seg._updateCp(seg._previous);
+			seg.updateLength();
+			dream.event.dispatch(seg, "onChange");
+		});
+		this._previous.cp.onChange.add(function(){
+			seg._updateCp(seg._previous);
+			seg.updateLength();
+			dream.event.dispatch(seg, "onChange");
+		});
+	}
+});
 
 //exports
 
 dream.geometry = {
 		Path: Path,
-		PathSegment : {
+		pathSegment : {
 			Move: Move,
 			Line: Line,
 			Zline : Zline,

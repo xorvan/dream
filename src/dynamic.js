@@ -208,10 +208,16 @@ $.step = function(frame){
 		this.setHostValue(i, this.initialMap[i] + this.diffMap[i] * multiplier); 	
 };
 
-var PathTween = function(path, offset, duration, loop, interval){
+var PathTween = function(path, transform, start, end, interpolator, duration, loop, interval){
 	Animation.call(this, duration, loop, interval);
-	this.path = path;
-	this.offset = offset || new dream.Point;
+	if (path instanceof dream.geometry.Path)
+		this.path = path;
+	else
+		throw Error("PathTween Only Accepts a path as first argument");
+	this.transform = transform || new dream.transform.Identity;
+	this.start = start || 0;
+	this.end = end || 1;
+	this.interpolator = interpolator && interpolator.fn || dream.dynamic.interpolator.Linear.prototype.fn;
 	
 }.inherits(Animation);
 
@@ -223,9 +229,15 @@ $.init = function(host){
 
 $.step = function(frame){
 	Animation.prototype.step.call(this, frame);
-	var point = this.path.solve((this._counter - 1) / this.duration);
-	this.host.left = point.left + this.offset.left;
-	this.host.top  = point.top  + this.offset.top;
+	var point, t, ct;
+	t = ((this._counter - 1) / this.duration) + this.start;
+	if ( t > this.end) this.seeker = 1;
+	ct = this.interpolator(t);
+	if(ct > 1) ct = 1;
+	else if (ct < 0) ct=0;
+	point = this.transform.project(this.path.solve(ct));
+	this.host.left = point.left;
+	this.host.top  = point.top;
 };
 
 /**
@@ -318,11 +330,12 @@ var DynamicList = function(host){
 var $ = DynamicList.prototype;
 
 $.step = function(){
+	var dyn, l = this.length;
 	if(this.host.isPresent){
-		for (var i = 0, dyn ; dyn = this[i]; i++)
+		while(dyn = this[--l])
 			if (dyn.isPlaying && ++this._counter % dyn.interval == 0) dyn.step();		
 	}else{
-		for (var i = 0, dyn ; dyn = this[i]; i++)
+		while(dyn = this[--l])
 			if (!dyn.isPassive && dyn.isPlaying && ++this._counter % dyn.interval == 0) dyn.step();		
 	}
 };
@@ -523,14 +536,27 @@ var ElasticInOut = function(amplitude, period){
 	};
 }.inherits(Interpolator);
 
-var Path = function(path){
+var PathY = function(path, scale){
 	if (path instanceof dream.geometry.Path)
-		this.path = path
+		this.path = path;
 	else
 		throw Error("Path Interpolator Only Accepts a path as Input");
+	this.scale = scale || 1;
 	var pt = this;
 	this.fn = function(x){
-		return point = pt.path.solve(x).top / 100;
+		return point = pt.path.solve(x).top / this.scale;
+	};
+}.inherits(Interpolator);
+
+var PathX = function(path, scale){
+	if (path instanceof dream.geometry.Path)
+		this.path = path;
+		else
+			throw Error("Path Interpolator Only Accepts a path as Input");
+	this.scale = scale || 1;;
+	var pt = this;
+	this.fn = function(x){
+		return point = pt.path.solve(x).left / this.scale;
 	};
 }.inherits(Interpolator);
 
@@ -564,7 +590,8 @@ dream.dynamic = {
 			ElasticIn: ElasticIn,
 			ElasticOut: ElasticOut,
 			ElasticInOut: ElasticInOut,
-			Path : Path
+			PathY : PathY,
+			PathX : PathX
 		}
 		
 };

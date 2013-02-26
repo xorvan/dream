@@ -1,8 +1,11 @@
+
+(function(){
+		
 /**
- * @constructor
+* @constructor
  * @extends dream.VisualAsset
  */
-dream.visual.Graphic = function(left, top){	
+var Graphic = function(left, top){	
 	this.a = 1;
 	this._z = 0;
 	
@@ -43,38 +46,52 @@ dream.visual.Graphic = function(left, top){
 		behaviour.disable();
 	});
 	
-	//this.buffer = null;
+	graphic.filters = new dream.visual.filter.FilterList;
 	
 }.inherits(dream.VisualAsset);
 
-dream.event.create(dream.visual.Graphic.prototype, "onImageChange");
-dream.event.create(dream.visual.Graphic.prototype, "onBoundaryChange");
-dream.event.create(dream.visual.Graphic.prototype, "onZChange");
+var $ = Graphic.prototype;
 
-dream.visual.Graphic.prototype.selectionThreshold = 4;
+dream.event.create($, "onImageChange");
+dream.event.create($, "onBoundaryChange");
+dream.event.create($, "onZChange");
 
-dream.visual.Graphic.prototype.translate = function(point){
+$.selectionThreshold = 4;
+
+$.translate = function(point){
 	this.left = point.left;
 	this.top = point.top;
 };
 
-dream.visual.Graphic.prototype.draw = function(ctx, origin, drawRect) {
+$.paintFromBuffer = function(ctx, origin, renderRect){
+	// TODO apply renderRect
+	var buf = this.buffer, ba = buf.anchor;
+	ctx.drawImage(buf.canvas, origin.left + ba.left, origin.top + ba.top);
+};
+
+$.render = function(ctx, origin, renderRect) {
 	ctx.save();	
 	if(this.a != 1) ctx.globalAlpha = this.alpha;
 //	var m = this.rect.transformation.matrix;
 //	ctx.transform(m.x0, m.y0, m.x1, m.y1, m.dx|0, m.dy |0);
 	var o = this.rect.transformation.apply(ctx, origin);
 //	o.left |= 0, o.top |= 0;
-	
-	this.drawImage(ctx, o, drawRect);
+	if (this.buffer)
+		this.paintFromBuffer(ctx, o);
+	else{
+		if(this.filters.length)
+			ctx.drawImage(this.filters.apply(this.imageData), o.left + this.rect.left, o.top + this.rect.top);
+		else
+			this.paint(ctx, o, renderRect);	
+	}
 	ctx.restore();
 };
 
-dream.visual.Graphic.prototype.step = function (){
+$.step = function (){
 	
 	if (this.dynamics.isPlaying) this.dynamics.step();
 
-	var oldBoundary = this.boundary
+	var oldBoundary = this.boundary;
 	if(this.isBoundaryChanged){
 		this.boundary = this.rect.boundary;
 		
@@ -108,7 +125,7 @@ dream.visual.Graphic.prototype.step = function (){
 	
 }; 
 
-dream.visual.Graphic.prototype.checkHover = function (event){
+$.checkHover = function (event){
 	var pl;
 	if(event.position.isIn(this.boundary) && (pl = event.localPosition, this.imageData.data[ (((pl.top|0) - this.rect.top) * this.rect.width + ( pl.left|0) - this.rect.left)*4 + 3 ] > this.selectionThreshold)){
 		if(!this.isHovered) dream.event.dispatch(this, "onMouseEnter", event);
@@ -119,35 +136,42 @@ dream.visual.Graphic.prototype.checkHover = function (event){
 	}
 };
 
-dream.visual.Graphic.prototype.dropBuffer = function(){
-	this.buffer = null; 
-	if(this._oldDrawImage) this.drawImage = this._oldDrawImage;
-};
-
-dream.visual.Graphic.prototype.updateBuffer = function(){
-	if (this.buffer == null){
-		this._oldDrawImage = this.drawImage;
-		this.drawImage = function(ctx, origin){
-			var w = this.buffer.canvas.width, h = this.buffer.canvas.height;
-			ctx.drawImage(this.buffer.canvas, 0, 0, w, h, this.buffer.left + origin.left, this.buffer.top + origin.top, w, h);
-		};
+Object.defineProperty($, "useBuffer", {
+	get : function() {
+		return !!this.buffer;
+	},
+	set:function(v){
+		if(buffer && !v){
+			this.onImageChange.removeByOwner(this.buffer);
+			this.buffer = null; 
+		}
+		else if(!buffer && v){
+			this._updateBuffer();
+		}
 	}
+});
 
-	this.buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
-	this.buffer.left = this.rect.left;
-	this.buffer.top = this.rect.top;
-	this.buffer.context.translate(-this.rect.left, -this.rect.top);
-	
-	this._oldDrawImage(this.buffer.context, new dream.Point(0, 0));
+$._updateBuffer = function(){
+	if (this.buffer == null){
+		this.buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
+		this.onImageChange.add(function(){
+			this._updateBuffer();
+		}, this.buffer);
+	}else{
+		this.buffer.canvas.width = this.rect.width;
+		this.buffer.canvas.height = this.rect.height;
+	}
+	this.buffer.anchor = new dream.Point(this.rect.left, this.rect.top);
+	this.paint(this.buffer.context, new dream.Point(-this.rect.left, -this.rect.top));
 };
 
-dream.visual.Graphic.prototype.raiseMouseDown = function(event){
+$.raiseMouseDown = function(event){
 	dream.event.dispatch(this, "onMouseDown$capture", event);
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseDown", event);
 	this.isMouseDown = true;
 };
 
-dream.visual.Graphic.prototype.raiseMouseUp = function(event, clickEvent){
+$.raiseMouseUp = function(event, clickEvent){
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseUp$capture", event);
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseUp", event);
 	if(this.isMouseDown){
@@ -157,7 +181,7 @@ dream.visual.Graphic.prototype.raiseMouseUp = function(event, clickEvent){
 	}
 };
 
-dream.visual.Graphic.prototype.raiseMouseMove = function(event, dragEvent){
+$.raiseMouseMove = function(event, dragEvent){
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseMove$capture", event);
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseMove", event);
 	if(this.isMouseDown){
@@ -169,19 +193,19 @@ dream.visual.Graphic.prototype.raiseMouseMove = function(event, dragEvent){
 	}
 };
 
-dream.visual.Graphic.prototype.raiseMouseLeave = function(event){
+$.raiseMouseLeave = function(event){
 	this.isHovered = false;
 	this.hovered = null;
 	dream.event.dispatch(this, "onMouseLeave", event);
 };
 
 
-dream.visual.Graphic.prototype.raiseDrag = function(event){
+$.raiseDrag = function(event){
 	dream.event.dispatch(this, "onDrag$capture", event);
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onDrag", event);
 };
 
-dream.visual.Graphic.prototype.raiseDragStop = function(event){
+$.raiseDragStop = function(event){
 	this.dragging = false;
 	this.isDragging = false;
 	this.isMouseDown = false;
@@ -189,7 +213,13 @@ dream.visual.Graphic.prototype.raiseDragStop = function(event){
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onDragStop", event);
 };
 
-Object.defineProperty(dream.visual.Graphic.prototype, "left", {
+Object.defineProperty($, "bitmap", {
+	get : function() {
+		return new dream.visual.Bitmap(this.imageData, 0, 0, this.rect.width, this.rect.height);
+	}
+});
+
+Object.defineProperty($, "left", {
 	get : function() {
 		return this.origin.left;
 	},
@@ -199,7 +229,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "left", {
 	}
 });
 
-Object.defineProperty(dream.visual.Graphic.prototype, "top", {
+Object.defineProperty($, "top", {
 	get : function() {
 		return this.origin.top;
 	},
@@ -209,7 +239,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "top", {
 	}
 });
 
-Object.defineProperty(dream.visual.Graphic.prototype, "rotation", {
+Object.defineProperty($, "rotation", {
 	get : function() {
 		return this.rect.transformation.rotation;
 	},
@@ -218,7 +248,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "rotation", {
 	}
 });
 
-Object.defineProperty(dream.visual.Graphic.prototype, "alpha", {
+Object.defineProperty($, "alpha", {
 	get : function() {
 		return this.a;
 	},
@@ -228,7 +258,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "alpha", {
 	}
 });
 
-Object.defineProperty(dream.visual.Graphic.prototype, "scaleX", {
+Object.defineProperty($, "scaleX", {
 	get : function() {
 		return this.rect.transformation.scaleX;
 	},
@@ -237,7 +267,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "scaleX", {
 	}
 });
 
-Object.defineProperty(dream.visual.Graphic.prototype, "scaleY", {
+Object.defineProperty($, "scaleY", {
 	get : function() {
 		return this.rect.transformation.scaleY;
 	},
@@ -246,7 +276,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "scaleY", {
 	}
 });
 
-Object.defineProperty(dream.visual.Graphic.prototype, "scale", {
+Object.defineProperty($, "scale", {
 	get : function() {
 		return this.rect.transformation.scaleX > this.rect.transformation.scaleY ? this.rect.transformation.scaleY : this.rect.transformation.scaleX;
 	},
@@ -256,7 +286,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "scale", {
 	}
 });
 
-Object.defineProperty(dream.visual.Graphic.prototype, "anchorX", {
+Object.defineProperty($, "anchorX", {
 	get : function() {
 		return this.rect.transformation.anchorX;
 	},
@@ -265,7 +295,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "anchorX", {
 	}
 });
 
-Object.defineProperty(dream.visual.Graphic.prototype, "anchorY", {
+Object.defineProperty($, "anchorY", {
 	get : function() {
 		return this.rect.transformation.anchorY;
 	},
@@ -274,7 +304,7 @@ Object.defineProperty(dream.visual.Graphic.prototype, "anchorY", {
 	}
 });
 
-Object.defineProperty(dream.visual.Graphic.prototype, "z", {
+Object.defineProperty($, "z", {
 	get : function() {
 		return this._z;
 	},
@@ -289,40 +319,40 @@ Object.defineProperty(dream.visual.Graphic.prototype, "z", {
 	}
 });
 
-Object.defineProperty(dream.visual.Graphic.prototype, "image", {
+Object.defineProperty($, "image", {
 	get: function() {
 		var buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
-		this.drawImage(buffer.context, new dream.Point(-this.rect.left, -this.rect.top));
+		this.paint(buffer.context, new dream.Point(-this.rect.left, -this.rect.top));
 		return buffer.canvas;
 	}
 });
 
-Object.defineProperty(dream.visual.Graphic.prototype, "imageData", {
+Object.defineProperty($, "imageData", {
 	get: function() {
 		var buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
-		this.drawImage(buffer.context, new dream.Point(-this.rect.left, -this.rect.top));
+		this.paint(buffer.context, new dream.Point(-this.rect.left, -this.rect.top));
 		return buffer.context.getImageData(0, 0, this.rect.width, this.rect.height);
 	}
 });
 
-Object.defineProperty(dream.visual.Graphic.prototype, "mask", {
+Object.defineProperty($, "mask", {
 	get : function() {
 		return this._mask;
 	},
 	set : function(v) {
-		if (v instanceof dream.visual.drawing.Shape && v.applyPath){
+		if (v instanceof dream.visual.drawing.Shape){
 			this._mask = v;
-			this.draw = function(context, origin, drawRect){
+			this.render = function(context, origin, renderRect){
 				context.save();	
 				if(this.a != 1) context.globalAlpha = this.alpha;
 				var o = this.rect.transformation.apply(context, origin);
 // TODO change it to reverse matrix and thus reducing one save/restore after rectangology optimization
 				context.save();
 				var mo = v.rect.transformation.apply(context, o);
-				v.applyPath(context, mo);
+				v.draw(context, mo);
 				context.restore();
 				context.clip();
-				this.drawImage(context, o, drawRect);
+				this.paint(context, o, renderRect);
 				context.restore();
 			};
 		}
@@ -330,3 +360,9 @@ Object.defineProperty(dream.visual.Graphic.prototype, "mask", {
 			console.log("mask object should be instance of Shape and have a path");
 	}
 });
+
+// exports
+
+dream.visual.Graphic = Graphic;
+
+})();

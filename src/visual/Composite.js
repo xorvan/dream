@@ -106,22 +106,22 @@ dream.visual.Composite.prototype.step = function (){
 	
 }; 
 
-dream.visual.Composite.prototype.drawImage = function(ctx, origin, drawRect) {
-	if(!drawRect || drawRect.covers(this.boundary)){
+dream.visual.Composite.prototype.paint = function(ctx, origin, renderRect) {
+	if(!renderRect || renderRect.covers(this.boundary)){
 		for(var zi in this.renderList){
 			var rl = this.renderList[zi];
 			for(var i = 0, l = rl.length; i < l; i++){
-				rl[i].draw(ctx, origin, this.rect);
+				rl[i].render(ctx, origin, this.rect);
 			}		
 		}		
 	}else{
-		var ldr = this.rect.transformation.unprojectRect(drawRect).boundary;
+		var ldr = this.rect.transformation.unprojectRect(renderRect).boundary;
 		for(var zi in this.renderList){
 			var rl = this.renderList[zi];
 			for(var i = 0, l = rl.length; i < l; i++){
 				var g = rl[i];
 				if(g.boundary.hasIntersectWith(ldr)){
-					g.draw(ctx, origin, ldr);
+					g.render(ctx, origin, ldr);
 				}
 			}
 		}		
@@ -167,10 +167,6 @@ Object.defineProperty(dream.visual.Composite.prototype, "requiredResources", {
 		return this.assets.requiredResources;
 	}
 });
-
-dream.visual.Composite.prototype.flat = function(){
-	return new dream.visual.Bitmap(this.image, 0, 0, this.rect.width, this.rect.height);	
-};
 
 dream.visual.Composite.prototype.destroy = function(){
 	this.pool.clear();		

@@ -74,7 +74,11 @@ Object.defineProperty($, "lineStyle", {
 });
 
 
+
+
 $.paint = function(context, origin){
+	this.draw(context, origin);
+	
 	var r = this.rect;
 	if(this._ls){
 		context.lineWidth=this._ls._width;
@@ -93,12 +97,6 @@ $.paint = function(context, origin){
 	}
 };
 
-$.drawImage = function(context, origin){
-	//console.log(this);
-	this.applyPath(context, origin);
-	Shape.prototype.paint.call(this,context, origin);
-};
-
 
 
 /**
@@ -115,22 +113,19 @@ var Rect = function(left, top, width, height){
 
 var $ = Rect.prototype;
 
-$.applyPath = function(context, origin){
+$.draw = function(context, origin){
 	var right = origin.left + this.width;
 	var bottom = origin.top + this.height;
 	context.beginPath();
-	context.moveTo(origin.left, origin.top);
-	context.lineTo(right, origin.top);
-	context.lineTo(right, bottom);
-	context.lineTo(origin.left, bottom);
+	context.rect(origin.left, origin.top, right, bottom);
 	context.closePath();
 }
 
-$.drawImage = function(context, origin){
-	Shape.prototype.drawImage.call(this, context, origin);
-	if(this.fillStyle) context.fillRect(origin.left, origin.top, this.width, this.height);
-	if(this.strokeStyle) context.strokeRect(origin.left, origin.top, this.width, this.height);
-};
+//$.paint = function(context, origin){
+//	Shape.prototype.paint.call(this, context, origin);
+//	if(this.fillStyle) context.fillRect(origin.left, origin.top, this.width, this.height);
+//	if(this.strokeStyle) context.strokeRect(origin.left, origin.top, this.width, this.height);
+//};
 
 Object.defineProperty($, "width", {
 	get: function() {
@@ -189,7 +184,7 @@ var Circle = function(left, top, radius){
 	CircularShape.call(this, left, top, radius);
 }.inherits(CircularShape);
 
-Circle.prototype.applyPath = function(context, origin){
+Circle.prototype.draw = function(context, origin){
 	context.beginPath();
 	context.arc(origin.left, origin.top, this._radius, 0, Math.PI * 2, true);
 	context.closePath();
@@ -208,7 +203,7 @@ var Ellipse = function(left, top, radiusX, radiusY){
 
 var $ = Ellipse.prototype;
 
-$.applyPath = function(context, origin){
+$.draw = function(context, origin){
 	context.scale(1, this._radiusY / this._radiusX);
 	context.beginPath();
 	context.arc(origin.left, origin.top * this._radiusX / this._radiusY, this._radiusX, 0, Math.PI * 2, true);
@@ -254,7 +249,7 @@ var $ = CircleSlice.prototype;
 
 dream.util.createFlagProperty($,"angle","isImageChanged");
 
-$.applyPath = function(context, origin){
+$.draw = function(context, origin){
 	context.translate(origin.left, origin.top);
 	context.beginPath();
 	var angs = this._angle * Math.PI / 180;
@@ -276,7 +271,7 @@ var $ = Poly.prototype;
 
 dream.util.createFlagProperty($,"sides","isImageChanged");
 
-$.applyPath = function(context, origin){
+$.draw = function(context, origin){
 	context.translate(origin.left, origin.top);
 	var ang = 2  * Math.PI / this.sides;
 	context.rotate(Math.PI / -2);
@@ -331,7 +326,7 @@ Object.defineProperty($, "radius2", {
 });
 dream.util.createFlagProperty($,"points","isImageChanged");
 
-$.applyPath = function(context, origin){
+$.draw = function(context, origin){
 	var ang = Math.PI/(this.points);
 	context.translate(origin.left, origin.top);
 	context.rotate(Math.PI/-2);
@@ -435,7 +430,7 @@ $.updateRect = function(context){
 	this.isBoundaryChanged = true;	
 };
 
-$.applyPath = function(context, origin){
+$.draw = function(context, origin){
 	//context.save();
 	context.font = this._font;
 	context.textAlign = this.align;
@@ -457,7 +452,7 @@ var Freehand = function(left, top, path){
 
 var $ = Freehand.prototype;
 
-$.applyPath = function(context, origin){
+$.draw = function(context, origin){
 	context.translate(origin.left, origin.top);
 	this.path.draw(context, origin);
 };
@@ -471,6 +466,7 @@ Object.defineProperty($, "path", {
 		if(this._path) this._path.onChange.removeByOwner(fh);
 		this._path = v;
 		this._path.onChange.add(function(obj){
+			console.log("fhcc")
 			fh.rect.left = v.rect.left;
 			fh.rect.top = v.rect.top;
 			fh.rect.width = v.rect.width;

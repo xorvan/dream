@@ -246,48 +246,59 @@ $.indexOf = function(obj){
 
 $.add = $.push;
 
-$.addAt = function(obj, ind){
+$.insertAt = function(ind, obj){
+	var node = this.at(ind);
+	this.insertBefore(node, obj);
+};
+
+$.insertAfter = function(node, obj){
+	if(node.next)
+		this.insertBefore(node.next, obj);
+	else{
+		this.last = obj;
+		obj.previous = node;
+		node.next = obj;
+		this.length++;
+		dream.event.dispatch(this, "onAdd", obj);
+	}
+};
+
+$.insertBefore = function(node, obj){
 	if(obj.hasOwnProperty("previous") || obj.hasOwnProperty("next"))
 		throw Error("can't add object with next and previous attributes, may be duplicate!");
-	var node = this.at(ind);
-	if(node.previous) node.previous.next = obj;
-	else this.first = obj;
-	obj.previous = node.previous;
+	if(node.previous) {
+		node.previous.next = obj;
+		obj.previous = node.previous;
+	} else this.first = obj;
 	obj.next = node;
 	node.previous = obj;
-	if(ind == this.length - 1) this.last = obj;
 	this.length++;
 	dream.event.dispatch(this, "onAdd", obj);
 };
 
-$.addAfter = function(obj, node){
-	var ind = this.indexOf(node);
-	this.addAt(ind+1);
+$.remove = function(obj){
+	if(obj.previous && obj.previous){
+		obj.previous.next = obj.next;
+		obj.next.previous = obj.previous;
+	} else{
+		if(!obj.next && obj.previous){
+			this.last = obj.previous;
+			this.previous.next = null;
+		}else if(!obj.previous && obj.next){
+			this.first = obj.next;
+			obj.next.previous = null;
+		}
+	}
+	delete obj.previous;
+	delete obj.next;
+	this.length--;
+	dream.event.dispatch(this, "onRemove", obj);
 };
-
-$.addBefore = function(obj, node){
-	var ind = this.indexOf(node);
-	this.addAt(ind);
-};
-
 
 $.removeByIndex = function(ind){
-	var node = this.at(ind);
-	if(node.next) node.next.previous = node.previous;
-	else this.last = node.previous;
-	if(node.previous) node.previous.next = node.next;
-	else this.first = node.next;
-	dream.event.dispatch(this, "onRemove", node);
-	delete node.next;
-	delete node.previous;
-	this.length--;
+	var obj = this.at(ind);
+	this.remove(obj);
 };
-
-$.remove = function(obj){
-	var ind = this.indexOf(obj);
-	this.removeByIndex(ind);
-};
-
 
 
 // export

@@ -31,11 +31,12 @@ html,body {
 	<script type="text/javascript" src="../../src/util.js"></script>
 	<script type="text/javascript" src="../../src/static.js"></script>
 	<script type="text/javascript" src="../../src/input.js"></script>
-	<script type="text/javascript" src="../../src/geometry.js"></script>
 	<script type="text/javascript" src="../../src/transform.js"></script>
+	<script type="text/javascript" src="../../src/geometry.js"></script>
 	<script type="text/javascript" src="../../src/visual.js"></script>
 	<script type="text/javascript" src="../../src/dynamic.js"></script>
 	<script type="text/javascript" src="../../src/provider.js"></script>
+	<script type="text/javascript" src="../../src/visual/filter.js"></script>
 	<script type="text/javascript" src="../../src/visual/Graphic.js"></script>
 	<script type="text/javascript" src="../../src/visual/Composite.js"></script>
 	<script type="text/javascript" src="../../src/visual/Sprite.js"></script>
@@ -61,9 +62,6 @@ html,body {
 			//with(p1){
 				p1.fillStyle = new drawing.Color("#f00");
 				p1.dynamics.add(new Tween({sides:12, "fillStyle.blue":255}, new interpolator.Sine, 700, true)).play();
-			
-			
-			console.log("here");
 			
 			with(rect1 = scene.assets.add(new drawing.Rect(150,300,150,150), 'rect1')){
 				anchorX = anchorY = 75;
