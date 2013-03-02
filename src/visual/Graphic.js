@@ -47,6 +47,9 @@ var Graphic = function(left, top){
 	});
 	
 	graphic.filters = new dream.visual.filter.FilterList;
+	graphic.filters.onChange.add(function(){
+		graphic.isImageChanged = true;
+	});
 	
 }.inherits(dream.VisualAsset);
 

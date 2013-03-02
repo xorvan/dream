@@ -136,17 +136,33 @@ $.removeById = function(id){
 };
 
 $.removeByIndex = function(index){
-	dream.event.dispatch(this, "onRemove", obj);
+	if (index < 0 || index > this.length -1)
+		throw Error("index out of range");
 	var obj = this[index];
-	var rObj = this.pop();
-	var rKey = this.keys.pop();
-	delete this[this.keys[index]];
-	this[index] = rObj;
-	this.keys[index] = rKey;
+	if(index != this.length - 1){
+		var rObj = this.pop();
+		var rKey = this.keys.pop();
+		delete this[this.keys[index]];
+		this[index] = rObj;
+		this.keys[index] = rKey;
+	} else {
+		this.splice(index,1);
+		this.keys.splice(index,1);
+	}
+	dream.event.dispatch(this, "onRemove", obj);
 };
 
 $.remove = function(obj){
-	return this.removeByIndex(this.indexOf(obj));
+	var i = this.indexOf(obj);
+	if (i != -1)
+		return this.removeByIndex(i);
+	else 
+		throw Error("object is not in dictionary");
+};
+
+$.clear = function(){
+	for(var i = 0; this[0]; i++)
+		this.removeByIndex(0);
 };
 
 var Selector = function(){

@@ -131,8 +131,8 @@ function init(){
 	paper.onMouseUp$capture.add(function(){console.log("C pmu");});
 	paper.onClick$capture.add(function(){console.log("C pmc");});
 	
-	paper.onDrop.add(function(){console.log("pdrop");});
-	paper.onDrop$capture.add(function(){console.log("C pdrop");});
+	//paper.onDrop.add(function(){console.log("pdrop");});
+	//paper.onDrop$capture.add(function(){console.log("C pdrop");});
 
 	exp.scenes.add(world, "world");	
 	exp.scenes.current = world;//| exp.scenes.select("world");
