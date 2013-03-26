@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>src\visual\drawing.js - DreamJs</title>
+    <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="..&#x2F;assets/favicon.png">
+    <script src="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;combo?3.8.0&#x2F;build&#x2F;yui&#x2F;yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="..&#x2F;assets/css/logo.png" title="DreamJs"></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: 0.0.8</em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: src\visual\drawing.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+(function(){
+
+&#x2F;**
+ * @constructor
+ *&#x2F;
+var Shape = function(left, top){
+	Shape._superClass.call(this, left, top);
+	
+	this.strokeOffset = 1;
+}.inherits(dream.visual.Graphic);
+
+var $ = Shape.prototype;
+
+Object.defineProperty($, &quot;fillStyle&quot;, {
+	get: function() {
+		return this._fs;
+	},
+	set: function(v){
+		if(this._fs instanceof Gradient)
+			this._fs.onChange.removeByOwner(this);
+
+		this._fs = v;
+		dream.event.dispatch(this, &quot;onImageChange&quot;, [this.boundary.clone()]);
+		
+		if(this._fs instanceof Style)
+			this._fs.onChange.propagateFlagged(this, &quot;isImageChanged&quot;);
+	}
+});
+
+Object.defineProperty($, &quot;strokeStyle&quot;, {
+	get: function() {
+		return this._ss;
+	},
+	set: function(v){
+		if(this._ss instanceof Style)
+			this._ss.onChange.removeByOwner(this);
+		
+		this._ss = v;
+		dream.event.dispatch(this, &quot;onImageChange&quot;, [this.boundary.clone()]);
+		
+		if(this._ss instanceof Style)
+			this._ss.onChange.propagateFlagged(this, &quot;isImageChanged&quot;);
+	}
+});
+
+$._setStrokeOffset = function(w){
+	var d = (((w + 1) &#x2F; 2) | 0) - this.strokeOffset;
+	this.strokeOffset += d;
+	if(d){
+		this.rect.left -= d;
+		this.rect.top -= d;
+		this.rect.width += d * 2;
+		this.rect.height += d * 2;
+		this.isBoundaryChanged = true;
+	}	
+};
+
+Object.defineProperty($, &quot;lineStyle&quot;, {
+	get: function() {
+		return this._ls;
+	},
+	set: function(v){
+		dream.util.assert(v instanceof LineStyle, &quot;lineStyle must be LineStyle!&quot;);
+		this._ls = v;
+		this.isImageChanged = true;
+		
+		this._setStrokeOffset(v.width);
+		var shape = this;
+		this._ls.onChange.add(function(){
+			shape._setStrokeOffset(v.width);
+			shape.isImageChanged = true;
+		});
+	}
+});
+
+
+
+
+$.paint = function(context, origin){
+	this.draw(context, origin);
+	
+	var r = this.rect;
+	if(this._ls){
+		context.lineWidth=this._ls._width;
+		context.lineCap=this._ls._cap;
+		context.lineJoin=this._ls._join;
+		if (this._ls._join == LineStyle.Join.MITER)
+			context.miterLimit= this._ls._miterLimit;
+		}
+	if(this._fs) {
+		context.fillStyle = this._fs instanceof Style ? this._fs.createStyle(context, new dream.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._fs;
+		context.fill();
+	}
+	if(this._ss){
+		context.strokeStyle = this._ss instanceof Style ? this._ss.createStyle(context, new dream.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._ss;
+		context.stroke();
+	}
+};
+
+
+
+&#x2F;**
+ * @constructor
+ *&#x2F;
+var Rect = function(left, top, width, height){
+	Shape.call(this, left, top);
+	this._width = 0;
+	this._height = 0;
+	this.width = width;
+	this.height = height;
+	
+}.inherits(Shape);
+
+var $ = Rect.prototype;
+
+$.draw = function(context, origin){
+	var right = origin.left + this.width;
+	var bottom = origin.top + this.height;
+	context.beginPath();
+	context.rect(origin.left, origin.top, right, bottom);
+	context.closePath();
+}
+
+&#x2F;&#x2F;$.paint = function(context, origin){
+&#x2F;&#x2F;	Shape.prototype.paint.call(this, context, origin);
+&#x2F;&#x2F;	if(this.fillStyle) context.fillRect(origin.left, origin.top, this.width, this.height);
+&#x2F;&#x2F;	if(this.strokeStyle) context.strokeRect(origin.left, origin.top, this.width, this.height);
+&#x2F;&#x2F;};
+
+Object.defineProperty($, &quot;width&quot;, {
+	get: function() {
+		return this._width;
+	},
+	set: function(v){
+		this.rect.left = -this.strokeOffset;
+		this.rect.width = v + this.strokeOffset*2;
+		this._width = v;
+		this.isImageChanged = true;
+		this.isBoundaryChanged = true;
+	}
+});
+
+Object.defineProperty($, &quot;height&quot;, {
+	get: function() {
+		return this._height;
+	},
+	set: function(v){
+		this.rect.top = -this.strokeOffset;
+		this.rect.height = v + this.strokeOffset*2;
+		this._height = v;
+		this.isImageChanged = true;
+		this.isBoundaryChanged = true;
+	}
+});
+
+&#x2F;**
+ * @constructor
+ *&#x2F;
+var CircularShape = function(left, top, radius){
+	Shape.call(this, left, top);
+	this.radius = radius;
+}.inherits(Shape);
+
+var $ = CircularShape.prototype;
+
+Object.defineProperty($, &quot;radius&quot;, {
+	get: function() {
+		return this._radius;
+	},
+	set: function(v){
+		this._radius = v;
+		this.rect.width = this.rect.height = v*2 + this.strokeOffset*2;
+		this.rect.left = this.rect.top = - v - this.strokeOffset;
+		this.isBoundaryChanged=true;
+		this.isImageChanged=true;
+	}
+});
+
+
+&#x2F;**
+ * @constructor
+ *&#x2F;
+var Circle = function(left, top, radius){
+	CircularShape.call(this, left, top, radius);
+}.inherits(CircularShape);
+
+Circle.prototype.draw = function(context, origin){
+	context.beginPath();
+	context.arc(origin.left, origin.top, this._radius, 0, Math.PI * 2, true);
+	context.closePath();
+};
+
+&#x2F;**
+ * @constructor
+ *&#x2F;
+
+var Ellipse = function(left, top, radiusX, radiusY){
+	Shape.call(this, left, top);	
+	this.radiusX = radiusX;
+	this.radiusY = radiusY;
+	
+}.inherits(Shape);
+
+var $ = Ellipse.prototype;
+
+$.draw = function(context, origin){
+	context.scale(1, this._radiusY &#x2F; this._radiusX);
+	context.beginPath();
+	context.arc(origin.left, origin.top * this._radiusX &#x2F; this._radiusY, this._radiusX, 0, Math.PI * 2, true);
+	context.closePath();
+}; 
+
+Object.defineProperty($, &quot;radiusX&quot;, {
+	get: function() {
+		return this._radiusX;
+	},
+	set: function(v){
+		this._radiusX = v;
+		this.rect.left = -v - this.strokeOffset;
+		this.rect.width = (v + this.strokeOffset) * 2;
+		this.isImageChanged = true;
+		this.isBoundaryChanged = true;
+	}
+});
+
+Object.defineProperty($, &quot;radiusY&quot;, {
+	get: function() {
+		return this._radiusY;
+	},
+	set: function(v){
+		this._radiusY = v;
+		this.rect.top = -v - this.strokeOffset;
+		this.rect.height = (v + this.strokeOffset) * 2;
+		this.isImageChanged = true;
+		this.isBoundaryChanged = true;
+	}
+});
+
+
+&#x2F;**
+ * 
+ *&#x2F;
+var CircleSlice = function(left, top, radius, angle){
+	CircularShape.call(this, left, top, radius);
+	this._angle = angle;
+}.inherits(CircularShape);
+
+var $ = CircleSlice.prototype;
+
+dream.util.createFlagProperty($,&quot;angle&quot;,&quot;isImageChanged&quot;);
+
+$.draw = function(context, origin){
+	context.translate(origin.left, origin.top);
+	context.beginPath();
+	var angs = this._angle * Math.PI &#x2F; 180;
+	context.lineTo(this._radius, 0);
+	context.moveTo(0, 0);
+	context.arc(0, 0, this._radius, 0, angs, false);
+	context.rotate(angs);
+	context.closePath();
+};
+
+&#x2F;**
+ * @constructor
+ *&#x2F;
+var Poly = function (left, top, radius, sides){
+	CircularShape.call(this, left, top, radius);
+	this._sides = sides;
+}.inherits(CircularShape);
+var $ = Poly.prototype;
+
+dream.util.createFlagProperty($,&quot;sides&quot;,&quot;isImageChanged&quot;);
+
+$.draw = function(context, origin){
+	context.translate(origin.left, origin.top);
+	var ang = 2  * Math.PI &#x2F; this.sides;
+	context.rotate(Math.PI &#x2F; -2);
+	context.beginPath();
+	var s = Math.abs(this.sides) + 0.5 | 0;
+	for (var i=0; i &lt; s; i++){
+		context.rotate(ang);
+		context.lineTo(this.radius, 0);
+	}
+	context.closePath();
+};
+
+&#x2F;**
+ * @constructor
+ *&#x2F;
+var Star=function (left, top, radius, radius2, points){
+	Shape.call(this, left, top);
+	this.radius = radius;
+	this.radius2 = radius2;
+	this.points = points;
+}.inherits(Shape);
+
+var $ = Star.prototype;
+
+Object.defineProperty($, &quot;radius&quot;, {
+	get: function() {
+		return this._radius;
+	},
+	set: function(v){
+		this._radius = v;
+		if(this._radius &gt; this._radius2){
+			this.rect.width = this.rect.height = v*2 + this.strokeOffset*2;
+			this.rect.left = this.rect.top = -v - this.strokeOffset;
+			this.isBoundaryChanged = true;
+		}
+		this.isImageChanged=true;
+	}
+});
+Object.defineProperty($, &quot;radius2&quot;, {
+	get: function() {
+		return this._radius2;
+	},
+	set: function(v){
+		this._radius2 = v;
+		if(this.radius2 &gt; this._radius){
+			this.rect.width = this.rect.height = v*2 + this.strokeOffset*2;
+			this.rect.left = this.rect.top = -v - this.strokeOffset;
+			this.isBoundaryChanged = true;
+		}
+		this.isImageChanged=true;
+	}
+});
+dream.util.createFlagProperty($,&quot;points&quot;,&quot;isImageChanged&quot;);
+
+$.draw = function(context, origin){
+	var ang = Math.PI&#x2F;(this.points);
+	context.translate(origin.left, origin.top);
+	context.rotate(Math.PI&#x2F;-2);
+	context.beginPath();
+	var s = 2 * Math.abs(this.points |0);
+	for (var i=0; i &lt; s; i++){
+		context.rotate(ang);
+		if (i % 2 == 0){
+			context.lineTo(this.radius, 0);
+		}else context.lineTo(this.radius2, 0);
+	} &#x2F;&#x2F; end for
+	context.closePath();
+};
+
+&#x2F;**
+ * @constructor
+ *&#x2F;
+
+var Text = function(left, top, text, font){
+	Shape.call(this, left, top);
+	this.text = text;
+	this.font = font;
+	this._calcWidth = true;
+	
+}.inherits(Shape);
+
+var $ = Text.prototype;
+
+Object.defineProperty($, &quot;text&quot;, {
+	get: function() {
+		return this._text;
+	},
+	set: function(v){
+		this._text = v;
+		this.isImageChanged = true;
+		this._update = true;
+	}
+});
+Object.defineProperty($, &quot;font&quot;, {
+	get: function() {
+		return this._font;
+	},
+	set: function(v){
+		this._font = v;
+		this.isImageChanged = true;
+		this._update = true;
+	}
+});
+Object.defineProperty($, &quot;fontSize&quot;, {
+	get: function() {
+		return this._font ? parseInt(this._font.split(&#x27;px&#x27;)[0]):10;
+	},
+	set: function(v){
+		if (this._font)
+			this._font = v+&quot;px&quot;+this._font.split(&#x27;px&#x27;)[1];
+		else
+			this._font = v+&quot;px arial&quot;;
+		this.isImageChanged = true;
+		this._update = true;
+	}
+});
+Object.defineProperty($, &quot;fontFace&quot;, {
+	get: function() {
+		return this._font ? this._font.split(&#x27;px&#x27;)[1].trim():&quot;arial&quot;;
+	},
+	set: function(v){
+		if (this._font)
+			this._font = this._font.split(&#x27;px&#x27;)[0]+&quot;px &quot;+v;
+		else
+			this._font = &quot;10px &quot;+v;
+		this.isImageChanged = true;
+		this._update = true;
+	}
+});
+Object.defineProperty($, &quot;align&quot;, {
+	get: function() {
+		return this._align;
+	},
+	set: function(v){
+		this._align = v;
+		this.isImageChanged = true;
+		this._update = true;
+	}
+});
+Object.defineProperty($, &quot;baseline&quot;, {
+	get: function() {
+		return this._baseline;
+	},
+	set: function(v){
+		this._baseline = v;
+		this.isImageChanged = true;
+		this._update = true;
+	}
+});
+
+$.updateRect = function(context){
+	var m = context.measureText(this._text);
+	this.rect.width = m.width;
+	this.rect.height = parseInt(context.font.split(&#x27;px&#x27;)[0]);
+	this._update = false;
+	this.isBoundaryChanged = true;	
+};
+
+$.draw = function(context, origin){
+	&#x2F;&#x2F;context.save();
+	context.font = this._font;
+	context.textAlign = this.align;
+	context.textBaseline = this.baseline;
+	if (this._update)
+		this.updateRect(context);
+	
+	context.fillText(this._text, origin.left, origin.top);
+	&#x2F;&#x2F;context.restore();
+};
+
+&#x2F;**
+ * @constructor
+ *&#x2F;
+var Freehand = function(left, top, path){
+	Shape.call(this, left, top);
+	this.path = path;
+}.inherits(Shape);
+
+var $ = Freehand.prototype;
+
+$.draw = function(context, origin){
+	context.translate(origin.left, origin.top);
+	this.path.draw(context, origin);
+};
+
+Object.defineProperty($, &quot;path&quot;, {
+	get: function() {
+		return this._path;
+	},
+	set: function(v){
+		var fh = this;
+		if(this._path) this._path.onChange.removeByOwner(fh);
+		this._path = v;
+		this._path.onChange.add(function(obj){
+			console.log(&quot;fhcc&quot;)
+			fh.rect.left = v.rect.left;
+			fh.rect.top = v.rect.top;
+			fh.rect.width = v.rect.width;
+			fh.rect.height = v.rect.height;
+			fh.isBoundaryChanged = true;
+			fh.isImageChanged = true;
+		})();
+	}
+});
+
+&#x2F;&#x2F;       definig styles it may become another file alltoghether
+
+
+&#x2F;**
+ * @constructor
+ *&#x2F;
+var Style = function(){
+	
+};
+dream.event.create(Style.prototype,&quot;onChange&quot;);
+
+
+&#x2F;**
+ * @constructor
+ *&#x2F;
+var Color = function(sr,g,b,a){
+	this._hue = 0;
+	this._saturation = 0;
+	this._brightness = 0;
+	this._red = 0;
+	this._green = 0;
+	this._blue= 0;
+	this._alpha = 1;
+	if(sr) this.setRGBA.call(this, sr, g, b, a);
+}.inherits(Style);
+
+var $ = Color.prototype;
+
+$.createStyle = function(){
+	return &#x27;rgba(&#x27;+(this.red | 0)+&#x27;,&#x27;+(this.green | 0)+&#x27;,&#x27;+(this.blue | 0)+&#x27;,&#x27;+this.alpha+&#x27;)&#x27;;
+};
+
+$.setRGBA = function(sr,g,b,a){
+	var red, green, blue;
+	if (typeof sr == &#x27;string&#x27;){
+		if (sr.length == 4){
+			red=parseInt(&#x27;0x&#x27;+sr[1])*16;
+			green=parseInt(&#x27;0x&#x27;+sr[2])*16;
+			blue=parseInt(&#x27;0x&#x27;+sr[3])*16;
+			this._alpha=1;
+		} else if (sr.length == 7){
+			red=parseInt(&#x27;0x&#x27;+sr[1]+sr[2]);
+			green=parseInt(&#x27;0x&#x27;+sr[3]+sr[4]);
+			blue=parseInt(&#x27;0x&#x27;+sr[5]+sr[6]);
+			this._alpha= 1;
+		}
+	}&#x2F;&#x2F; end of string parsing
+	else {
+		red = sr;
+		green = g;
+		blue = b;
+		alpha = a == undefined ? 1:a;
+	}
+	this._red = red;
+	this._green = green;
+	this._blue = blue;
+	this._rgbChanged = true;
+};
+
+$.setHSB = function(h, s, b){
+	this._hue = h;
+	this._saturation = s;
+	this._brightness = b;
+	this._hsbChanged = true;
+};
+
+$.updateRGB = function(){
+	var arr = this.HSB2RGB(this._hue, this._saturation, this._brightness);
+	this._red = arr[0];
+	this._green = arr[1];
+	this._blue = arr[2];
+	this._hsbChanged = false;
+};
+$.updateHSB = function(){
+	var arr = this.RGB2HSB(this._red, this._green, this._blue);
+	this._hue = arr[0];
+	this._saturation = arr[1];
+	this._brightness = arr[2];
+	this._rgbChanged = false;
+};
+
+$.RGB2HSB = function (r, g, b){
+	var r = r &#x2F; 255;
+	var g = g &#x2F; 255;
+	var bl = b &#x2F; 255;
+    var max = Math.max(r, g, bl), min = Math.min(r, g, bl);
+    var h, s, b;
+   var delta = max - min;
+   
+   if (max == 0) return 0, -1, 0;
+   
+   b = max;
+   s = delta&#x2F; max;
+   &#x2F;&#x2F; hue calc
+   if (r == max) h = (g - bl)&#x2F; delta;
+   else if (g == max) h= 2 + (bl - r)&#x2F; delta;
+   else h= 4 + (r - g)&#x2F; delta;
+   h *= 60;
+   if (h &lt; 0) h += 360;
+   this.bufferHSB = [h,s,b];
+   
+    return [h, s, b];
+};
+
+$.HSB2RGB = function(hue, saturation, brightness){
+	var h = hue;
+	var s = saturation;
+	var l = brightness;
+	var r, g, b;
+	var f, p, q, t;
+	    if(s == 0){
+	        r = g = b = l; &#x2F;&#x2F; achromatic
+	    }else{
+	        h &#x2F;= 60;
+	        var i = Math.floor(h);
+	        f = h - i;
+	        p = l * ( 1 - s );
+	    	q = l * ( 1 - s * f );
+	    	t = l * ( 1 - s * ( 1 - f ) );
+	    	switch( i ) {
+			case 0:
+				r = l;
+				g = t;
+				b = p;
+				break;
+			case 1:
+				r = q;
+				g = l;
+				b = p;
+				break;
+			case 2:
+				r = p;
+				g = l;
+				b = t;
+				break;
+			case 3:
+				r = p;
+				g = q;
+				b = l;
+				break;
+			case 4:
+				r = t;
+				g = p;
+				b = l;
+				break;
+			default:		&#x2F;&#x2F; case 5:
+				r = l;
+				g = p;
+				b = q;
+				break;
+		} &#x2F;&#x2F; end switch
+	    	
+	    }
+	    return  [r * 255, g * 255, b * 255];	
+};
+
+
+Object.defineProperty($, &quot;hue&quot;, {
+	get: function() {
+		if (this._rgbChanged)
+			this.updateHSB();
+		return this._hue;
+	},
+	set: function(v){ 
+		this._hue = v;
+		this._hsbChanged = true;
+		dream.event.dispatch(this, &quot;onChange&quot;);
+	}
+});
+Object.defineProperty($, &quot;saturation&quot;, {
+	get: function() {
+		if (this._rgbChanged)
+			this.updateHSB();
+		return this._saturation;
+	},
+	set: function(v){ 
+		this._saturation = v;
+		this._hsbChanged = true;
+		dream.event.dispatch(this, &quot;onChange&quot;);
+	}
+});
+Object.defineProperty($, &quot;brightness&quot;, {
+	get: function() {
+		if (this._rgbChanged)
+			this.updateHSB();
+		return this._brightness;
+	},
+	set: function(v){ 
+		this._brightness = v;
+		this._hsbChanged = true;
+		dream.event.dispatch(this, &quot;onChange&quot;);
+	}
+});
+
+Object.defineProperty($, &quot;red&quot;, {
+	get: function() {
+		if (this._hsbChanged)
+			this.updateRGB();
+		return this._red;
+	},
+	set: function(v){ 
+		this._red = v;
+		this._rgbChanged = true;
+		dream.event.dispatch(this, &quot;onChange&quot;);
+	}
+});
+Object.defineProperty($, &quot;green&quot;, {
+	get: function() {
+		if (this._hsbChanged)
+			this.updateRGB();
+		return this._green;
+	},
+	set: function(v){ 
+		this._green = v;
+		this._rgbChanged = true;
+		dream.event.dispatch(this, &quot;onChange&quot;);
+	}
+});
+Object.defineProperty($, &quot;blue&quot;, {
+	get: function() {
+		if (this._hsbChanged)
+			this.updateRGB();
+		return this._blue;
+	},
+	set: function(v){ 
+		this._blue = v;
+		this._rgbChanged = true;
+		dream.event.dispatch(this, &quot;onChange&quot;);
+	}
+});
+
+dream.util.createEventProperty($,&quot;alpha&quot;,&quot;onChange&quot;);
+
+&#x2F;**
+ * @constructor
+ *&#x2F;
+var LineStyle = function(width, cap, join, miterLimit){
+	this._width = width || 1;
+	this._cap = cap || dream.visual.drawing.LineStyle.Cap.BUTT;
+	this._join = join || dream.visual.drawing.LineStyle.Join.MITER;
+	this._miterLimit = miterLimit || 10;
+	
+};
+
+var $ = LineStyle.prototype;
+
+dream.event.create($, &quot;onChange&quot;);
+
+dream.util.createEventProperty($,&quot;width&quot;,&quot;onChange&quot;);
+dream.util.createEventProperty($,&quot;cap&quot;,&quot;onChange&quot;);
+dream.util.createEventProperty($,&quot;join&quot;,&quot;onChange&quot;);
+dream.util.createEventProperty($,&quot;miterLimit&quot;,&quot;onChange&quot;);
+
+
+LineStyle.Cap = {
+	BUTT: &quot;butt&quot;,
+	ROUND: &quot;round&quot;,
+	SQUARE: &quot;square&quot;
+};
+
+LineStyle.Join = {
+	ROUND: &quot;round&quot;,
+	BEVEL: &quot;bevel&quot;,
+	MITER: &quot;miter&quot;
+};
+
+&#x2F;**
+ * @constructor
+ *&#x2F;
+var ColorStop = function(position, color){
+	this._position = position;
+	this._color = color;
+};
+
+var $ = ColorStop.prototype;
+
+dream.event.create($, &quot;onChange&quot;);
+
+Object.defineProperty($, &quot;position&quot;, {
+	get: function() {
+		return this._position;
+	},
+	set: function(v){ 
+		this._position = v &gt; 1 ? 1 : (v &lt; 0 ? 0 : v);	
+		dream.event.dispatch(this, &quot;onChange&quot;);
+	}
+});
+
+Object.defineProperty($, &quot;color&quot;, {
+	get: function() {
+		return this._color;
+	},
+	set: function(v){
+		if (this._color instanceof Color) 
+			this._color.onChange.removeByOwner(this);
+		this._color = v;
+		if (this._color instanceof Color) 
+			this._color.onChange.propagate(this);
+		dream.event.dispatch(this, &quot;onChange&quot;);
+	}
+});
+
+
+&#x2F;**
+ * @param {Array&lt;dream.visual.drawing.ColorStop&gt;} colorStops
+ * @constructor
+ *&#x2F;
+var Gradient = function(colorStops){
+	this.colorStops = new dream.collection.List;
+	
+	this.colorStops.onAdd.propagate(this, &quot;onChange&quot;);
+	this.colorStops.onRemove.propagate(this, &quot;onChange&quot;);
+	
+	var gradient = this;
+	this.colorStops.onAdd.add(function(cs){
+		cs.onChange.propagate(gradient);
+	});
+	this.colorStops.onRemove.add(function(cs){
+		cs.onChange.removeByOwner(gradient);
+	});
+	
+	this.colorStops.addArray(colorStops);
+}.inherits(Style);
+
+
+&#x2F;**
+ * @constructor
+ *&#x2F;
+var LinearGradient = function(colorStops, startX, startY, endX, endY){
+	Gradient.call(this, colorStops);
+	
+	this.startX = startX;
+	this.startY = startY;
+	this.endX = endX;
+	this.endY = endY;
+	
+}.inherits(Gradient);
+
+LinearGradient.prototype.createStyle = function(context, rect){
+	var gr = context.createLinearGradient(rect.left + rect.width * this.startX, rect.top + rect.height * this.startY, rect.left + rect.width * this.endX, rect.top + rect.height * this.endY);
+	for ( var i = 0, cs; cs = this.colorStops[i]; i++)
+		gr.addColorStop(cs.position, cs.color instanceof Color ? cs.color.createStyle():cs.color);
+	return gr;
+};
+
+&#x2F;**
+ * @constructor
+ *&#x2F;
+var RadialGradient = function(colorStops, startX, startY, startR, endX, endY, endR){
+	Gradient.call(this, colorStops);
+	
+	this.startX = startX;
+	this.startY = startY;
+	this.startR = startR;
+	this.endX = endX;
+	this.endY = endY;
+	this.endR = endR;
+	
+}.inherits(Gradient);
+
+RadialGradient.prototype.createStyle = function(context, rect){
+	var d = rect.width &gt; rect.height ? rect.width : rect.height;
+	var gr = context.createRadialGradient(rect.left + rect.width * this.startX, rect.top + rect.height * this.startY, d * this.startR, rect.left + rect.width * this.endX, rect.top + rect.height * this.endY, d * this.endR);
+	for ( var i = 0, cs; cs = this.colorStops[i]; i++)
+		gr.addColorStop(cs.position, cs.color instanceof Color ? cs.color.createStyle():cs.color);
+	return gr;
+};
+
+&#x2F;&#x2F; exports
+dream.visual.drawing = {
+		Shape:Shape,
+		Rect:Rect,
+		CircularShape:CircularShape,
+		Circle:Circle,
+		CircleSlice:CircleSlice,
+		Ellipse:Ellipse,
+		Star:Star,
+		Poly:Poly,
+		Freehand : Freehand,
+		Text:Text,
+		Align: {
+			LEFT: &quot;left&quot;,
+			CENTER: &quot;center&quot;,
+			RIGHT: &quot; right&quot;
+		},
+		Style:Style,
+		Color:Color,
+		LineStyle:LineStyle,
+		ColorStop:ColorStop,
+		Gradient:Gradient,
+		LinearGradient:LinearGradient,
+		RadialGradient:RadialGradient	
+		
+};
+
+})();
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="..&#x2F;assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="..&#x2F;assets/js/yui-prettify.js"></script>
+<script src="..&#x2F;assets/../api.js"></script>
+<script src="..&#x2F;assets/js/api-filter.js"></script>
+<script src="..&#x2F;assets/js/api-list.js"></script>
+<script src="..&#x2F;assets/js/api-search.js"></script>
+<script src="..&#x2F;assets/js/apidocs.js"></script>
+</body>
+</html>
