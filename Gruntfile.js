@@ -1,4 +1,7 @@
 module.exports = function(grunt) {
+  var srcSeq = ['src/event.js', 'src/core.js', 'src/collection.js', 'src/screen.js', 'src/util.js', 'src/static.js', 'src/input.js',
+		'src/transform.js', 'src/visual.js', 'src/provider.js','src/dynamic.js','src/visual/filter.js','src/visual/graphic.js','src/visual/bitmap.js',
+		'src/visual/composite.js', 'src/visual/sprite.js', 'src/scenery.js', 'src/visual/drawing.js']
 
   // Project configuration.
   grunt.initConfig({
@@ -8,9 +11,7 @@ module.exports = function(grunt) {
         banner: '/*! <%= pkg.name %>  <%= pkg.version %>  <%= grunt.template.today("yyyy-mm-dd") %> */\n'
       },
       build: {
-        src: ['src/event.js', 'src/core.js', 'src/collection.js', 'src/screen.js', 'src/util.js', 'src/static.js', 'src/input.js',
-		'src/transform.js', 'src/visual.js', 'src/provider.js','src/dynamic.js','src/visual/filter.js','src/visual/graphic.js','src/visual/bitmap.js',
-		'src/visual/composite.js', 'src/visual/sprite.js', 'src/scenery.js', 'src/visual/drawing.js'],
+        src: srcSeq,
         dest: 'build/dreamjs_<%= pkg.version %>.min.js'
       }
     },
@@ -39,7 +40,7 @@ module.exports = function(grunt) {
 	
 	jasmine: {
     pivotal: {
-      src: 'build/dreamjs_<%= pkg.version %>.min.js',
+      src: srcSeq,
       options: {
         specs: 'tests/**/*.spec.js',
       //  helpers: 'tests/*Helper.js'
@@ -56,6 +57,8 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jasmine');
 
   // Default task(s).
-  grunt.registerTask('default', ['uglify']);
-
+  grunt.registerTask('test', ['jasmine']);
+  grunt.registerTask('doc', ['yuidoc']);
+  grunt.registerTask('build', ['uglify']);
+  grunt.registerTask('default', ['test', 'build', 'doc']);
 };

@@ -27,28 +27,13 @@ var Action = function (fn, execOnSeek){
  * @constructor
  **/
 
-/**
- * starts playing dynamic/ animation.
- *@method play
- *@return {Object} this
- *@chainable
- */
-
-/**
- * pauses the execution of dynamic/ animation, can be started again with play.
- *@method pause
- *@return {Object} this
- *@chainable
- */
-
-/**
- * is used to check if dynamic is playing
- * @property isPlaying
- * @type Boolean
- */
-
 var Dynamic = function(fn, interval) {
 	if (fn) this.fn = fn;
+	/**
+	 * is used to check if dynamic is playing
+	 * @property isPlaying
+	 * @type Boolean
+	 */
 	this.isPlaying = false;
 	this.isPassive = false;
 	this.interval = interval || 1;
@@ -63,11 +48,23 @@ $.init = function(host){
 	this.host = host;
 	return this;
 };
-	
+/**
+ * pauses the execution of dynamic/ animation, can be started again with play.
+ *@method pause
+ *@return {Object} this
+ *@chainable
+ */
 $.pause = function(){
 	this.isPlaying = false;
 	return this;
 };
+
+/**
+ * starts playing dynamic/ animation.
+ *@method play
+ *@return {Object} this
+ *@chainable
+ */
 $.play = function(){
 	this.isPlaying = true;
 	return this;
