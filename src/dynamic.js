@@ -1,11 +1,19 @@
 /**
- * 
+ * @module dynamic
+ */
+/**
+ * @namespace dream.dynamic
  */
 (function(){
 	
 /**
- * @constructor for actions
- */
+ Class for creating actions to be used in animations. any action have a function to be executed on desired frame and a flag
+ which determines wether it should be executed if we fast forward/backward animation.
+ the function of actions get a phase argument during execution which is 1 if we are going forward or -1 if we are going backward. it should be used 
+ to for example reversing the effect that function have caused.
+ @class Action
+ @constructor
+ **/
 	
 var Action = function (fn, execOnSeek){
 	this.fn = fn;
@@ -13,8 +21,32 @@ var Action = function (fn, execOnSeek){
 };
 
 /**
+ * dynamic provides foundation for any logic and animaton. basically you specify a function and an interval then that function will be called 
+ * in the specified interval. Note dynamic have not any timeline or status, it is just executed.
+ * @class Dynamic
  * @constructor
+ **/
+
+/**
+ * starts playing dynamic/ animation.
+ *@method play
+ *@return {Object} this
+ *@chainable
  */
+
+/**
+ * pauses the execution of dynamic/ animation, can be started again with play.
+ *@method pause
+ *@return {Object} this
+ *@chainable
+ */
+
+/**
+ * is used to check if dynamic is playing
+ * @property isPlaying
+ * @type Boolean
+ */
+
 var Dynamic = function(fn, interval) {
 	if (fn) this.fn = fn;
 	this.isPlaying = false;
@@ -40,6 +72,39 @@ $.play = function(){
 	this.isPlaying = true;
 	return this;
 };
+
+/**
+ * Animation is Base Class for  creating dynamics that changes properties of object
+ * @class Animation
+ * @extends dream.dynamic.Dynamic
+ **/
+
+/**
+ * plays animation from frame 1 if we are playing forward, or the last frame if we are playing backward
+ *@method rewind
+ *@return {Object} this
+ *@chainable
+ */
+
+/**
+ * pauses the animation and sets frame to 1 if we are playing forward or last frame if we are playing backward
+ *@method stop
+ *@return {Object} this
+ *@chainable
+ */
+
+/**
+ *seeker is used to set animation frame to the one desired, or to check were in the animation we are at the moment.
+ *@property seeker
+ *@type Number
+ */
+
+/**
+ * is used to check if we are playing forward or backward or to set it.
+ * if isBackward is set to true the animation frame are played backward (ex. 10, 9, 8 ...)
+ * @property isBackward
+ * @type Boolean
+ */
 
 var Animation = function(duration, loop, interval){
 	Dynamic.call(this, null, interval);
@@ -160,10 +225,34 @@ $.step = function(frame) {
 
 
 
-	
 /**
+ * Tween is a class for creating tween objects. a tween object is an animation that change properties of an object progressively in a duration
+ * 
+ * @class Tween
  * @constructor
- */
+ * @extends dream.dynamic.Animation
+ * @example
+ * 	t=new dream.dynamic.Tween({rotation:35}, null, 100, false)
+ * @example
+ * 	t=new dream.dynamic.Tween({$rotation:-10, top:25}, new dream.dynamic.interpolator.PowerInOut(2), 100, true, 3) 
+ * @example
+ * 	t=new dream.dynamic.Tween('fillStyle.colorStops[0].color.red':127, top:25}, null, 200, true, 2)
+ * @param {Object} valueMap 
+ *  the json that defines which attributes should be tweened and to which final values. note the values should be number. 
+ *  if you are going to change a property relative to its current value you can use a $ (dollar sign) before the name of property. 
+ *  if you are going to specify a property of one of properties of the object you should put the chain in a single quoted string
+ * @param {Object} [interpolator] 
+ *  interpolator object which should be an instance of dream.dynamic.Interpolator and it's deratives, default is linear interpolator 
+ * @param {Number} duration 
+ * number of frames that should take o compete the tween.
+ * @param {Boolean} [loop] 
+ * if set true, tween starts again after completion. note properties values will set to original ones before playing again.
+ * @param {number} [interval] 
+ * if specified to X, tween frames will get executed every X frames.
+ * 
+ **/
+
+
 var Tween = function(valueMap, interpolator, duration, loop, interval){
 	Animation.call(this, duration, loop, interval);
 	this.valueMap = valueMap;

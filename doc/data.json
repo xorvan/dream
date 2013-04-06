@@ -136,10 +136,19 @@
         },
         "src\\dynamic.js": {
             "name": "src\\dynamic.js",
-            "modules": {},
-            "classes": {},
+            "modules": {
+                "dynamic": 1
+            },
+            "classes": {
+                "dream.dynamic.Action": 1,
+                "dream.dynamic.Dynamic": 1,
+                "dream.dynamic.Animation": 1,
+                "dream.dynamic.Tween": 1
+            },
             "fors": {},
-            "namespaces": {}
+            "namespaces": {
+                "dream.dynamic": 1
+            }
         },
         "src\\event.js": {
             "name": "src\\event.js",
@@ -198,205 +207,320 @@
             "namespaces": {}
         }
     },
-    "modules": {},
-    "classes": {},
+    "modules": {
+        "dynamic": {
+            "name": "dynamic",
+            "submodules": {},
+            "classes": {
+                "dream.dynamic.Action": 1,
+                "dream.dynamic.Dynamic": 1,
+                "dream.dynamic.Animation": 1,
+                "dream.dynamic.Tween": 1
+            },
+            "fors": {},
+            "namespaces": {
+                "dream.dynamic": 1
+            },
+            "tag": "module",
+            "file": "src\\dynamic.js",
+            "line": 228
+        }
+    },
+    "classes": {
+        "dream.dynamic.Action": {
+            "name": "dream.dynamic.Action",
+            "shortname": "Action",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "dynamic",
+            "namespace": "dream.dynamic",
+            "file": "src\\dynamic.js",
+            "line": 9,
+            "description": "Class for creating actions to be used in animations. any action have a function to be executed on desired frame and a flag\nwhich determines wether it should be executed if we fast forward/backward animation.\nthe function of actions get a phase argument during execution which is 1 if we are going forward or -1 if we are going backward. it should be used \nto for example reversing the effect that function have caused.",
+            "is_constructor": 1
+        },
+        "dream.dynamic.Dynamic": {
+            "name": "dream.dynamic.Dynamic",
+            "shortname": "Dynamic",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "dynamic",
+            "namespace": "dream.dynamic",
+            "file": "src\\dynamic.js",
+            "line": 23,
+            "description": "dynamic provides foundation for any logic and animaton. basically you specify a function and an interval then that function will be called \nin the specified interval. Note dynamic have not any timeline or status, it is just executed.",
+            "is_constructor": 1
+        },
+        "dream.dynamic.Animation": {
+            "name": "dream.dynamic.Animation",
+            "shortname": "Animation",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "dynamic",
+            "namespace": "dream.dynamic",
+            "file": "src\\dynamic.js",
+            "line": 76,
+            "description": "Animation is Base Class for  creating dynamics that changes properties of object",
+            "extends": "dream.dynamic.Dynamic"
+        },
+        "dream.dynamic.Tween": {
+            "name": "dream.dynamic.Tween",
+            "shortname": "Tween",
+            "classitems": [],
+            "plugins": [],
+            "extensions": [],
+            "plugin_for": [],
+            "extension_for": [],
+            "module": "dynamic",
+            "namespace": "dream.dynamic",
+            "file": "src\\dynamic.js",
+            "line": 228,
+            "description": "Tween is a class for creating tween objects. a tween object is an animation that change properties of an object progressively in a duration",
+            "is_constructor": 1,
+            "extends": "dream.dynamic.Animation",
+            "example": [
+                "\n\tt=new dream.dynamic.Tween({rotation:35}, null, 100, false)",
+                "\n\tt=new dream.dynamic.Tween({$rotation:-10, top:25}, new dream.dynamic.interpolator.PowerInOut(2), 100, true, 3) ",
+                "\n\tt=new dream.dynamic.Tween('fillStyle.colorStops[0].color.red':127, top:25}, null, 200, true, 2)"
+            ],
+            "params": [
+                {
+                    "name": "valueMap",
+                    "description": "\n the json that defines which attributes should be tweened and to which final values. note the values should be number. \n if you are going to change a property relative to its current value you can use a $ (dollar sign) before the name of property. \n if you are going to specify a property of one of properties of the object you should put the chain in a single quoted string",
+                    "type": "Object"
+                },
+                {
+                    "name": "interpolator",
+                    "description": "\n interpolator object which should be an instance of dream.dynamic.Interpolator and it's deratives, default is linear interpolator",
+                    "type": "Object",
+                    "optional": true
+                },
+                {
+                    "name": "duration",
+                    "description": "\nnumber of frames that should take o compete the tween.",
+                    "type": "Number"
+                },
+                {
+                    "name": "loop",
+                    "description": "\nif set true, tween starts again after completion. note properties values will set to original ones before playing again.",
+                    "type": "Boolean",
+                    "optional": true
+                },
+                {
+                    "name": "interval",
+                    "description": "\nif specified to X, tween frames will get executed every X frames.",
+                    "type": "Number",
+                    "optional": true
+                }
+            ]
+        }
+    },
     "classitems": [
         {
             "file": "src\\behaviour\\Draggable.js",
             "line": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\behaviour\\Draggable.js",
             "line": 6,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\behaviour\\KeyBinding.js",
             "line": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\behaviour\\KeyBinding.js",
             "line": 6,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\behaviour\\KeyboardNavigable.js",
             "line": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\behaviour\\KeyboardNavigable.js",
             "line": 6,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\behaviour\\KeyboardZoomable.js",
             "line": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\behaviour\\KeyboardZoomable.js",
             "line": 6,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\behaviour\\LeftBounded.js",
             "line": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\behaviour\\LeftBounded.js",
             "line": 6,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\behaviour\\Moving.js",
             "line": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\behaviour\\Moving.js",
             "line": 6,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\behaviour\\SnapAnchorToPointer.js",
             "line": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\behaviour\\SnapAnchorToPointer.js",
             "line": 6,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\behaviour\\WheelZoomable.js",
             "line": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\behaviour\\WheelZoomable.js",
             "line": 6,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\Composite.js",
             "line": 1,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\Graphic.js",
             "line": 4,
             "is_constructor": 1,
             "extends": "dream.VisualAsset",
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\Map.js",
             "line": 1,
             "is_constructor": 1,
             "extends": "dream.visual.Graphic",
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\Sprite.js",
             "line": 3,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
             "line": 3,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
             "line": 102,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
             "line": 156,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
             "line": 180,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
             "line": 193,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
             "line": 240,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
             "line": 263,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
             "line": 287,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
             "line": 344,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
             "line": 445,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
             "line": 483,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
             "line": 492,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
             "line": 713,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
             "line": 746,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
@@ -409,289 +533,381 @@
                 }
             ],
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
             "line": 805,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\drawing.js",
             "line": 825,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\visual\\effects.js",
             "line": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\Behaviour.js",
             "line": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\Behaviour.js",
             "line": 5,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\Screen.js",
             "line": 1,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\audio.js",
             "line": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\audio.js",
             "line": 6,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\audio.js",
             "line": 11,
             "is_constructor": 1,
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\core.js",
-            "line": 1,
-            "description": "Prototype Extensions",
-            "class": ""
-        },
-        {
-            "file": "src\\core.js",
-            "line": 5,
+            "line": 2,
             "params": [
                 {
                     "name": "base",
                     "description": ""
                 }
             ],
-            "class": ""
+            "class": "dream.dynamic.Action"
         },
         {
             "file": "src\\core.js",
-            "line": 23,
-            "class": "",
+            "line": 20,
+            "class": "dream.dynamic.Action",
             "namespace": "This is DreamJS root package."
         },
         {
             "file": "src\\core.js",
-            "line": 33,
+            "line": 30,
             "is_constructor": 1,
-            "class": "",
+            "class": "dream.dynamic.Action",
             "namespace": "This is DreamJS root package."
         },
         {
             "file": "src\\core.js",
+            "line": 41,
+            "is_constructor": 1,
+            "class": "dream.dynamic.Action",
+            "namespace": "This is DreamJS root package."
+        },
+        {
+            "file": "src\\core.js",
+            "line": 140,
+            "is_constructor": 1,
+            "class": "dream.dynamic.Action",
+            "namespace": "This is DreamJS root package."
+        },
+        {
+            "file": "src\\core.js",
+            "line": 166,
+            "is_constructor": 1,
+            "class": "dream.dynamic.Action",
+            "namespace": "This is DreamJS root package."
+        },
+        {
+            "file": "src\\dynamic.js",
+            "line": 4,
+            "class": "dream.dynamic.Action",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
+        },
+        {
+            "file": "src\\dynamic.js",
+            "line": 30,
+            "description": "starts playing dynamic/ animation.",
+            "itemtype": "method",
+            "name": "play",
+            "return": {
+                "description": "this",
+                "type": "Object"
+            },
+            "chainable": 1,
+            "class": "dream.dynamic.Dynamic",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
+        },
+        {
+            "file": "src\\dynamic.js",
+            "line": 37,
+            "description": "pauses the execution of dynamic/ animation, can be started again with play.",
+            "itemtype": "method",
+            "name": "pause",
+            "return": {
+                "description": "this",
+                "type": "Object"
+            },
+            "chainable": 1,
+            "class": "dream.dynamic.Dynamic",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
+        },
+        {
+            "file": "src\\dynamic.js",
             "line": 44,
+            "description": "is used to check if dynamic is playing",
+            "itemtype": "property",
+            "name": "isPlaying",
+            "type": "Boolean",
+            "class": "dream.dynamic.Dynamic",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
+        },
+        {
+            "file": "src\\dynamic.js",
+            "line": 82,
+            "description": "plays animation from frame 1 if we are playing forward, or the last frame if we are playing backward",
+            "itemtype": "method",
+            "name": "rewind",
+            "return": {
+                "description": "this",
+                "type": "Object"
+            },
+            "chainable": 1,
+            "class": "dream.dynamic.Animation",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
+        },
+        {
+            "file": "src\\dynamic.js",
+            "line": 89,
+            "description": "pauses the animation and sets frame to 1 if we are playing forward or last frame if we are playing backward",
+            "itemtype": "method",
+            "name": "stop",
+            "return": {
+                "description": "this",
+                "type": "Object"
+            },
+            "chainable": 1,
+            "class": "dream.dynamic.Animation",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
+        },
+        {
+            "file": "src\\dynamic.js",
+            "line": 96,
+            "description": "seeker is used to set animation frame to the one desired, or to check were in the animation we are at the moment.",
+            "itemtype": "property",
+            "name": "seeker",
+            "type": "Number",
+            "class": "dream.dynamic.Animation",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
+        },
+        {
+            "file": "src\\dynamic.js",
+            "line": 102,
+            "description": "is used to check if we are playing forward or backward or to set it.\nif isBackward is set to true the animation frame are played backward (ex. 10, 9, 8 ...)",
+            "itemtype": "property",
+            "name": "isBackward",
+            "type": "Boolean",
+            "class": "dream.dynamic.Animation",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
+        },
+        {
+            "file": "src\\dynamic.js",
+            "line": 332,
             "is_constructor": 1,
-            "class": "",
-            "namespace": "This is DreamJS root package."
-        },
-        {
-            "file": "src\\core.js",
-            "line": 143,
-            "is_constructor": 1,
-            "class": "",
-            "namespace": "This is DreamJS root package."
-        },
-        {
-            "file": "src\\core.js",
-            "line": 169,
-            "is_constructor": 1,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 1,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 404,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 6,
-            "is_constructor": 1,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 439,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 15,
-            "is_constructor": 1,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 444,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 164,
-            "is_constructor": 1,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 450,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 243,
-            "is_constructor": 1,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 458,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 315,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 466,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 350,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 474,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 355,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 483,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 361,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 491,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 369,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 500,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 377,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 524,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 385,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 531,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 394,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 538,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 402,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 548,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 411,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 558,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 435,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 568,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 442,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 575,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 449,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 586,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 459,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 600,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\dynamic.js",
-            "line": 469,
-            "class": "",
-            "namespace": "This is DreamJS root package."
-        },
-        {
-            "file": "src\\dynamic.js",
-            "line": 479,
-            "class": "",
-            "namespace": "This is DreamJS root package."
-        },
-        {
-            "file": "src\\dynamic.js",
-            "line": 486,
-            "class": "",
-            "namespace": "This is DreamJS root package."
-        },
-        {
-            "file": "src\\dynamic.js",
-            "line": 497,
-            "class": "",
-            "namespace": "This is DreamJS root package."
-        },
-        {
-            "file": "src\\dynamic.js",
-            "line": 511,
-            "class": "",
-            "namespace": "This is DreamJS root package."
-        },
-        {
-            "file": "src\\dynamic.js",
-            "line": 525,
-            "class": "",
-            "namespace": "This is DreamJS root package."
+            "line": 614,
+            "class": "dream.dynamic.Tween",
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\event.js",
             "line": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\input.js",
             "line": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\input.js",
             "line": 6,
             "is_constructor": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\input.js",
             "line": 23,
             "is_constructor": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\input.js",
@@ -705,51 +921,59 @@
             ],
             "is_constructor": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\net.js",
             "line": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\scenery.js",
             "line": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\scenery.js",
             "line": 6,
             "is_constructor": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\scenery.js",
             "line": 144,
             "is_constructor": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\static.js",
             "line": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\static.js",
             "line": 7,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\static.js",
             "line": 12,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\static.js",
@@ -763,14 +987,16 @@
             ],
             "is_constructor": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\static.js",
             "line": 72,
             "is_constructor": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\static.js",
@@ -778,14 +1004,16 @@
             "is_constructor": 1,
             "extends": "dream.preload.Resource",
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\static.js",
             "line": 203,
             "is_constructor": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\static.js",
@@ -793,7 +1021,8 @@
             "is_constructor": 1,
             "extends": "dream.static.ResourceLoader",
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\static.js",
@@ -801,7 +1030,8 @@
             "is_constructor": 1,
             "extends": "dream.static.BlocResourceLoader",
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\static.js",
@@ -809,7 +1039,8 @@
             "is_constructor": 1,
             "extends": "dream.static.ResourceLoader",
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\static.js",
@@ -817,73 +1048,85 @@
             "is_constructor": 1,
             "extends": "dream.static.DocumentResourceLoader",
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\transform.js",
             "line": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\transform.js",
             "line": 6,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\transform.js",
             "line": 51,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\transform.js",
             "line": 106,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\transform.js",
             "line": 120,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\transform.js",
             "line": 147,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\transform.js",
             "line": 183,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\transform.js",
             "line": 218,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\transform.js",
             "line": 262,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\transform.js",
             "line": 313,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\util.js",
             "line": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\util.js",
@@ -896,7 +1139,8 @@
             ],
             "is_constructor": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\util.js",
@@ -914,7 +1158,8 @@
                 }
             ],
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\util.js",
@@ -922,7 +1167,8 @@
             "author": "Ehsan",
             "is_constructor": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\util.js",
@@ -930,7 +1176,8 @@
             "author": "Ehsan",
             "is_constructor": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\util.js",
@@ -938,14 +1185,16 @@
             "author": "Ehsan",
             "is_constructor": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\util.js",
             "line": 287,
             "is_constructor": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\util.js",
@@ -953,26 +1202,30 @@
             "author": "Ehsan",
             "is_constructor": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\util.js",
             "line": 344,
             "is_constructor": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\visual.js",
             "line": 1,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         },
         {
             "file": "src\\visual.js",
             "line": 34,
             "class": "",
-            "namespace": "This is DreamJS root package."
+            "module": "dynamic",
+            "namespace": "dream.dynamic"
         }
     ],
     "warnings": [
@@ -1153,132 +1406,116 @@
             "line": " src\\audio.js:11"
         },
         {
-            "message": "Missing item type\nPrototype Extensions",
-            "line": " src\\core.js:1"
+            "message": "Missing item type",
+            "line": " src\\core.js:2"
         },
         {
             "message": "Missing item type",
-            "line": " src\\core.js:5"
+            "line": " src\\core.js:20"
         },
         {
             "message": "Missing item type",
-            "line": " src\\core.js:23"
+            "line": " src\\core.js:30"
         },
         {
             "message": "Missing item type",
-            "line": " src\\core.js:33"
+            "line": " src\\core.js:41"
         },
         {
             "message": "Missing item type",
-            "line": " src\\core.js:44"
+            "line": " src\\core.js:140"
         },
         {
             "message": "Missing item type",
-            "line": " src\\core.js:143"
+            "line": " src\\core.js:166"
         },
         {
             "message": "Missing item type",
-            "line": " src\\core.js:169"
+            "line": " src\\dynamic.js:4"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:1"
+            "line": " src\\dynamic.js:332"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:6"
+            "line": " src\\dynamic.js:404"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:15"
+            "line": " src\\dynamic.js:439"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:164"
+            "line": " src\\dynamic.js:444"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:243"
+            "line": " src\\dynamic.js:450"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:315"
+            "line": " src\\dynamic.js:458"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:350"
+            "line": " src\\dynamic.js:466"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:355"
+            "line": " src\\dynamic.js:474"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:361"
+            "line": " src\\dynamic.js:483"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:369"
+            "line": " src\\dynamic.js:491"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:377"
+            "line": " src\\dynamic.js:500"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:385"
+            "line": " src\\dynamic.js:524"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:394"
+            "line": " src\\dynamic.js:531"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:402"
+            "line": " src\\dynamic.js:538"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:411"
+            "line": " src\\dynamic.js:548"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:435"
+            "line": " src\\dynamic.js:558"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:442"
+            "line": " src\\dynamic.js:568"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:449"
+            "line": " src\\dynamic.js:575"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:459"
+            "line": " src\\dynamic.js:586"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:469"
+            "line": " src\\dynamic.js:600"
         },
         {
             "message": "Missing item type",
-            "line": " src\\dynamic.js:479"
-        },
-        {
-            "message": "Missing item type",
-            "line": " src\\dynamic.js:486"
-        },
-        {
-            "message": "Missing item type",
-            "line": " src\\dynamic.js:497"
-        },
-        {
-            "message": "Missing item type",
-            "line": " src\\dynamic.js:511"
-        },
-        {
-            "message": "Missing item type",
-            "line": " src\\dynamic.js:525"
+            "line": " src\\dynamic.js:614"
         },
         {
             "message": "Missing item type",

@@ -8,8 +8,10 @@ module.exports = function(grunt) {
         banner: '/*! <%= pkg.name %>  <%= pkg.version %>  <%= grunt.template.today("yyyy-mm-dd") %> */\n'
       },
       build: {
-        src: 'src/*.js',
-        dest: 'build/dreamjs.min.js'
+        src: ['src/event.js', 'src/core.js', 'src/collection.js', 'src/screen.js', 'src/util.js', 'src/static.js', 'src/input.js',
+		'src/transform.js', 'src/visual.js', 'src/provider.js','src/dynamic.js','src/visual/filter.js','src/visual/graphic.js','src/visual/bitmap.js',
+		'src/visual/composite.js', 'src/visual/sprite.js', 'src/scenery.js', 'src/visual/drawing.js'],
+        dest: 'build/dreamjs_<%= pkg.version %>.min.js'
       }
     },
 	
@@ -37,9 +39,9 @@ module.exports = function(grunt) {
 	
 	jasmine: {
     pivotal: {
-      src: 'src/**/*.js',
+      src: 'build/dreamjs_<%= pkg.version %>.min.js',
       options: {
-        specs: 'tests/*Spec.js',
+        specs: 'tests/**/*.spec.js',
       //  helpers: 'tests/*Helper.js'
       }
     }

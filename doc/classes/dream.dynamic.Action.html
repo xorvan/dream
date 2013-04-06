@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>src\behaviour\Draggable.js - DreamJs</title>
+    <title>dream.dynamic.Action - DreamJs</title>
     <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.8.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
@@ -90,45 +90,126 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: src\behaviour\Draggable.js</h1>
+                        <h1>dream.dynamic.Action Class</h1>
+<div class="box meta">
+    
 
-<div class="file">
-    <pre class="code prettyprint linenums">
-&#x2F;**
- * 
- *&#x2F;
-(function(){
-	
-&#x2F;**
- * @constructor
- *&#x2F;
-dream.behaviour.Draggable = function(){
-	
-}.inherits(dream.Behaviour);
-var $ = dream.behaviour.Draggable.prototype;
+    
 
-$.enable = function(){
-	var ol, ot;
-	this.obj.onDragStart.add(function(event){
-		var lm = event.localPosition;
-		ol = lm.left - this.anchorX;
-		ot = lm.top - this.anchorY;	
-	}, this);
-	
-	this.obj.onDrag.add(function(event){
-		this.left = event.position.left - ol;
-		this.top = event.position.top - ot;
-	}, this);
-};
+    
+        <div class="foundat">
+            Defined in: <a href="..&#x2F;files&#x2F;src_dynamic.js.html#l9"><code>src\dynamic.js:9</code></a>
+        </div>
+    
 
-$.disable = function(){
-	this.obj.onDragStart.removeByOwner(this);
-	this.obj.onDrag.removeByOwner(this);
-};
+    
+        
+            Module: <a href="../modules/dynamic.html">dynamic</a>
+        
+    
 
-})();
+    
+</div>
 
-    </pre>
+
+
+<div class="box intro">
+    <p>Class for creating actions to be used in animations. any action have a function to be executed on desired frame and a flag
+which determines wether it should be executed if we fast forward/backward animation.
+the function of actions get a phase argument during execution which is 1 if we are going forward or -1 if we are going backward. it should be used 
+to for example reversing the effect that function have caused.</p>
+</div>
+
+
+    <div class="constructor">
+        <h2>Constructor</h2>
+        <div id="method_dream.dynamic.Action" class="method item">
+    <h3 class="name"><code>dream.dynamic.Action</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="..&#x2F;files&#x2F;src_dynamic.js.html#l9"><code>src\dynamic.js:9</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+    </div>
+
+
+<div id="classdocs" class="tabview">
+    <ul class="api-class-tabs">
+        <li class="api-class-tab index"><a href="#index">Index</a></li>
+
+        
+        
+        
+        
+    </ul>
+
+    <div>
+        <div id="index" class="api-class-tabpanel index">
+            <h2 class="off-left">Item Index</h2>
+
+            
+
+            
+
+            
+
+            
+        </div>
+
+        
+
+        
+
+        
+
+        
+    </div>
 </div>
 
                     </div>
