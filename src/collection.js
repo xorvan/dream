@@ -21,6 +21,12 @@ $.addArray = function(items){
 	
 };
 
+$.push = function(item){
+	var r = Array.prototype.push.call(this, item);
+	dream.event.dispatch(this, "onAdd", item);
+	return r;
+};
+
 var List = function(arr){
 	if (arr){
 		for(var i=0; i< arr.length;i++)
@@ -32,7 +38,6 @@ var $ = List.prototype;
 
 $.add = function(obj){
 	this.push(obj);
-	dream.event.dispatch(this, "onAdd", obj);
 	return obj;
 };
 
@@ -319,6 +324,7 @@ $.removeByIndex = function(ind){
 
 // export
 dream.collection = {
+	Collection: Collection,
 	List: List,
 	Linkedlist: Linkedlist,
 	Set: Set,
