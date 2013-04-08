@@ -201,12 +201,12 @@ Object.defineProperty($, "current", {
 	}
 });
 
-var Linkedlist = function(){
+var LinkedList = function(){
 	this.length = 0;
 	this.first = this.last = null;
 };
 
-var $ = Linkedlist.prototype;
+var $ = LinkedList.prototype;
 dream.event.create($, "onAdd");	
 dream.event.create($, "onRemove");
 
@@ -326,7 +326,7 @@ $.removeByIndex = function(ind){
 dream.collection = {
 	Collection: Collection,
 	List: List,
-	Linkedlist: Linkedlist,
+	LinkedList: LinkedList,
 	Set: Set,
 	Dict: Dict,
 	Selector: Selector

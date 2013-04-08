@@ -26,7 +26,7 @@ var createPointProperty = function(obj, name){
 
 var Path = function(s){
 	var pth = this;
-	this.segments = new dream.collection.Linkedlist;
+	this.segments = new dream.collection.LinkedList;
 	this.segments.onAdd.add(function(obj){
 		// manage change of segments
 		obj.onChange.add(function(){
