@@ -1,4 +1,14 @@
+/**
+ * @module collection
+ * @namespace dream.collection
+ */
+
 (function(){
+	
+/**
+ * Collection class inherits from Array and have onAdd and onRemove events and some uility functions to it
+ * class Collection
+ */	
 
 var Collection = function(){
 	
@@ -8,18 +18,12 @@ var $ = Collection.prototype;
 dream.event.create($, "onAdd");	
 dream.event.create($, "onRemove");
 
-$.indexOf = function(obj){
-	var i=0, l = this.length-1;
-	while(i++ != l)
-		if(this[i] == obj) return i;
-};
-
-$.addArray = function(items){
-	if (items)
-		for (var i = 0; i < items.length; i++)
-			this.add(items[i],"item"+i);
-	
-};
+/**
+ * similar to array push method but invokes onAdd event.
+ * @method push
+ * @param item
+ * @returns {Number} length
+ */
 
 $.push = function(item){
 	var r = Array.prototype.push.call(this, item);
@@ -27,6 +31,31 @@ $.push = function(item){
 	return r;
 };
 
+/**
+ * adds all items of an array to object
+ * @method addArray
+ * @param {Array} items
+ * 
+ */
+$.addArray = function(items){
+	if (items)
+		for (var i = 0; i < items.length; i++)
+			this.push(items[i]);
+	
+};
+/**
+ * List class provides array like interface but adds few utilities to it. so all standard Array functionality is present in List
+ * one important note is that in order to List object work, you have to use provided methods documented here, to raise onAdd and onRemove event
+ * you should not use Array index like: list[i]=object or delete list[i] if you are going to use events.
+ * any object that is added to list by methods like push, add, insert, put, addArray will raise onAdd event and any object that get's removed from List
+ * by any method like remove, removeByIndex, put, shift, pop, clear will raise onRemove event.
+ *  at both cases subject object will be passed as argument to listeners. 
+ * @class List
+ * @extends dream.collection.Collection
+ * @constructor
+ * @param {Array} [array]
+ * the initial array to construct List with it
+ */
 var List = function(arr){
 	if (arr){
 		for(var i=0; i< arr.length;i++)
@@ -36,11 +65,21 @@ var List = function(arr){
 	
 var $ = List.prototype;
 
+/**
+ * add function adds the argument to the List
+ * @method add
+ * @param {Object} obj
+ * @return {Object} obj
+ */
 $.add = function(obj){
 	this.push(obj);
 	return obj;
 };
-
+/**
+ * like Array pop
+ * @method pop
+ * @returns {Object} obj
+ */
 $.pop = function(){
 	var obj = this[this.length-1];
 	this.length--;
@@ -48,28 +87,63 @@ $.pop = function(){
 	return obj;
 };
 
+/**
+ * like Array shift
+ * @method shift
+ * @returns {Object} obj
+ */
 $.shift = function(){
 	var obj = this[0];
 	dream.event.dispatch(this, "onRemove", obj);
 	return obj;
 };
 
+/**
+ * at method returns object at the given position
+ * @method at
+ * @param {Number} position
+ * @return {Object} obj
+ */
 $.at = function(n){
 	return this[n];
 };
 
+/**
+ * insert method, inserts given object at given position. it does not remove the object in given position but shifts object to right to insert
+ * given object
+ * @method insert
+ * @param {Number} index
+ * position to insert object at
+ * @param {Object} obj
+ * object to be inserted
+ */
 $.insert = function(index, obj){
 	this.splice(index,0,obj);
 	dream.event.dispatch(this, "onAdd", obj);
 	return obj;
 };
 
+/**
+ * to remove an item from List that we know it's index (position in List)
+ * @method removeByIndex
+ * @param {Number} index
+ * index of object to be removed
+ * @return {Object} obj
+ */
 $.removeByIndex = function(index){
 	var obj = this.splice(index,1)[0];
 	dream.event.dispatch(this, "onRemove", obj);
 	return obj;
 };
-
+/**
+ * puts given object in given index, it removes the object in given position if any.
+ * @method put
+ * @param {Number} index
+ * the position to put object
+ * @param {Object} obj
+ * the object to be putted
+ * @return {Object} obj
+ */
 $.put = function(index, obj){
 	var oldObj = this[index];
 	this[index]=obj;
@@ -77,13 +151,24 @@ $.put = function(index, obj){
 	dream.event.dispatch(this, "onAdd", obj);
 	return obj;
 };
-	
+
+/**
+ * it removes given object from List, if it is in list, otherwise it returns null
+ * @method remove
+ * @param obj
+ * object to be removed
+ * @returns {Object} obj
+ */
 $.remove = function(obj)	{
 	for (var i = 0; i < this.length; i++)
 		if (this[i] == obj)
 			return this.removeByIndex(i);
 };
-
+/**
+ * clears List, all object will be removed.
+ * @method clear
+ * 
+ */
 $.clear = function(){
 	
 	for(var i = 0, l = this.length; i < l; i++)
@@ -92,6 +177,12 @@ $.clear = function(){
 	this.length = 0;
 };
 
+/**
+ * Set is just like List but prevents Duplication
+ * @class Set
+ * @extends dream.collection.List
+ * @constructor
+ */
 var Set = function(){
 	this._GIDs = {};
 }.inherits(List);
@@ -201,7 +292,7 @@ Object.defineProperty($, "current", {
 	}
 });
 
-var Linkedlist = function(){
+var LinkedList = function(){
 	this.length = 0;
 	this.first = this.last = null;
 };

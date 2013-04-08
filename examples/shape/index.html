@@ -91,7 +91,7 @@ html,body {
 			p5.lineStyle = new drawing.LineStyle(5,drawing.LineStyle.Cap.BUTT);
 			p5.z = 1;
 			
-			p5.dynamics.add(new Tween({left: 500, scale: 0.5}, new interpolator.ElasticInOut(1, 0.4), 200,  true)).play();
+			p5.dynamics.add(new Tween({left: 500, scale: 0.5}, new interpolator.ElasticInOut(1, 0.4).withReverse, 200,  true)).play();
 			scene.assets.add(p5, 'p5');
 			
 			gr1 = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0.25,"#00aaaa"), new dream.visual.drawing.ColorStop(0.75, "#aa0000")], 0, 0, 0, 1);			
@@ -103,7 +103,7 @@ html,body {
 			                                        new drawing.ColorStop(1, new drawing.Color("#e2f29a"))], 0, 0, 1, 0);
 			e1 = new dream.visual.drawing.Ellipse(500, 300, 100, 65);
 			e1.fillStyle = "#f57";
-			e1.dynamics.add(new Tween({radiusX: 250, radiusY: 10}, new interpolator.ElasticOut(1, 0.3), 300,  true)).play();
+			e1.dynamics.add(new Tween({radiusX: 250, radiusY: 10}, new interpolator.ElasticOut(1, 0.3).withReverse, 300,  true)).play();
 			scene.assets.add(e1);
 			
 			scene.assets.add(c1);

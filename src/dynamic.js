@@ -75,40 +75,26 @@ $.play = function(){
  * @class Animation
  * @extends dream.dynamic.Dynamic
  **/
-
-/**
- * plays animation from frame 1 if we are playing forward, or the last frame if we are playing backward
- *@method rewind
- *@return {Object} this
- *@chainable
- */
-
-/**
- * pauses the animation and sets frame to 1 if we are playing forward or last frame if we are playing backward
- *@method stop
- *@return {Object} this
- *@chainable
- */
-
-/**
- *seeker is used to set animation frame to the one desired, or to check were in the animation we are at the moment.
- *@property seeker
- *@type Number
- */
-
-/**
- * is used to check if we are playing forward or backward or to set it.
- * if isBackward is set to true the animation frame are played backward (ex. 10, 9, 8 ...)
- * @property isBackward
- * @type Boolean
- */
-
 var Animation = function(duration, loop, interval){
 	Dynamic.call(this, null, interval);
 	this.duration = duration || 1;
 	if (this.duration < 1) this.duration = 1;
 	this.loop = loop;
+	/**
+	 * is used to check if we are playing forward or backward or to set it.
+	 * if isBackward is set to true the animation frame are played backward (ex. 10, 9, 8 ...)
+	 * @property isBackward
+	 * @type Boolean
+	 */
 	this.isBackward = false;
+	/**
+	 * list of actions that animation should execute
+	 * @property actions
+	 * @type List
+	 * @example
+	 * anim = new dream.dynamic.Animation; 
+	 * anim.actions[10] = new dream.dynamic.Action(function(){this.isBackward = true;}); 
+	 */
 	this.actions = new dream.collection.List;
 	this._counter = 0;
 	
@@ -135,17 +121,35 @@ $.play = function(){
 	dream.event.dispatch("onPlay");
 	return this;
 };
+/**
+ * restarts the animation and sets frame to 1 if we are playing forward or last frame if we are playing backward
+ *@method rewind
+ *@return {Object} this
+ *@chainable
+ */
 $.rewind = function(){
 	if (this.isBackward) this.seeker = this.duration;
 	else this.seeker = 1; 
 	return this;
 };
+
+/**
+ * Stops the animation and sets frame to 1 if we are playing forward or last frame if we are playing backward
+ *@method stop
+ *@return {Object} this
+ *@chainable
+ */
 $.stop = function(){
 	this.rewind();
 	this.pause();
 	return this;
 };
 
+/**
+ *seeker is used to set animation frame to the one desired, or to check were in the animation we are at the moment.
+ *@property seeker
+ *@type Number
+ */
 Object.defineProperty($, "seeker", {
 	get : function() {
 		return  this._counter;
@@ -189,6 +193,7 @@ Object.defineProperty($, "position", {
 
 
 $.step = function(frame) {
+		var res = undefined;
 		if (this.isBackward) {
 			this._counter = frame != undefined ? frame : this._counter - 1 ;
 			if (this._counter < 1) {
@@ -199,6 +204,7 @@ $.step = function(frame) {
 					if (! this._isInTimeline) this.isPlaying = false;
 					this._counter = 0;
 					dream.event.dispatch(this, "onEnd");
+					res = true;
 				}
 			}
 		} else {
@@ -212,12 +218,15 @@ $.step = function(frame) {
 					if (! this._isInTimeline) this.isPlaying = false;
 					this._counter = this.duration + 1;
 					dream.event.dispatch(this, "onEnd");
+					res = true;
 				}
 			}
 		}
 		var action;
 		if(action = this.actions[this._counter])
 			action.fn.call(this.host, this.isBackward ? -1 : 1);
+		
+		return res;
 };
 
 
@@ -288,12 +297,15 @@ $.init = function(host){
 
 
 $.step = function(frame){
-	Animation.prototype.step.call(this, frame);
+	var res = Animation.prototype.step.call(this, frame);
 	var multiplier = this.interpolator( (this._counter - 1) / this.duration );
 	for(var i in this.diffMap)
-		this.setHostValue(i, this.initialMap[i] + this.diffMap[i] * multiplier); 	
+		this.setHostValue(i, this.initialMap[i] + this.diffMap[i] * multiplier); 
+	if(res)
+		return true;
 };
 
+	
 var PathTween = function(path, transform, start, end, interpolator, duration, loop, interval){
 	Animation.call(this, duration, loop, interval);
 	if (path instanceof dream.geometry.Path)
@@ -314,7 +326,7 @@ $.init = function(host){
 };
 
 $.step = function(frame){
-	Animation.prototype.step.call(this, frame);
+	var res = Animation.prototype.step.call(this, frame);
 	var point, t, ct;
 	t = ((this._counter - 1) / this.duration) + this.start;
 	if ( t > this.end) this.seeker = 1;
@@ -324,6 +336,8 @@ $.step = function(frame){
 	point = this.transform.project(this.path.solve(ct));
 	this.host.left = point.left;
 	this.host.top  = point.top;
+	if(res)
+		return true;
 };
 
 /**
@@ -363,11 +377,13 @@ $.init = function(host){
 };
 
 $.step = function(frame){
-	Animation.prototype.step.call(this, frame);
+	var res = Animation.prototype.step.call(this, frame);
 	var localCounter; 
 	for ( var i = 0, anim; anim = this.animations[i]; i++)
 		if (anim.isPlaying && anim._startFrame <= this._counter && anim._startFrame + anim.duration * anim.interval >= this._counter && (localCounter = this._counter - anim._startFrame, localCounter % anim.interval == 0))
 			anim.step(localCounter/anim.interval);
+	if(res)
+		return true;
 };
 
 
@@ -382,10 +398,11 @@ var SpriteAnimation = function(textureArray, loop, interval){
 var $ = SpriteAnimation.prototype;
 
 $.step = function(frame){
-	Animation.prototype.step.call(this, frame);
+	var res = Animation.prototype.step.call(this, frame);
 //	console.log(this._counter , frame);
 	this.host.texture = this.frames[this._counter - 1];
-	
+	if(res)
+		return true;
 };
 
 $.gotoFrame = function(name, stop){
@@ -437,6 +454,22 @@ $.play = function(){
  * 
  */
 var Interpolator = function(){};
+
+Object.defineProperty(Interpolator.prototype, "withReverse", {
+	get : function() {
+		return new WithReverse(this);
+	}
+});
+
+var WithReverse = function(int){
+	this.fn = function(t){
+		if (t < 0.5)
+			return int.fn(t * 2);
+		else
+			return int.fn((1 - t) * 2); 
+	};
+}.inherits(Interpolator);
+
 
 /**
  * 
@@ -659,6 +692,7 @@ dream.dynamic = {
 		Timeline:Timeline,
 		interpolator:{
 			Linear: Linear,
+			WithReverse: WithReverse,
 			Sine: Sine,
 			Cosine: Cosine,
 			HalfSine:HalfSine,
