@@ -297,7 +297,7 @@ var LinkedList = function(){
 	this.first = this.last = null;
 };
 
-var $ = Linkedlist.prototype;
+var $ = LinkedList.prototype;
 dream.event.create($, "onAdd");	
 dream.event.create($, "onRemove");
 
@@ -417,7 +417,7 @@ $.removeByIndex = function(ind){
 dream.collection = {
 	Collection: Collection,
 	List: List,
-	Linkedlist: Linkedlist,
+	LinkedList: LinkedList,
 	Set: Set,
 	Dict: Dict,
 	Selector: Selector

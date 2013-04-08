@@ -15,7 +15,7 @@ Jumper = function(left, top){
 	this.anchorY = 30;
 	this.fillStyle = new dream.visual.drawing.RadialGradient([new dream.visual.drawing.ColorStop(0, "#fe4532"), new dream.visual.drawing.ColorStop(1, "#de3623")], .3, .3, 0, .5, .5, .5);
 	this.z = 10;
-	this.updateBuffer();
+	//this.useBuffer = true;
 	
 	var jumper = this;
 	
@@ -67,7 +67,7 @@ Bar = function(left, top){
 	
 	this.fillStyle = new drawing.LinearGradient([new drawing.ColorStop(0, "#68aefe"), new drawing.ColorStop(1, "#3657de")], 0, 0, 0, 1);
 	this.behaviours.add(new dream.behaviour.Draggable);
-	this.updateBuffer();
+	//this.useBuffer = true;
 }.inherits(drawing.Rect);
 
 Bar.prototype.hit = function(){

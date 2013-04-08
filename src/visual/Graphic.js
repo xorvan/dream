@@ -144,11 +144,11 @@ Object.defineProperty($, "useBuffer", {
 		return !!this.buffer;
 	},
 	set:function(v){
-		if(buffer && !v){
+		if(this.buffer && !v){
 			this.onImageChange.removeByOwner(this.buffer);
 			this.buffer = null; 
 		}
-		else if(!buffer && v){
+		else if(!this.buffer && v){
 			this._updateBuffer();
 		}
 	}

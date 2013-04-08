@@ -1,7 +1,5 @@
 /**
  * @module dynamic
- */
-/**
  * @namespace dream.dynamic
  */
 (function(){
@@ -41,7 +39,7 @@ var Dynamic = function(fn, interval) {
 var $ = Dynamic.prototype;
 
 $.step = function(){
-	this.fn.call(this.host);	
+	return this.fn.call(this.host);	
 };
 
 $.init = function(host){
@@ -69,6 +67,15 @@ $.play = function(){
 	this.isPlaying = true;
 	return this;
 };
+
+$.getHostValue = function(i){
+	return i.indexOf(".") > -1 ? eval("this.host."+ i) : this.host[i];
+};
+
+$.setHostValue = function(i, v){
+	return i.indexOf(".") > -1 ? eval("this.host."+ i + " = " + v) : this.host[i] = v;
+};
+
 
 /**
  * Animation is Base Class for  creating dynamics that changes properties of object
@@ -269,14 +276,6 @@ var Tween = function(valueMap, interpolator, duration, loop, interval){
 }.inherits(Animation);
 
 var $ = Tween.prototype;
-
-$.getHostValue = function(i){
-	return i.indexOf(".") > -1 ? eval("this.host."+ i) : this.host[i];
-};
-
-$.setHostValue = function(i, v){
-	return i.indexOf(".") > -1 ? eval("this.host."+ i + " = " + v) : this.host[i] = v;
-};
 
 $.init = function(host){
 	if (host) this.host = host;

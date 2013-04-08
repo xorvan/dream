@@ -54,6 +54,9 @@ MenuScene = function(jumper, gameScreen){
 		startGame();
 	});
 	
+	this.tt = this.assets.add(new drawing.Rect(10,10,30,30));
+	this.tt.fillStyle = "black";
+	
 }.inherits(dream.scenery.Scene);
 
 GameScene = function(jumper, gameScreen){
