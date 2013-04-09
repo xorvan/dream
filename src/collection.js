@@ -7,16 +7,38 @@
 	
 /**
  * Collection class inherits from Array and have onAdd and onRemove events and some uility functions to it
- * class Collection
+ * @class Collection
  */	
-
 var Collection = function(){
 	
 }.inherits(Array);
-var $ = Collection.prototype;
+var Collection$ = Collection.prototype;
 
-dream.event.create($, "onAdd");	
-dream.event.create($, "onRemove");
+/**
+ * this implementation of indexOf is faster than it's native implementation as of this writing
+ * @private
+ */
+Collection$.indexOf = function(obj){
+	var i, l = this.length;
+	for(i = 0; i < l; i++)
+		if(this[i] == obj) return i;
+	return -1;
+};
+
+/**
+ * onAdd event will raise whenever something is added.
+ * @event onAdd
+ * @param {Object} obj
+ * the added object
+ */
+dream.event.create(Collection$, "onAdd");	
+/**
+ * onRemove event will raise whenever something is removed.
+ * @event onRemove
+ * @param {Object} obj
+ * the removed object
+ */
+dream.event.create(Collection$, "onRemove");
 
 /**
  * similar to array push method but invokes onAdd event.
@@ -24,8 +46,7 @@ dream.event.create($, "onRemove");
  * @param item
  * @returns {Number} length
  */
-
-$.push = function(item){
+Collection$.push = function(item){
 	var r = Array.prototype.push.call(this, item);
 	dream.event.dispatch(this, "onAdd", item);
 	return r;
@@ -37,7 +58,7 @@ $.push = function(item){
  * @param {Array} items
  * 
  */
-$.addArray = function(items){
+Collection$.addArray = function(items){
 	if (items)
 		for (var i = 0; i < items.length; i++)
 			this.push(items[i]);
@@ -63,7 +84,7 @@ var List = function(arr){
 	}
 }.inherits(Collection);	
 	
-var $ = List.prototype;
+var List$ = List.prototype;
 
 /**
  * add function adds the argument to the List
@@ -71,7 +92,7 @@ var $ = List.prototype;
  * @param {Object} obj
  * @return {Object} obj
  */
-$.add = function(obj){
+List$.add = function(obj){
 	this.push(obj);
 	return obj;
 };
@@ -80,7 +101,7 @@ $.add = function(obj){
  * @method pop
  * @returns {Object} obj
  */
-$.pop = function(){
+List$.pop = function(){
 	var obj = this[this.length-1];
 	this.length--;
 	dream.event.dispatch(this, "onRemove", obj);
@@ -92,10 +113,13 @@ $.pop = function(){
  * @method shift
  * @returns {Object} obj
  */
-$.shift = function(){
+List$.shift = function(){
 	var obj = this[0];
-	dream.event.dispatch(this, "onRemove", obj);
-	return obj;
+	if (obj){
+		this.splice(0, 1);
+		dream.event.dispatch(this, "onRemove", obj);
+		return obj;
+	}
 };
 
 /**
@@ -104,23 +128,34 @@ $.shift = function(){
  * @param {Number} position
  * @return {Object} obj
  */
-$.at = function(n){
+List$.at = function(n){
 	return this[n];
 };
 
 /**
  * insert method, inserts given object at given position. it does not remove the object in given position but shifts object to right to insert
  * given object
- * @method insert
+ * @method insertAt
  * @param {Number} index
  * position to insert object at
  * @param {Object} obj
  * object to be inserted
+ * @return {Object} obj
  */
-$.insert = function(index, obj){
+List$.insertAt = function(index, obj){
 	this.splice(index,0,obj);
 	dream.event.dispatch(this, "onAdd", obj);
 	return obj;
+};
+
+/**
+ * like Array unshift
+ * @method unshift
+ * @param {Object} obj
+ * @return {Object} obj
+ */
+List$.unshift = function(obj){
+	return this.insertAt(0, obj);
 };
 
 /**
@@ -130,10 +165,12 @@ $.insert = function(index, obj){
  * index of object to be removed
  * @return {Object} obj
  */
-$.removeByIndex = function(index){
-	var obj = this.splice(index,1)[0];
-	dream.event.dispatch(this, "onRemove", obj);
-	return obj;
+List$.removeByIndex = function(index){
+	if(this[index]){
+		var obj = this.splice(index,1)[0];
+		dream.event.dispatch(this, "onRemove", obj);
+		return obj;
+	}
 };
 /**
  * puts given object in given index, it removes the object in given position if any.
@@ -144,10 +181,10 @@ $.removeByIndex = function(index){
  * the object to be putted
  * @return {Object} obj
  */
-$.put = function(index, obj){
+List$.put = function(index, obj){
 	var oldObj = this[index];
 	this[index]=obj;
-	if(oldObj) dream.event.dispatch(this, "onRemove", oldobj);
+	if(oldObj) dream.event.dispatch(this, "onRemove", oldObj);
 	dream.event.dispatch(this, "onAdd", obj);
 	return obj;
 };
@@ -159,7 +196,7 @@ $.put = function(index, obj){
  * object to be removed
  * @returns {Object} obj
  */
-$.remove = function(obj)	{
+List$.remove = function(obj)	{
 	for (var i = 0; i < this.length; i++)
 		if (this[i] == obj)
 			return this.removeByIndex(i);
@@ -169,11 +206,12 @@ $.remove = function(obj)	{
  * @method clear
  * 
  */
-$.clear = function(){
+List$.clear = function(){
 	
-	for(var i = 0, l = this.length; i < l; i++)
+	for(var i = 0, l = this.length; i < l; i++){
 		dream.event.dispatch(this, "onRemove", this[i]);
-	
+		delete this[i];
+	}
 	this.length = 0;
 };
 
@@ -186,24 +224,66 @@ $.clear = function(){
 var Set = function(){
 	this._GIDs = {};
 }.inherits(List);
-var $ = Set.prototype;
+var Set$ = Set.prototype;
 
-$.add = function(obj){
+Set$._checkDuplication = function(obj){
 	var gid = dream.util.getId(obj);
-	if(this._GIDs[gid]) return obj;
+	if(this._GIDs[gid]) return true;
+	if ((! (obj instanceof Object)) && this.indexOf(obj) != -1) return true;
 	this._GIDs[gid] = true;
-	//INLINED: List.prototype.add.call(this, obj);
-	this.push(obj);
-	dream.event.dispatch(this, "onAdd", obj);
-	return obj;
+	return false;
 };
 
-$.removeByIndex = function(index){
-	delete this._GIDs[dream.util.getId(this[index])];
-	return List.prototype.removeByIndex.call(this, index);
-}
-	
+Set$.push = function(obj){
+	if(this._checkDuplication(obj))
+		return obj;
+	else	
+		return List$.push.call(this, obj);
+};
 
+Set$.put = function(index, obj){
+	if(this._checkDuplication(obj))
+		return obj;
+	else	
+		return List$.put.call(this, index, obj);
+};
+
+Set$.insertAt = function(index, obj){
+	if(this._checkDuplication(obj))
+		return obj;
+	else	
+		return List$.insertAt.call(this, index, obj);
+};
+
+Set$.unshift = function(obj){
+	if(this._checkDuplication(obj))
+		return obj;
+	else	
+		return List$.unshift.call(this, obj);
+};
+
+Set$.shift = function(){
+	delete this._GIDs[dream.util.getId(this[0])];
+	return List$.shift.call(this);
+};
+
+Set$.pop = function(){
+	delete this._GIDs[dream.util.getId(this[this.length - 1])];
+	return List$.pop.call(this);
+};
+
+Set$.removeByIndex = function(index){
+	delete this._GIDs[dream.util.getId(this[index])];
+	return List$.removeByIndex.call(this, index);
+};
+	
+/**
+ * Dict instances are dictionary like objects
+ * @class Dict
+ * @constructor
+ * @extends dream.collection.Collection
+ * 
+ */
 var Dict = function(){
 	this.keys = [];
 	
@@ -292,18 +372,63 @@ Object.defineProperty($, "current", {
 	}
 });
 
+
+/**
+ * this is an implementation of Linkeedlist, instances of this calss act as a list of objects that any object within it has a next and previous 
+ * attribute.
+ * any attempt to add an object with next and/or previous attributes return -3.
+ * anything that is going to be added to linkedlist must be an object, technically and instance of Object.
+ * attempting to add a number or string or so to a linkedlist will return -2.
+ * also an object could not be added to a linkedlist more than once, any attempt will return -3
+ * @class LinkedList
+ * @constructor
+ * 
+ */
 var LinkedList = function(){
 	this.length = 0;
 	this.first = this.last = null;
 };
 
-var $ = LinkedList.prototype;
-dream.event.create($, "onAdd");	
-dream.event.create($, "onRemove");
+var LinkedList$ = LinkedList.prototype;
 
-$.push = function(obj){
+/**
+ * onAdd event will raise whenever something is added.
+ * @event onAdd
+ * @param {Object} obj
+ * the added object
+ */
+dream.event.create(LinkedList$, "onAdd");	
+/**
+ * onRemove event will raise whenever something is removed.
+ * @event onRemove
+ * @param {Object} obj
+ * the removed object
+ */
+dream.event.create(LinkedList$, "onRemove");
+
+/**
+ * checks input be instance of Object and also is not added already
+ * @private
+ */
+LinkedList$._checkObject = function(obj){
+	if (!(obj instanceof Object))
+		return -2;
 	if(obj.hasOwnProperty("previous") || obj.hasOwnProperty("next"))
-		throw Error("can't add object with next and previous attributes, may be duplicate!");
+		return -3;
+	return 0;
+};
+
+/**
+ * adds the object at the end of the linkedlist
+ * @method push
+ * @param {Object} obj
+ * object to be added
+ * @return {Object} obj
+ */
+LinkedList$.push = function(obj){
+	var r = this._checkObject(obj);
+	if(r < 0)
+		return r;
 	if (!this.first) this.first = obj;
 	obj.previous = this.last;
 	if(obj.previous) obj.previous.next = obj;
@@ -311,9 +436,29 @@ $.push = function(obj){
 	this.last = obj;
 	this.length++;
 	dream.event.dispatch(this, "onAdd", obj);
+	return this.length;
 };
 
-$.pop = function(){
+/**
+ * adds the object at the end of the linkedlist
+ * @method add
+ * @param {Object} obj
+ * object to be added
+ * @return {Object} obj
+ */
+LinkedList$.add = function(obj){
+	var r = this.push(obj);
+	if(r < 0)
+		return r;
+	return obj;
+};
+
+/**
+ * removes the object from the end of the linkedlist
+ * @method pop
+ * @return {Object} obj
+ */
+LinkedList$.pop = function(){
 	var obj = this.last;
 	this.last = obj.previous;
 	this.last.next = null;
@@ -323,7 +468,12 @@ $.pop = function(){
 	return obj;
 };
 
-$.shift = function(){
+/**
+ * removes the object from the beginnig of linkedlist, if linked list is not empty
+ * @method shift
+ * @return {Object} obj
+ */
+LinkedList$.shift = function(){
 	var node = this.first;
 	if(node){
 		this.first = node.next;
@@ -334,13 +484,29 @@ $.shift = function(){
 	}
 };
 
-$.unshift = function(obj){
+/**
+ * adds object to the beginnig of linkedlist
+ * @method unshift
+ * @param {Object} obj
+ */
+LinkedList$.unshift = function(obj){
+	var r = this._checkObject(obj);
+	if(r < 0)
+		return r;
 	var node = this.first;
 	if(!node) this.push(obj);
-	this.addAt(obj, 0);
+	this.insertAt(obj, 0);
 };
 
-$.at = function(ind){
+/**
+ * returns object at the given index (position)
+ * @method at
+ * @param {Number} index
+ * @return {Object} obj
+ * @example
+ * a =  ll.at(2);
+ */
+LinkedList$.at = function(ind){
 	if (ind < 0 || ind >= this.length) 
 		throw Error("index out of Linklist range:  " + ind);
 	var node = this.first;
@@ -348,34 +514,69 @@ $.at = function(ind){
 		node = node.next;
 	return node;
 };
-
-$.indexOf = function(obj){
+/**
+ * returns index of given object in linkedlist or return -1 if object is not in linkedlist
+ * @method indexOf
+ * @param {Object} obj
+ */
+LinkedList$.indexOf = function(obj){
 	for (var i = 0, node = this.first; i < this.length; i++, node = node.next)
 		if (node == obj)
 			return i;
 		return -1;
 }; 
 
-$.add = $.push;
-
-$.insertAt = function(ind, obj){
+/**
+ * inserts given object at the given position, if there is an object in that position it will not be deleted but it's pushed one step to right.
+ * @method insertAt
+ * @param {Object} obj
+ * object to be added
+ * @return {Object} obj
+ */
+LinkedList$.insertAt = function(ind, obj){
 	var node = this.at(ind);
-	this.insertBefore(node, obj);
+	return this.insertBefore(node, obj);
 };
 
-$.insertAfter = function(node, obj){
+/**
+ * inserts given object after the given node, node is an object in the linkedlist. if the node is not found in linkedlist, return -1.
+ * @method insertAfter
+ * @param {Object} Node
+ * NOde after which object should be added
+ * @param {Object} obj
+ * object to be added
+ * @return {Object} obj
+ */
+LinkedList$.insertAfter = function(node, obj){
+	var r = this._checkObject(obj);
+	if(r < 0)
+		return r;
+	if(this.indexOf(node) == -1)
+		return -1;
 	if(node.next)
-		this.insertBefore(node.next, obj);
+		return this.insertBefore(node.next, obj);
 	else{
 		this.last = obj;
 		obj.previous = node;
 		node.next = obj;
 		this.length++;
 		dream.event.dispatch(this, "onAdd", obj);
+		return obj;
 	}
 };
-
-$.insertBefore = function(node, obj){
+/**
+ * inserts given object before the given node, node is an object in the linkedlist. if the node is not found in linkedlist, return -1.
+ * @method insertBefore
+ * @param {Object} Node
+ * Node before which object should be added
+ * @param {Object} obj
+ * object to be added
+ * @return {Object} obj
+ */
+LinkedList$.insertBefore = function(node, obj){
+	var r = this._checkObject(obj);
+	if(r < 0)
+		return r;
 	if(obj.hasOwnProperty("previous") || obj.hasOwnProperty("next"))
 		throw Error("can't add object with next and previous attributes, may be duplicate!");
 	if(node.previous) {
@@ -386,9 +587,18 @@ $.insertBefore = function(node, obj){
 	node.previous = obj;
 	this.length++;
 	dream.event.dispatch(this, "onAdd", obj);
+	return obj;
 };
-
-$.remove = function(obj){
+/**
+ * removes given object from linkedList, if it is in it, otherwise it returns null
+ * @method remove
+ * @param obj
+ * object to be removed
+ * @returns {Object} obj
+ */
+LinkedList$.remove = function(obj){
+	if(this.indexOf(obj) == -1)
+		return null;
 	if(obj.previous && obj.previous){
 		obj.previous.next = obj.next;
 		obj.next.previous = obj.previous;
@@ -405,11 +615,19 @@ $.remove = function(obj){
 	delete obj.next;
 	this.length--;
 	dream.event.dispatch(this, "onRemove", obj);
+	return obj;
 };
-
-$.removeByIndex = function(ind){
+/**
+ * removes given object from linkedList at given index (position)
+ * @method removeByIndex
+ * @param {Number} index
+ * index of object to be removed
+ * @returns {Object} obj
+ */
+LinkedList$.removeByIndex = function(ind){
 	var obj = this.at(ind);
-	this.remove(obj);
+	if(obj) 
+		return this.remove(obj);
 };
 
 

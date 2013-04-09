@@ -75,6 +75,27 @@ html, body {
 	<script type="text/javascript" src="logic.js"></script>
 	
 	<script type="text/javascript">
+	
+		A = function(){
+			dream.event.create(this, "onE1");
+			this.onE1.add(function(){console.log("e1")})
+		}
+		
+		
+		a1 = new A;
+		a2 = new A;
+		a3 = new A;
+		
+		
+		B = function(){
+			A.call(this);
+		}.inherits(A);
+		
+		b1 = new B;
+		b2 = new B;
+		b3 = new B;
+		
+	
 		function initStat(){
 			stats=new Stats();
 			stats.getDomElement().style.position = 'absolute';

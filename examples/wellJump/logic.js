@@ -68,19 +68,16 @@ GameScene = function(jumper, gameScreen){
 	this.onResize.add(function(){
 		this.top = gameScreen.height;
 	});
-	jumper.top = 0;
-	jumper.left = 320;
-	jumper.step();
-	this.assets.add(jumper, "jumper");
+//	jumper.top = 0;
+//	jumper.left = 320;
+	//jumper.step();
+	//this.assets.add(jumper, "jumper");
 	jumper.jump();
-	
 	this.score = this.assets.add(new Text(30, -30, "0"));
 	this.score.fontSize = 30;
 	this.score.z = 5;
 	//this.score.fillStyle = "#000";
-	
 	this.providers.add(new BarProvider, "bars");
-	
 	this.bars = new List;
 	
 	var scene = this;

@@ -389,7 +389,7 @@ dream.util.assert = function(assertion, message){
 dream.util.objCount = 0;
 
 dream.util.getId = function(obj){
-	return obj.__GID || (obj.__GID = ++dream.util.objCount);
+	return obj && obj.__GID || (obj.__GID = ++dream.util.objCount);
 };
 
 dream.util.createProperty = function(obj, name, shadowVariable){
