@@ -81,7 +81,7 @@ BreakableBar = function(left, top){
 	this.fillStyle = new drawing.LinearGradient([new drawing.ColorStop(0, "#AA4455"), new drawing.ColorStop(1, "#330011")], 0, 0, 0, 1);
 	this.dynamics.add(new Tween({rotation:120, alpha:50}, new interpolator.Sine(1/2), 15), "breakTween");
 	this.dynamics.add(new Tween({rotation:-120, alpha:50}, new interpolator.Sine(1/2), 15), "breakLeftTween");
-	this.updateBuffer();
+	//this.updateBuffer();
 }.inherits(Bar);
 
 BreakableBar.prototype.hit = function(point){
@@ -107,7 +107,7 @@ ElasticBar = function(left, top){
 	
 	this.fillStyle = new drawing.LinearGradient([new drawing.ColorStop(0, "#449955"), new drawing.ColorStop(1, "#227711")], 0, 0, 0, 1);
 	this.dynamics.add(new Tween({$top:5}, new dream.dynamic.interpolator.Sine, 10), "elasticTween");
-	this.updateBuffer();
+	//this.updateBuffer();
 }.inherits(Bar);
 
 ElasticBar.prototype.hit = function(){

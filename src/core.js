@@ -6,7 +6,12 @@
 Function.prototype.inherits = function(base){
 	//var b = function(){};
 	//b.prototype = base.prototype;
-	this.prototype = new base;
+	var p = this.prototype = new base;
+	if(p.__events){
+		for(var i in p.__events){
+			dream.event.create(p, i);
+		}
+	}
 	this._superClass = base;
 	this.prototype.constructor = this;
 	return this;

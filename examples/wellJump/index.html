@@ -77,9 +77,11 @@ html, body {
 	<script type="text/javascript">
 	
 		A = function(){
-			dream.event.create(this, "onE1");
+			
 			this.onE1.add(function(){console.log("e1")})
 		}
+		
+		dream.event.create(A.prototype, "onE1");
 		
 		
 		a1 = new A;
@@ -88,8 +90,10 @@ html, body {
 		
 		
 		B = function(){
+			//this.__events = {};
 			A.call(this);
 		}.inherits(A);
+		//dream.event.create(B.prototype, "onE1");
 		
 		b1 = new B;
 		b2 = new B;

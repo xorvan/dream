@@ -16,6 +16,7 @@ dream.event.create = function(obj, name, callBack){
 			var d =  this.__events[name] = new dream.util.EventDispatcher(this, name);
 			
 			Object.defineProperty(this, name, {
+				configurable: true,
 				value:d
 			});
 			if(callBack) callBack.call(this);
