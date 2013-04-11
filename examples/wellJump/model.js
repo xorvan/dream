@@ -32,22 +32,24 @@ Jumper = function(left, top){
 //	this.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.RIGHT, function(i){jumper.behaviours.moving.vx += Math.min(i,5)*.2;}));
 //	this.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.LEFT, function(i){jumper.behaviours.moving.vx -= Math.min(i,5)*.2;}));
 
-	var startTween = this.dynamics.add(new Tween({scaleY:0.5}, new interpolator.Sine(1/2), 10), "startTween");
-	startTween.onEnd.add(function(){
-		jumper.dynamics.upTween.init().play();
-	});
+//	var startTween = this.dynamics.add(new Tween({scaleY:0.5}, new interpolator.Sine(1/2), 10), "startTween");
+//	startTween.onEnd.add(function(){
+//		jumper.dynamics.upTween.init().play();
+//	});
+//	
+//	var upTween = this.dynamics.add(new Tween({$top:-300}, new interpolator.PowerOut(2), 25), "upTween");
+//	upTween.onEnd.add(function(){
+//		console.log("s0");
+//		jumper.stat = 0;
+//		jumper.dynamics.downTween.init().rewind().play();
+//	});
+//	
+//	var downTween = this.dynamics.add(new Tween({$top:+1200}, new interpolator.PowerIn(2), 90), "downTween");
+//	downTween.onEnd.add(function(){
+//		console.log("Game Over");
+//	});
 	
-	var upTween = this.dynamics.add(new Tween({$top:-300}, new interpolator.PowerOut(2), 25), "upTween");
-	upTween.onEnd.add(function(){
-		console.log("s0");
-		jumper.stat = 0;
-		jumper.dynamics.downTween.init().rewind().play();
-	});
-	
-	var downTween = this.dynamics.add(new Tween({$top:+1200}, new interpolator.PowerIn(2), 90), "downTween");
-	downTween.onEnd.add(function(){
-		console.log("Game Over");
-	});
+	this.dynamics.add(new dream.dynamic.Motion("top", 0, 1), "motionY").play();
 
 
 			
@@ -55,11 +57,7 @@ Jumper = function(left, top){
 var $ = Jumper.prototype;
 
 $.jump = function(type){
-	this.stat = 1;
-	this.dynamics.upTween.valueMap.$top = type == 2 ? -900 : -300;
-	this.dynamics.upTween.pause();
-	this.dynamics.downTween.pause();
-	this.dynamics.startTween.play();
+	this.dynamics.motionY.velocity = type == 2 ? -40 : -20;
 };
 
 Bar = function(left, top){

@@ -2,6 +2,8 @@
 
 //importing packages
 var drawing = dream.visual.drawing,
+	dynamic = dream.dynamic,
+	bt = dynamic.behaviorTree,
 	interpolator = dream.dynamic.interpolator,
 	Tween = dream.dynamic.Tween,
 	Provider = dream.provider.Provider,
@@ -88,33 +90,72 @@ GameScene = function(jumper, gameScreen){
 		scene.bars.remove(obj);
 	});
 	
-	this.dynamics.add(new Dynamic(function(){
-		if(!jumper.stat){
-			for(var i=0, bar; bar = this.bars[i]; i++){
-				if(jumper.boundary.right > bar.boundary.left && jumper.boundary.left < bar.boundary.right && Math.abs(bar.boundary.top - jumper.boundary.bottom) < 10){
-					var t;
-					if(t = bar.hit(jumper.origin)){
-						jumper.top = bar.top;
-						jumper.jump(t);
-						break;
-					}
-				}			
-			}
-			if(jumper.boundary.top > this.anchorY){
-				console.log("go")
-				dream.event.dispatch(this, "onGameOver");
-			}
-		}else{
-			var y = jumper.top + 400;
-			if(y < this.anchorY){
-				this.score.top = y - 30;
-				var s = -y|0;
-				this.score.text = s;
-				this.anchorY = y;
-				this.providers.bars.difficulty = 1-(this.rate-s)/this.rate;
-			}
+	var tree = this.dynamics.add(new bt.selector.Priority).play();
+	
+	var falling = tree.children.add(new bt.selector.Sequence);
+	
+	falling.children.add(new bt.Condition(function(){
+		return jumper.dynamics.motionY.velocity > 0;
+	}));
+	
+	falling.children.add(new bt.Action(function(){
+		for(var i=0, bar; bar = this.bars[i]; i++){
+			if(jumper.boundary.right > bar.boundary.left && jumper.boundary.left < bar.boundary.right && Math.abs(bar.boundary.top - jumper.boundary.bottom) < 10){
+				var t;
+				if(t = bar.hit(jumper.origin)){
+					jumper.top = bar.top;
+					jumper.jump(t);
+					break;
+				}
+			}			
 		}
-	})).play();
+		if(jumper.boundary.top > this.anchorY){
+			console.log("go");
+			dream.event.dispatch(this, "onGameOver");
+		}
+		return true
+	}));
+	
+	tree.children.add(new bt.Action(function(){
+		var y = jumper.top + 400;
+		if(y < this.anchorY){
+			this.score.top = y - 30;
+			var s = -y|0;
+			this.score.text = s;
+			this.anchorY = y;
+			this.providers.bars.difficulty = 1-(this.rate-s)/this.rate;
+		}
+		
+	}));
+	
+	
+//	this.dynamics.add(new Dynamic(function(){
+//		if(jumper.dynamics.motion.velocity[0] > 0){
+//			for(var i=0, bar; bar = this.bars[i]; i++){
+//				if(jumper.boundary.right > bar.boundary.left && jumper.boundary.left < bar.boundary.right && Math.abs(bar.boundary.top - jumper.boundary.bottom) < 10){
+//					var t;
+//					if(t = bar.hit(jumper.origin)){
+//						jumper.top = bar.top;
+//						jumper.jump(t);
+//						break;
+//					}
+//				}			
+//			}
+//			if(jumper.boundary.top > this.anchorY){
+//				console.log("go")
+//				dream.event.dispatch(this, "onGameOver");
+//			}
+//		}else{
+//			var y = jumper.top + 400;
+//			if(y < this.anchorY){
+//				this.score.top = y - 30;
+//				var s = -y|0;
+//				this.score.text = s;
+//				this.anchorY = y;
+//				this.providers.bars.difficulty = 1-(this.rate-s)/this.rate;
+//			}
+//		}
+//	})).play();
 	
 }.inherits(dream.scenery.Scene);
 var $ = GameScene.prototype;

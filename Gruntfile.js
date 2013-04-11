@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
   var srcSeq = ['src/event.js', 'src/core.js', 'src/collection.js', 'src/screen.js', 'src/util.js', 'src/static.js', 'src/input.js',
-		'src/transform.js', 'src/visual.js', 'src/provider.js','src/dynamic.js','src/dynamic/behaviorTree.js','src/visual/filter.js','src/visual/graphic.js','src/visual/bitmap.js',
-		'src/visual/composite.js', 'src/visual/sprite.js', 'src/scenery.js', 'src/visual/drawing.js']
+		'src/transform.js', 'src/visual.js', 'src/provider.js','src/dynamic.js','src/dynamic/behaviorTree.js','src/dynamic/Motion.js','src/visual/filter.js','src/visual/graphic.js','src/visual/bitmap.js',
+		'src/visual/composite.js', 'src/visual/sprite.js', 'src/scenery.js', 'src/visual/drawing.js'];
 
   // Project configuration.
   grunt.initConfig({
