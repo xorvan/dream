@@ -54,8 +54,6 @@ MenuScene = function(jumper, gameScreen){
 		startGame();
 	});
 	
-	this.tt = this.assets.add(new drawing.Rect(10,10,30,30));
-	this.tt.fillStyle = "black";
 	
 }.inherits(dream.scenery.Scene);
 
@@ -68,10 +66,10 @@ GameScene = function(jumper, gameScreen){
 	this.onResize.add(function(){
 		this.top = gameScreen.height;
 	});
-//	jumper.top = 0;
-//	jumper.left = 320;
-	//jumper.step();
-	//this.assets.add(jumper, "jumper");
+	jumper.top = 0;
+	jumper.left = 320;
+	jumper.step();
+	this.assets.add(jumper, "jumper");
 	jumper.jump();
 	this.score = this.assets.add(new Text(30, -30, "0"));
 	this.score.fontSize = 30;

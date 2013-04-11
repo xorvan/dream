@@ -5,6 +5,7 @@
   "description": "Game engine for web",
   "homepage": "http://www.dreamjs.com",
   "dependencies": {
+  	"express": "*"
   },
   "devDependencies": {
     "grunt": "*",

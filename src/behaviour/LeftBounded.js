@@ -15,6 +15,7 @@ var $ = dream.behaviour.LeftBounded.prototype;
 
 $.enable = function(){
 	var b = this;
+	if(this.obj.__LEFTBOUNDED_OLD_LEFT_SETTER) return false;
 	this.obj.__LEFTBOUNDED_OLD_LEFT_SETTER = this.obj.__lookupSetter__("left");
 	this.obj.__defineGetter__("left", this.obj.__lookupGetter__("left"));
 	this.obj.__defineSetter__("left", function(v){
