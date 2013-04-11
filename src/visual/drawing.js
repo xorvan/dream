@@ -114,10 +114,8 @@ var Rect = function(left, top, width, height){
 var $ = Rect.prototype;
 
 $.draw = function(context, origin){
-	var right = origin.left + this.width;
-	var bottom = origin.top + this.height;
 	context.beginPath();
-	context.rect(origin.left, origin.top, right, bottom);
+	context.rect(origin.left, origin.top, this.width, this.height);
 	context.closePath();
 }
 
