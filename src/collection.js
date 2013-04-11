@@ -6,7 +6,7 @@
 (function(){
 	
 /**
- * Collection class inherits from Array and have onAdd and onRemove events and some uility functions to it
+ * *Collection* class inherits from *Array* and has *onAdd* and *onRemove* events and some utility functions.
  * @class Collection
  */	
 var Collection = function(){
@@ -65,12 +65,14 @@ Collection$.addArray = function(items){
 	
 };
 /**
- * List class provides array like interface but adds few utilities to it. so all standard Array functionality is present in List
- * one important note is that in order to List object work, you have to use provided methods documented here, to raise onAdd and onRemove event
- * you should not use Array index like: list[i]=object or delete list[i] if you are going to use events.
- * any object that is added to list by methods like push, add, insert, put, addArray will raise onAdd event and any object that get's removed from List
- * by any method like remove, removeByIndex, put, shift, pop, clear will raise onRemove event.
- *  at both cases subject object will be passed as argument to listeners. 
+ * *List* class provides *Array*-like interface but adds few utilities to it. So all standard *Array* functionalities are present in *List*.
+ * 
+ * One important note is that in order to List object work, you have to use provided methods documented here, to raise *onAdd* and *onRemove* events.
+ * You should not use *Array* index like: `list[i] = object` or `delete list[i]` if you are going to use events.
+ * 
+ * Any object that is added to list by methods like *push*, *add*, *insert*, *put* and *addArray* will raise *onAdd* event and any object that get's removed from List
+ * by any method like *remove*, *removeByIndex*, *put*, *shift*, *pop* and *clear* will raise *onRemove* event.
+ * In both cases, subject object, will be passed as argument to listeners. 
  * @class List
  * @extends dream.collection.Collection
  * @constructor
@@ -216,7 +218,7 @@ List$.clear = function(){
 };
 
 /**
- * Set is just like List but prevents Duplication
+ * Set is just like {{#crossLink "dream.collection.List"}}List{{/crossLink}} but prevents Duplication
  * @class Set
  * @extends dream.collection.List
  * @constructor
@@ -295,7 +297,6 @@ $.add = function(obj, id){
 	this[id] = obj;
 	this.keys.push(id);
 	this.push(obj);
-	dream.event.dispatch(this, "onAdd", obj);
 	return obj;
 };
 
