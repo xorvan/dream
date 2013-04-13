@@ -1,0 +1,42 @@
+!!!
+html
+
+	head
+		block head
+			meta(charset='utf8')
+			title 
+				block title
+					| DreamJS Benchmarks
+					
+			block style
+				style
+					html,body {
+						margin: 0;
+						padding: 0;
+						width: 100%;
+						height: 100%;
+					}
+					
+					.content {
+						height: 100%;
+					}
+					
+					#mainCanvas {
+						width: 100%;
+						height: 100%;
+						display: block;
+					}	
+				
+	body(onload="if(window.init) init()")
+		each sc, i in scripts
+			script(src="#{sc}")
+		
+		script(src="/benchs/Stats.js")
+		script(src="/benchs/model.js")
+		
+		block example-script
+		
+		block content
+			.content#container
+				canvas#mainCanvas
+			

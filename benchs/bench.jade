@@ -1,0 +1,15 @@
+extends layout
+block content
+	each sc, i in scripts
+		script(src="#{sc}")
+	
+	script(src="/benchs/Stats.js")
+	script(src="/benchs/model.js")
+	
+	block bench-script
+	
+	.content#container
+		.menu
+			include list
+		canvas#mainCanvas
+		

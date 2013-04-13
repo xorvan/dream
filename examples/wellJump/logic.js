@@ -24,6 +24,7 @@ init = function(){
 	menuScene = gameScreen.scenes.add(new MenuScene);
 	gameScreen.scenes.current = menuScene;
 	
+	if(window.initStat) initStat();
 	//startGame();
 	
 };

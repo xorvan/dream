@@ -1,0 +1,46 @@
+extends bench
+block bench-script
+	script
+	
+		function init(){
+			test = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 1200, 900);
+			test.frameRate = 250;
+
+			scene = new dream.scenery.Scene;
+			
+			for(var i = 0; i < 100; i++ ){
+				var c = new Cube(Math.random() * 700 + 100, Math.random() * 200 + 200);
+				c.z = 3;
+				scene.assets.add(c);
+			}
+			
+			for(var i = 0; i < 200; i++ ){
+				var c = new Poly1(Math.random() * 900, Math.random() * 200);
+				scene.assets.add(c);
+			}
+			
+			
+			for(var i = 0; i < 5; i++ ){
+				cr = new CompositeRect(Math.random() * 900, Math.random() * 200 + 200, Math.random() * 50 + 50, Math.random() * 50 + 50);
+				scene.assets.add(cr);
+			}
+			
+			
+			en=new Enemy(0,0);
+			en.dynamics.add(new dream.dynamic.Tween({left:900,top:300,alpha:0.1,rotation:355},new dream.dynamic.interpolator.Sine,300,true)).play();
+			scene.assets.add(en);
+
+			test.scenes.current = scene;
+			
+			
+			
+			
+			stats=new Stats();
+			stats.getDomElement().style.position = 'absolute';
+			stats.getDomElement().style.left = '0px';
+			stats.getDomElement().style.top = '0px';
+			document.body.appendChild(stats.getDomElement() );
+			var stp=new dream.dynamic.Dynamic(function(){stats.update();});
+			scene.dynamics.add(stp).play();
+
+		}
