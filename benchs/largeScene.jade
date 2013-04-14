@@ -1,0 +1,75 @@
+extends bench
+block bench-script
+	script
+		function init(){
+			test = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 1600, 1200);
+			test.frameRate = 250;
+
+			scene = new dream.scenery.Scene;
+			
+			var assets = scene.providers.add(new dream.provider.OfflineProvider, "allAssets").assets;
+			
+			console.log("init");
+			
+			for(var i = 0; i < 3000; i++ ){
+				var c = new Poly1(Math.random() * 6000, Math.random() * 6000);
+				assets.add(c);
+			}
+			console.log("poly loaded");
+			
+			for(var i = 0; i < 50; i++ ){
+				var cr = new Aj(Math.random() * 6000, Math.random() * 6000 - 200);
+				assets.add(cr);
+			}
+			
+			
+			for(var i = 0; i < 200; i++ ){
+				var c = new Cube(Math.random() * 6000 + 100, Math.random() * 6000);
+				assets.add(c);
+			}
+
+			for(var i = 0; i < 250; i++ ){
+				var cr = new Fire(Math.random() * 6000, Math.random() * 6000 - 200);
+				assets.add(cr);
+			}
+
+			for(var i = 0; i < 1; i++ ){
+				var cr = new Paper2(Math.random() * 6000, Math.random() * 6000 - 200);
+				assets.add(cr);
+			}
+
+			for(var i = 0; i < 10; i++ ){
+				var cr = new CompositeRect(Math.random() * 6000, Math.random() * 6000 - 200, 150, 150);
+				assets.add(cr);
+			}
+
+			for(var i = 0; i < 100; i++ ){
+				var cr = new Enemy(Math.random() * 6000, Math.random() * 6000);
+				assets.add(cr);
+			}
+
+			
+			scene.behaviours.addArray(
+					[
+					new dream.behaviour.KeyboardNavigable(),
+					new dream.behaviour.SnapAnchorToPointer(),
+					new dream.behaviour.WheelZoomable(),
+					new dream.behaviour.KeyboardZoomable()
+					]);
+			
+			
+			scene.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.Q, function(i){this.rotation += i;}));
+			scene.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.W, function(i){this.rotation -= i;}));
+
+			
+			test.scenes.current = scene;
+			
+			
+			stats=new Stats();
+			stats.getDomElement().style.position = 'absolute';
+			stats.getDomElement().style.left = '0px';
+			stats.getDomElement().style.top = '0px';
+			document.body.appendChild(stats.getDomElement() );
+			var stp=new dream.dynamic.Dynamic(function(){stats.update();});
+			scene.dynamics.add(stp).play();
+		}

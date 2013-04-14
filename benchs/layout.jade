@@ -1,0 +1,34 @@
+!!!
+html
+
+	head
+	
+		meta(charset='utf8')
+		title DreamJS Benchmarks
+		style
+			html,body {
+				margin: 0;
+				padding: 0;
+				width: 100%;
+				height: 100%;
+			}
+			
+			.content {
+				
+			}
+			
+			.menu{
+				float: left;
+				margin: 10px;
+			}
+			
+			#mainCanvas {
+				width: 800px;
+				height: 600px;
+				display: block;
+				border: 1px solid #666;
+				margin: 10px;
+			}
+		
+	body(onload="if(window.init) init()")
+		block content
