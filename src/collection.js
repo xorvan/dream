@@ -280,19 +280,44 @@ Set$.removeByIndex = function(index){
 };
 	
 /**
- * Dict instances are dictionary like objects
+ * *Dict* instances are dictionary like objects, they are almost like
+ *  {{#crossLink "dream.collection.List"}}List{{/crossLink}}
+ * with diffrence that you add objects to it with ID and later you can refer to them with that id.
+ * Note Dict class and it's deratives do not guarantee position of objects.
  * @class Dict
  * @constructor
  * @extends dream.collection.Collection
+ * @example
+ * d = new dream.collection.Dict;    
+ * d.add({a:12}, "objectOne");   
+ * a = d.objectOne;   
+ * d.removeByID("onjectOne")
  * 
  */
 var Dict = function(){
 	this.keys = [];
 	
 }.inherits(Collection);
-var $ = Dict.prototype;
+var Dict$ = Dict.prototype;
 
-$.add = function(obj, id){
+Dict$._hasObject = function(obj){
+	var i;
+	for(i in this.keys)
+		if (this[i] == obj)
+			return true;
+	return false;
+};
+
+/**
+ * *add* function gets an object with a ID to be added to *Dict*
+ * @method add
+ * @param obj {Object}
+ * object to be added
+ * @param id {String}
+ * ID which should be unique in *Dict*
+ * @return {Object} obj
+ */
+Dict$.add = function(obj, id){
 	var id = id || obj.id || "id" + dream.util.getId(obj);
 	this[id] = obj;
 	this.keys.push(id);
@@ -300,19 +325,40 @@ $.add = function(obj, id){
 	return obj;
 };
 
-$.addJson = function(items){
+/**
+ * *addJson* function gets an object and add all it's childeren to *Dict* using their key as ID and their value
+ * as actual Object
+ * @method addJson
+ * @param obj {Object}
+ * json of objects to be added
+ * @example
+ * d = new dream.collection.Dict; 
+ * d.addJson({objOne:{a:12}, objTwo:{b:13}})
+ */
+Dict$.addJson = function(items){
 	if(items)
 		for (var k in items)
 			this.add(items[k],k);
 };
 
-$.removeById = function(id){
+/**
+ * *removeById* function removes object with given ID string
+ * @method removeById
+ * @param id {String}
+ * @return {Object} obj
+ */
+Dict$.removeById = function(id){
 	for(var i = 0; i < this.keys.length; i++)
 		if(this.keys[i] == id)
 			return this.removeByIndex(i);
 };
-
-$.removeByIndex = function(index){
+/**
+ * *removeByIndex* function removes object with given index number
+ * @method removeByIndex
+ * @param index {Number}
+ * @return {Object} obj
+ */
+Dict$.removeByIndex = function(index){
 	if (index < 0 || index > this.length -1)
 		throw Error("index out of range");
 	var obj = this[index];
@@ -327,44 +373,100 @@ $.removeByIndex = function(index){
 		this.keys.splice(index,1);
 	}
 	dream.event.dispatch(this, "onRemove", obj);
+	return obj;
 };
-
-$.remove = function(obj){
+/**
+ * *remove* function removes given objectfrom *Dict* if present
+ * @method remove
+ * @param {Object} obj
+ * @return {Object} obj
+ */
+Dict$.remove = function(obj){
 	var i = this.indexOf(obj);
 	if (i != -1)
 		return this.removeByIndex(i);
 	else 
 		throw Error("object is not in dictionary");
 };
-
-$.clear = function(){
+/**
+ * *clear* function removes all the objects in Dict
+ * @method clear
+ */
+Dict$.clear = function(){
 	for(var i = 0; this[0]; i++)
 		this.removeByIndex(0);
 };
 
+/**
+ * *Selector* class is a derative of  {{#crossLink "dream.collection.List"}}List{{/crossLink}} which implements 
+ * selection functions and has a current attribute which setts/getts which item is/should be selected
+ * @class Selector
+ * @extends dream.collection.Dict
+ * @constructor
+ * @example
+ * s = new dream.colection.Selector;   
+ * var obj1 = {a:12}, obj2 = {b:14};   
+ * s.add(obj1, "one");   
+ * s.add(obj2, "two");   
+ * s.select(obj1);   
+ * s.current = obj2;   
+ * var c = s.current;
+ */
 var Selector = function(){
 	this._current = null;
 }.inherits(Dict);
 
-var $ = Selector.prototype;
+var Selector$ = Selector.prototype;
 
-dream.event.create($, "onSelect");	
-dream.event.create($, "onDeselect");
+/**
+ * *onSelect* event will be raised when a new item of *Selector* gets selected.
+ * @event onSelect
+ * @param {Object} obj
+ * the newly selected object
+ */
+dream.event.create(Selector$, "onSelect");	
+/**
+ * *onDeselect* event will be raised when an item of *Selector* gets deselected.
+ * @event onDeselect
+ * @param {Object} obj
+ * the deselected object
+ */
+dream.event.create(Selector$, "onDeselect");
 
-$.select = function(obj){
-	if(this._current)
-		dream.event.dispatch(this, "onDeselect", this._current);
-	this._current = obj;
-	dream.event.dispatch(this, "onSelect", obj);
+/**
+ * *select* function selects given object if that objectis in Selector
+ * @method select
+ * @param {Object} obj
+ * @return {Bolean} select status
+ */
+Selector$.select = function(obj){
+	if(this._hasObject(obj)){
+		if(this._current)
+			dream.event.dispatch(this, "onDeselect", this._current);
+		this._current = obj;
+		dream.event.dispatch(this, "onSelect", obj);
+		return true;
+	}
+	return false;
 };
-
-$.selectById = function(id){
+/**
+ * *selectById* function selects the object in given ID;
+ * @method selectById
+ * @param {String} id
+ * @return {Bolean} select status
+ */
+Selector$.selectById = function(id){
 	var obj;
 	if (obj = this[id])
-		this.select(obj);
+		return this.select(obj);
 };
 
-Object.defineProperty($, "current", {
+/**
+ * setts/getts which item is/should be selected
+ * @property current
+ * @type Object
+ */
+Object.defineProperty(Selector$, "current", {
 	get : function () {
 		return this._current;
 	},
@@ -482,6 +584,7 @@ LinkedList$.shift = function(){
 	if(node){
 		this.first = node.next;
 		if(node.next) node.next.previous = undefined;
+		else this.last = null;
 		this.length--;
 		delete node.next;
 		delete node.previous;
@@ -501,8 +604,7 @@ LinkedList$.unshift = function(obj){
 		return r;
 	var node = this.first;
 	if(!node) this.push(obj);
-	dream.event.dispatch(this, "onAdd", obj);
-	return this.insertAt(obj, 0);
+	return this.insertAt(0, obj);
 };
 
 /**
@@ -542,7 +644,8 @@ LinkedList$.indexOf = function(obj){
  */
 LinkedList$.insertAt = function(ind, obj){
 	var node = this.at(ind);
-	return this.insertBefore(node, obj);
+	if(node)
+		return this.insertBefore(node, obj);
 };
 
 /**
@@ -635,6 +738,11 @@ LinkedList$.removeByIndex = function(ind){
 	var obj = this.at(ind);
 	if(obj) 
 		return this.remove(obj);
+};
+
+LinkedList$.clear = function(){
+	while(this.length > 0)
+		this.shift();
 };
 
 
