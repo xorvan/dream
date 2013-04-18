@@ -1,8 +1,8 @@
 function init(){
 	//importing packages
 	var drawing = dream.visual.drawing,
-		interpolator = dream.dynamic.interpolator,
-		Tween = dream.dynamic.Tween;
+		interpolator = dream.behavior.animation.interpolator,
+		Tween = dream.behavior.animation.Tween;
 	
 	
 	pathScreen = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 1600, 1200);
@@ -16,7 +16,7 @@ function init(){
 
 	p2 = new dream.visual.drawing.Poly(300,70,70,6);
 	p2.fillStyle=new dream.visual.drawing.Color(125,125,255,0.8);
-	p2.dynamics.add(new Tween({'fillStyle.brightness':0}, new interpolator.Sine, 500,  true)).play();
+	p2.behavior.actions.add(new Tween({'fillStyle.brightness':0}, 500, new interpolator.Sine));
 	scene.assets.add(p2, 'p2');	
 	fr = new drawing.Freehand(200, 200, pp);
 //	fr.dynamics.add(new Tween({
@@ -36,7 +36,7 @@ function init(){
 			
 	scene.assets.add(c);
 	
-	c.dynamics.add(new dream.dynamic.PathTween(pp, new dream.transform.Translation(fr.origin.left, fr.origin.top), 0, 1, null,  180, true, 1),"pth").play();
+	c.behavior.actions.add(new dream.behavior.animation.PathTween(pp, new dream.geometry.transform.Translation(fr.origin.left, fr.origin.top), 180));
 	
 	// adding segment
 	aa=new dream.geometry.pathSegment.QuadraticBezier(120,10,130,30);
@@ -54,7 +54,7 @@ function init(){
 	stats.getDomElement().style.left = '0px';
 	stats.getDomElement().style.top = '0px';
 	document.body.appendChild(stats.getDomElement() );
-	var stp=new dream.dynamic.Dynamic(function(){stats.update();});
-	scene.dynamics.add(stp).play();
+	var stp=new dream.behavior.Action(function(){stats.update();});
+	scene.behavior.actions.add(stp);
 	
 }

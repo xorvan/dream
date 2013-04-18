@@ -15,14 +15,14 @@ var $ = dream.behaviour.Moving.prototype;
 
 $.enable = function(){
 	var b = this;
-	this.step = this.obj.dynamics.add(new dream.dynamic.Dynamic(function(){
+	this.step = this.obj.behavior.actions.add(new dream.behavior.Action(function(){
 		this.left += b.vx;
 		this.top += b.vy;
-	})).play();
+	}));
 };
 
 $.disable = function(){
-	this.obj.dynamics.remove(this.step);
+	this.obj.behavior.actions.remove(this.step);
 };
 
 })();

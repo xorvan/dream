@@ -22,7 +22,7 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 	this.width = this.canvas.width;
 	this.height = this.canvas.height;
 	
-	this.rect = new dream.Rect(0, 0, this.width, this.height, new dream.transform.Scale);
+	this.rect = new dream.geometry.Rect(0, 0, this.width, this.height, new dream.geometry.transform.Scale);
 	
 	this.redrawRegions = new dream.util.RedrawRegionList();
 	this.rerenderBuffer = new dream.util.BufferCanvas(0, 0);
@@ -35,9 +35,9 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 		scene.screenBoundary.height = screen.height;
 		screen.hovered = null;
 		
-		screen.redrawRegions.add(new dream.Rect(0,0, screen.width, screen.height));
+		screen.redrawRegions.add(new dream.geometry.Rect(0,0, screen.width, screen.height));
 		scene.onBoundaryChange.add(function(oldRect){
-			screen.redrawRegions.add(new dream.Rect(0, 0, this.viewport.width, this.viewport.height));
+			screen.redrawRegions.add(new dream.geometry.Rect(0, 0, this.viewport.width, this.viewport.height));
 		}, screen);
 		
 		scene.onImageChange.add(function(rects){
@@ -102,7 +102,7 @@ dream.Screen.prototype.render = function(){
 		}
 	}
 	
-	this.paint(this.context, new dream.Point, new dream.Rect(0,0, this.width, this.height));
+	this.paint(this.context, new dream.geometry.Point, new dream.geometry.Rect(0,0, this.width, this.height));
 	
 	if(checkInput){
 		this.checkHover(new dream.input.MouseEvent(null, this.input.mouse.position, this));
@@ -120,7 +120,7 @@ dream.Screen.prototype.paintWithoutRedrawRegion = function(ctx, rect, renderRect
 	var scene = this.scenes.current;
 	scene.step();
 	ctx.clearRect(0,0,renderRect.width, renderRect.height);
-	scene.render(ctx, new dream.Point, renderRect);
+	scene.render(ctx, new dream.geometry.Point, renderRect);
 };
 
 dream.Screen.prototype.paintWithClippingRedrawRegion = function(ctx, origin, renderRect) {
@@ -139,7 +139,7 @@ dream.Screen.prototype.paintWithClippingRedrawRegion = function(ctx, origin, ren
 			ctx.closePath();
 			rgCount++;
 			ctx.clearRect(l, t, w, h);
-			scene.render(ctx, origin, new dream.Rect(l, t, w, h));
+			scene.render(ctx, origin, new dream.geometry.Rect(l, t, w, h));
 			ctx.restore();
 			//console.log(rr+"");
 		}
@@ -162,7 +162,7 @@ dream.Screen.prototype.paintWithBufferdRedrawRegion = function(ctx, rect, render
 			rb.canvas.height = rg.height;
 			rgCount++;
 			ctx.clearRect(rg.left, rg.top, rg.width, rg.height);
-			scene.render(rb.context, new dream.Point(-rg.left, -rg.top), rg);
+			scene.render(rb.context, new dream.geometry.Point(-rg.left, -rg.top), rg);
 			ctx.drawImage(rb.canvas, 0, 0, rg.width, rg.height, rg.left, rg.top, rg.width, rg.height);
 			//console.log(rr+"");
 		}
@@ -238,7 +238,7 @@ dream.Screen.prototype.updateSize = function() {
 		dream.event.dispatch(this.scenes.current, "onResize");
 	}
 	
-	this.redrawRegions.add(new dream.Rect(0,0, screen.width, screen.height));
+	this.redrawRegions.add(new dream.geometry.Rect(0,0, screen.width, screen.height));
 
 	dream.event.dispatch(this, "onResize");
 };

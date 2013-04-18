@@ -88,11 +88,11 @@ $.paint = function(context, origin){
 			context.miterLimit= this._ls._miterLimit;
 		}
 	if(this._fs) {
-		context.fillStyle = this._fs instanceof Style ? this._fs.createStyle(context, new dream.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._fs;
+		context.fillStyle = this._fs instanceof Style ? this._fs.createStyle(context, new dream.geometry.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._fs;
 		context.fill();
 	}
 	if(this._ss){
-		context.strokeStyle = this._ss instanceof Style ? this._ss.createStyle(context, new dream.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._ss;
+		context.strokeStyle = this._ss instanceof Style ? this._ss.createStyle(context, new dream.geometry.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._ss;
 		context.stroke();
 	}
 };

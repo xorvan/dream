@@ -7,11 +7,11 @@
 		Sprite._superClass.call(this, left, top);
 		
 		if(data)
-			if (data instanceof dream.dynamic.SpriteAnimation){
-				this.dynamics.add(data, "main");
-				this.dynamics.main.play();
-			}else
-				this.dynamics.addJson(data);
+			if (data instanceof dream.behavior.Action){
+				this.behavior.actions.add(this.behaviors.add(data, "main"));
+			}else{
+				this.behaviors.addJson(data);
+			}
 		
 	}.inherits(dream.visual.Graphic);
 
@@ -48,16 +48,22 @@
 Object.defineProperty($, "requiredResources", {
 	get : function () {
 		var r = new dream.collection.List;
-		for(var i=0, sa; sa = this.dynamics[i]; i++)
-			if (sa instanceof dream.dynamic.SpriteAnimation)
+		for(var i=0, sa; sa = this.behaviors[i]; i++){
+			if (sa instanceof dream.behavior.decorator.Decorator){
+				while(sa.action) sa = sa.action;
+			}
+		
+			if (sa instanceof dream.behavior.animation.Sprite){
 				for(var j = 0; j < sa.frames.length; j++ )
 					r.add(new dream.static.Resource(sa.frames[j].url));
-		return r;
+			}
 		}
-		
+		return r;
+	}
 	
 });
-	// exports
-	dream.visual.Sprite = Sprite;
+
+// exports
+dream.visual.Sprite = Sprite;
 
 })();

@@ -10,7 +10,7 @@ var Texture = function(img, left, top, width, height, anchorX, anchorY){
 	this.img = new dream.static.Resource(img);
 	this.anchorX = anchorX == undefined ? 0:anchorX; 
 	this.anchorY = anchorY == undefined ? 0:anchorY; ;
-	this.rect = new dream.Rect(left, top, width, height);
+	this.rect = new dream.geometry.Rect(left, top, width, height);
 };
 	
 var SpriteSheet = function(data){

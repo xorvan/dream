@@ -1,11 +1,11 @@
 describe("Motion", function(){
 	
-	var motion = new dream.dynamic.Motion("left", 10, 2);
+	var motion = new dream.behavior.Motion("left", 10, 2);
 	
 	var obj = new dream.visual.Graphic;
 	
 	obj.left = 0;
-	obj.dynamics.add(motion).play();
+	obj.behavior.actions.add(motion);
 	
 	it("should add velocity to prop and add acceleration to velocity after first run", function(){
 		obj.step();

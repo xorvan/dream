@@ -1,55 +1,14 @@
 /**
- * 
+ * @module geometry
+ * @namespace deam.geometry.transform
  */
-(function(){
+(function(window){
 
+var Matrix = dream.geometry.Matrix;
+	
 /**
- * 
- */
-var Matrix = function(x0, y0, x1, y1, dx, dy){
-	this.x0 = x0;
-	if(!x0 && x0 !== 0) this.x0 = 1;
-	this.y0 = y0 || 0;
-	this.x1 = x1 || 0;
-	this.y1 = y1;
-	if(!y1 && y1 !== 0) this.y1 = 1;
-	this.dx = dx || 0;
-	this.dy = dy || 0;
-};
-var $ = Matrix.prototype;
-
-$.multiplyBy = function(matrix){
-	return new dream.transform.Matrix(
-			this.x0 * matrix.x0 + this.y0 * matrix.x1, this.x0 * matrix.y0 + this.y0 * matrix.y1, 
-			this.x1 * matrix.x0 + this.y1 * matrix.x1, this.x1 * matrix.y0 + this.y1 * matrix.y1, 
-			this.x0 * matrix.dx + this.x1 * matrix.dy + this.dx,
-			this.y0 * matrix.dx + this.y1 * matrix.dy + this.dy
-	);
-};
-
-$.multiplyByPoint = function(point){
-	return new dream.Point(
-			this.x0 * point.left + this.x1 * point.top + this.dx,
-			this.y0 * point.left + this.y1 * point.top + this.dy
-	);
-};
-
-Object.defineProperty($, "inverse", {
-	get : function () {
-		var x0 = this.x0;
-		var y0 = this.y0;
-		var x1 = this.x1;
-		var y1 = this.y1;
-		var dx = this.dx;
-		var dy = this.dy;
-		var n = x0*y1-y0*x1;
-
-		return new Matrix(y1/n, -y0/n, -x1/n, x0/n, (x1*dy-y1*dx)/n, -(x0*dy-y0*dx)/n);
-	}
-});
-
-/**
- * 
+ * @class Transformation
+ * @constructor
  */
 var Transformation = function(){
 	this.isChanged = true;
@@ -88,7 +47,7 @@ $.project = function(point){
 };
 
 $.projectRect = function(rect){
-	return new dream.Rect(rect.left, rect.top, rect.width, rect.height, this.compose(rect.transformation));
+	return new dream.geometry.Rect(rect.left, rect.top, rect.width, rect.height, this.compose(rect.transformation));
 };
 
 $.unproject = function(point){
@@ -96,7 +55,7 @@ $.unproject = function(point){
 };
 
 $.unprojectRect = function(rect){
-	return new dream.Rect(rect.left, rect.top, rect.width, rect.height, this.inverse.compose(rect.transformation));
+	return new dream.geometry.Rect(rect.left, rect.top, rect.width, rect.height, this.inverse.compose(rect.transformation));
 };
 
 $.apply = function(context, origin){
@@ -137,11 +96,11 @@ Object.defineProperty($, "hasTransform", {
 });
 
 $.updateMatrix = function(){
-	this._matrix = new dream.transform.Matrix(1, 0, 0, 1, this._left, this._top);
+	this._matrix = new dream.geometry.transform.Matrix(1, 0, 0, 1, this._left, this._top);
 };
 
 $.apply = function(context, origin){
-	return new dream.Point(origin.left + this._left|0, origin.top + this._top|0);
+	return new dream.geometry.Point(origin.left + this._left|0, origin.top + this._top|0);
 };
 
 /**
@@ -149,16 +108,16 @@ $.apply = function(context, origin){
  */
 var Rotation = function(angle){
 	Rotation._superClass.call(this);
-	this._angle = angle * dream.transform.DEG_TO_RAD || 0;
+	this._angle = angle * dream.geometry.transform.DEG_TO_RAD || 0;
 }.inherits(Transformation);
 var $ = Rotation.prototype;
 
 Object.defineProperty($, "angle", {
 	get: function () {
-		return this._angle * dream.transform.RAD_TO_DEG;
+		return this._angle * dream.geometry.transform.RAD_TO_DEG;
 	},
 	set: function(v){
-		this._angle = this.hasTransform = (v%360) * dream.transform.DEG_TO_RAD;
+		this._angle = this.hasTransform = (v%360) * dream.geometry.transform.DEG_TO_RAD;
 		this.isChanged = true;
 		dream.event.dispatch(this, "onChange");
 	} 
@@ -168,7 +127,7 @@ $.updateMatrix = function(){
 	var a = this._angle,
 		c = Math.cos(a),
 		s = Math.sin(a);
-	this._matrix = new dream.transform.Matrix(c, s, -s, c, 0, 0);
+	this._matrix = new dream.geometry.transform.Matrix(c, s, -s, c, 0, 0);
 };
 
 $.apply = function(context, origin){
@@ -177,7 +136,7 @@ $.apply = function(context, origin){
 		context.translate(ol, ot);
 	}
 	context.rotate(this._angle);
-	return new dream.Point;
+	return new dream.geometry.Point;
 };
 
 /**
@@ -203,7 +162,7 @@ Object.defineProperty($, "hasTransform", {
 });
 
 $.updateMatrix = function(){
-	this._matrix = new dream.transform.Matrix(this._x, 0, 0, this._y, 0, 0);
+	this._matrix = new dream.geometry.transform.Matrix(this._x, 0, 0, this._y, 0, 0);
 };
 
 $.apply = function(context, origin){
@@ -212,7 +171,7 @@ $.apply = function(context, origin){
 		context.translate(ol, ot);
 	}
 	context.scale(this._x, this._y);
-	return new dream.Point;
+	return new dream.geometry.Point;
 };
 
 /**
@@ -255,7 +214,7 @@ $.apply = function(context, origin){
 		context.translate(ol, ot);
 	}
 	context.transform(this._x0, this._y0, this._x1, this._y1, this._dx, this._dy);
-	return new dream.Point;
+	return new dream.geometry.Point;
 };
 
 
@@ -302,7 +261,7 @@ $.updateMatrix = function(){
 $.apply = function(context, origin){ 	
 //	var m = this.matrix;
 //	context.transform(m.x0, m.y0, m.x1, m.y1, m.dx|0, m.dy |0);
-//	return new dream.Point;
+//	return new dream.geometry.Point;
 	var o = origin;
 	for (var i=0, t; t = this.transformations[i]; i++ ){
 		if(t.hasTransform) o = t.apply(context, o);
@@ -353,15 +312,15 @@ $.apply = function(context, origin){
 	if(this.transformations.scale.hasTransform || this.transformations.rotation.hasTransform){
 		var m = this.matrix;
 		context.transform(m.x0, m.y0, m.x1, m.y1, (m.dx|0) + origin.left, (m.dy|0) + origin.top);
-		return new dream.Point;		
+		return new dream.geometry.Point;		
 	}else{
-		return new dream.Point((origin.left + this.transformations.translation.left + this._ax) |0,
+		return new dream.geometry.Point((origin.left + this.transformations.translation.left + this._ax) |0,
 						(origin.top + this.transformations.translation.top + this._ay) |0);
 	}
 };
 
 //Exporting
-dream.transform = {
+dream.geometry.transform = {
 		DEG_TO_RAD: Math.PI/180,
 		RAD_TO_DEG: 180/Math.PI,
 		
@@ -376,5 +335,4 @@ dream.transform = {
 		Generic: Generic		
 };
 
-
-})();
+})(window);

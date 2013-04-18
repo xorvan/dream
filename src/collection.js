@@ -26,14 +26,14 @@ Collection$.indexOf = function(obj){
 };
 
 /**
- * onAdd event will raise whenever something is added.
+ * *onAdd* event will raise whenever something is added.
  * @event onAdd
  * @param {Object} obj
  * the added object
  */
 dream.event.create(Collection$, "onAdd");	
 /**
- * onRemove event will raise whenever something is removed.
+ * *onRemove* event will raise whenever something is removed.
  * @event onRemove
  * @param {Object} obj
  * the removed object
@@ -89,7 +89,7 @@ var List = function(arr){
 var List$ = List.prototype;
 
 /**
- * add function adds the argument to the List
+ * *add* function adds the argument to the *List*
  * @method add
  * @param {Object} obj
  * @return {Object} obj
@@ -99,7 +99,7 @@ List$.add = function(obj){
 	return obj;
 };
 /**
- * like Array pop
+ * like *Array* *pop*
  * @method pop
  * @returns {Object} obj
  */
@@ -111,7 +111,7 @@ List$.pop = function(){
 };
 
 /**
- * like Array shift
+ * like *Array* shift
  * @method shift
  * @returns {Object} obj
  */
@@ -125,7 +125,7 @@ List$.shift = function(){
 };
 
 /**
- * at method returns object at the given position
+ * *at* method returns object at the given position
  * @method at
  * @param {Number} position
  * @return {Object} obj
@@ -135,7 +135,7 @@ List$.at = function(n){
 };
 
 /**
- * insert method, inserts given object at given position. it does not remove the object in given position but shifts object to right to insert
+ * *insert* method, inserts given object at given position. it does not remove the object in given position but shifts object to right to insert
  * given object
  * @method insertAt
  * @param {Number} index
@@ -151,7 +151,7 @@ List$.insertAt = function(index, obj){
 };
 
 /**
- * like Array unshift
+ * like *Array* *unshift*
  * @method unshift
  * @param {Object} obj
  * @return {Object} obj
@@ -161,7 +161,7 @@ List$.unshift = function(obj){
 };
 
 /**
- * to remove an item from List that we know it's index (position in List)
+ * to remove an item from *List* that we know it's index (position in List)
  * @method removeByIndex
  * @param {Number} index
  * index of object to be removed
@@ -192,7 +192,7 @@ List$.put = function(index, obj){
 };
 
 /**
- * it removes given object from List, if it is in list, otherwise it returns null
+ * it removes given object from *List*, if it is in list, otherwise it returns null
  * @method remove
  * @param obj
  * object to be removed
@@ -218,7 +218,7 @@ List$.clear = function(){
 };
 
 /**
- * Set is just like {{#crossLink "dream.collection.List"}}List{{/crossLink}} but prevents Duplication
+ * *Set* is just like {{#crossLink "dream.collection.List"}}List{{/crossLink}} but prevents Duplication
  * @class Set
  * @extends dream.collection.List
  * @constructor
@@ -280,19 +280,44 @@ Set$.removeByIndex = function(index){
 };
 	
 /**
- * Dict instances are dictionary like objects
+ * *Dict* instances are dictionary like objects, they are almost like
+ *  {{#crossLink "dream.collection.List"}}List{{/crossLink}}
+ * with diffrence that you add objects to it with ID and later you can refer to them with that id.
+ * Note Dict class and it's deratives do not guarantee position of objects.
  * @class Dict
  * @constructor
  * @extends dream.collection.Collection
+ * @example
+ * d = new dream.collection.Dict;    
+ * d.add({a:12}, "objectOne");   
+ * a = d.objectOne;   
+ * d.removeByID("onjectOne")
  * 
  */
 var Dict = function(){
 	this.keys = [];
 	
 }.inherits(Collection);
-var $ = Dict.prototype;
+var Dict$ = Dict.prototype;
 
-$.add = function(obj, id){
+Dict$._hasObject = function(obj){
+	var i;
+	for(i in this.keys)
+		if (this[i] == obj)
+			return true;
+	return false;
+};
+
+/**
+ * *add* function gets an object with a ID to be added to *Dict*
+ * @method add
+ * @param obj {Object}
+ * object to be added
+ * @param id {String}
+ * ID which should be unique in *Dict*
+ * @return {Object} obj
+ */
+Dict$.add = function(obj, id){
 	var id = id || obj.id || "id" + dream.util.getId(obj);
 	this[id] = obj;
 	this.keys.push(id);
@@ -300,19 +325,40 @@ $.add = function(obj, id){
 	return obj;
 };
 
-$.addJson = function(items){
+/**
+ * *addJson* function gets an object and add all it's childeren to *Dict* using their key as ID and their value
+ * as actual Object
+ * @method addJson
+ * @param obj {Object}
+ * json of objects to be added
+ * @example
+ * d = new dream.collection.Dict; 
+ * d.addJson({objOne:{a:12}, objTwo:{b:13}})
+ */
+Dict$.addJson = function(items){
 	if(items)
 		for (var k in items)
 			this.add(items[k],k);
 };
 
-$.removeById = function(id){
+/**
+ * *removeById* function removes object with given ID string
+ * @method removeById
+ * @param id {String}
+ * @return {Object} obj
+ */
+Dict$.removeById = function(id){
 	for(var i = 0; i < this.keys.length; i++)
 		if(this.keys[i] == id)
 			return this.removeByIndex(i);
 };
-
-$.removeByIndex = function(index){
+/**
+ * *removeByIndex* function removes object with given index number
+ * @method removeByIndex
+ * @param index {Number}
+ * @return {Object} obj
+ */
+Dict$.removeByIndex = function(index){
 	if (index < 0 || index > this.length -1)
 		throw Error("index out of range");
 	var obj = this[index];
@@ -327,44 +373,100 @@ $.removeByIndex = function(index){
 		this.keys.splice(index,1);
 	}
 	dream.event.dispatch(this, "onRemove", obj);
+	return obj;
 };
-
-$.remove = function(obj){
+/**
+ * *remove* function removes given objectfrom *Dict* if present
+ * @method remove
+ * @param {Object} obj
+ * @return {Object} obj
+ */
+Dict$.remove = function(obj){
 	var i = this.indexOf(obj);
 	if (i != -1)
 		return this.removeByIndex(i);
 	else 
 		throw Error("object is not in dictionary");
 };
-
-$.clear = function(){
+/**
+ * *clear* function removes all the objects in Dict
+ * @method clear
+ */
+Dict$.clear = function(){
 	for(var i = 0; this[0]; i++)
 		this.removeByIndex(0);
 };
 
+/**
+ * *Selector* class is a derative of  {{#crossLink "dream.collection.List"}}List{{/crossLink}} which implements 
+ * selection functions and has a current attribute which setts/getts which item is/should be selected
+ * @class Selector
+ * @extends dream.collection.Dict
+ * @constructor
+ * @example
+ * s = new dream.colection.Selector;   
+ * var obj1 = {a:12}, obj2 = {b:14};   
+ * s.add(obj1, "one");   
+ * s.add(obj2, "two");   
+ * s.select(obj1);   
+ * s.current = obj2;   
+ * var c = s.current;
+ */
 var Selector = function(){
 	this._current = null;
 }.inherits(Dict);
 
-var $ = Selector.prototype;
+var Selector$ = Selector.prototype;
 
-dream.event.create($, "onSelect");	
-dream.event.create($, "onDeselect");
+/**
+ * *onSelect* event will be raised when a new item of *Selector* gets selected.
+ * @event onSelect
+ * @param {Object} obj
+ * the newly selected object
+ */
+dream.event.create(Selector$, "onSelect");	
+/**
+ * *onDeselect* event will be raised when an item of *Selector* gets deselected.
+ * @event onDeselect
+ * @param {Object} obj
+ * the deselected object
+ */
+dream.event.create(Selector$, "onDeselect");
 
-$.select = function(obj){
-	if(this._current)
-		dream.event.dispatch(this, "onDeselect", this._current);
-	this._current = obj;
-	dream.event.dispatch(this, "onSelect", obj);
+/**
+ * *select* function selects given object if that objectis in Selector
+ * @method select
+ * @param {Object} obj
+ * @return {Bolean} select status
+ */
+Selector$.select = function(obj){
+//	if(this._hasObject(obj)){
+		if(this._current)
+			dream.event.dispatch(this, "onDeselect", this._current);
+		this._current = obj;
+		dream.event.dispatch(this, "onSelect", obj);
+		return true;
+//	}
+//	return false;
 };
-
-$.selectById = function(id){
+/**
+ * *selectById* function selects the object in given ID;
+ * @method selectById
+ * @param {String} id
+ * @return {Bolean} select status
+ */
+Selector$.selectById = function(id){
 	var obj;
 	if (obj = this[id])
-		this.select(obj);
+		return this.select(obj);
 };
 
-Object.defineProperty($, "current", {
+/**
+ * setts/getts which item is/should be selected
+ * @property current
+ * @type Object
+ */
+Object.defineProperty(Selector$, "current", {
 	get : function () {
 		return this._current;
 	},
@@ -378,9 +480,9 @@ Object.defineProperty($, "current", {
  * this is an implementation of Linkeedlist, instances of this calss act as a list of objects that any object within it has a next and previous 
  * attribute.
  * any attempt to add an object with next and/or previous attributes return -3.
- * anything that is going to be added to linkedlist must be an object, technically and instance of Object.
- * attempting to add a number or string or so to a linkedlist will return -2.
- * also an object could not be added to a linkedlist more than once, any attempt will return -3
+ * anything that is going to be added to LinkedList must be an object, technically and instance of Object.
+ * attempting to add a number or string or so to a LinkedList will return -2.
+ * also an object could not be added to a LinkedList more than once, any attempt will return -3
  * @class LinkedList
  * @constructor
  * 
@@ -393,14 +495,14 @@ var LinkedList = function(){
 var LinkedList$ = LinkedList.prototype;
 
 /**
- * onAdd event will raise whenever something is added.
+ * *onAdd* event will raise whenever something is added.
  * @event onAdd
  * @param {Object} obj
  * the added object
  */
 dream.event.create(LinkedList$, "onAdd");	
 /**
- * onRemove event will raise whenever something is removed.
+ * *onRemove* event will raise whenever something is removed.
  * @event onRemove
  * @param {Object} obj
  * the removed object
@@ -420,7 +522,7 @@ LinkedList$._checkObject = function(obj){
 };
 
 /**
- * adds the object at the end of the linkedlist
+ * adds the object at the end of the *LinkedList*
  * @method push
  * @param {Object} obj
  * object to be added
@@ -441,7 +543,7 @@ LinkedList$.push = function(obj){
 };
 
 /**
- * adds the object at the end of the linkedlist
+ * adds the object at the end of the *LinkedList*
  * @method add
  * @param {Object} obj
  * object to be added
@@ -455,22 +557,25 @@ LinkedList$.add = function(obj){
 };
 
 /**
- * removes the object from the end of the linkedlist
+ * removes the object from the end of the *LinkedList*
  * @method pop
  * @return {Object} obj
  */
 LinkedList$.pop = function(){
 	var obj = this.last;
+	if(! obj)
+		return null;
 	this.last = obj.previous;
 	this.last.next = null;
 	this.length--;
+	delete obj.previous;
 	if(this.length == 0) this.first = null;
 	dream.event.dispatch(this, "onRemove", obj);
 	return obj;
 };
 
 /**
- * removes the object from the beginnig of linkedlist, if linked list is not empty
+ * removes the object from the beginnig of *LinkedList*, if linked list is not empty
  * @method shift
  * @return {Object} obj
  */
@@ -478,15 +583,18 @@ LinkedList$.shift = function(){
 	var node = this.first;
 	if(node){
 		this.first = node.next;
-		node.next.previous = undefined;
-		dream.event.dispatch(this, "onRemove", node);
+		if(node.next) node.next.previous = undefined;
+		else this.last = null;
 		this.length--;
+		delete node.next;
+		delete node.previous;
+		dream.event.dispatch(this, "onRemove", node);
 		return node;
 	}
 };
 
 /**
- * adds object to the beginnig of linkedlist
+ * adds object to the beginnig of *LinkedList*
  * @method unshift
  * @param {Object} obj
  */
@@ -496,7 +604,7 @@ LinkedList$.unshift = function(obj){
 		return r;
 	var node = this.first;
 	if(!node) this.push(obj);
-	this.insertAt(obj, 0);
+	return this.insertAt(0, obj);
 };
 
 /**
@@ -516,7 +624,7 @@ LinkedList$.at = function(ind){
 	return node;
 };
 /**
- * returns index of given object in linkedlist or return -1 if object is not in linkedlist
+ * returns index of given object in *LinkedList* or return -1 if object is not in *LinkedList*
  * @method indexOf
  * @param {Object} obj
  */
@@ -536,11 +644,12 @@ LinkedList$.indexOf = function(obj){
  */
 LinkedList$.insertAt = function(ind, obj){
 	var node = this.at(ind);
-	return this.insertBefore(node, obj);
+	if(node)
+		return this.insertBefore(node, obj);
 };
 
 /**
- * inserts given object after the given node, node is an object in the linkedlist. if the node is not found in linkedlist, return -1.
+ * inserts given object after the given node, node is an object in the *LinkedList*. if the node is not found in *LinkedList*, return -1.
  * @method insertAfter
  * @param {Object} Node
  * NOde after which object should be added
@@ -553,7 +662,7 @@ LinkedList$.insertAfter = function(node, obj){
 	if(r < 0)
 		return r;
 	if(this.indexOf(node) == -1)
-		return -1;
+		return null;
 	if(node.next)
 		return this.insertBefore(node.next, obj);
 	else{
@@ -566,7 +675,7 @@ LinkedList$.insertAfter = function(node, obj){
 	}
 };
 /**
- * inserts given object before the given node, node is an object in the linkedlist. if the node is not found in linkedlist, return -1.
+ * inserts given object before the given node, node is an object in the *LinkedList*. if the node is not found in *LinkedList*, return -1.
  * @method insertBefore
  * @param {Object} Node
  * Node before which object should be added
@@ -578,8 +687,8 @@ LinkedList$.insertBefore = function(node, obj){
 	var r = this._checkObject(obj);
 	if(r < 0)
 		return r;
-	if(obj.hasOwnProperty("previous") || obj.hasOwnProperty("next"))
-		throw Error("can't add object with next and previous attributes, may be duplicate!");
+	if(this.indexOf(node) == -1)
+		return null;
 	if(node.previous) {
 		node.previous.next = obj;
 		obj.previous = node.previous;
@@ -591,7 +700,7 @@ LinkedList$.insertBefore = function(node, obj){
 	return obj;
 };
 /**
- * removes given object from linkedList, if it is in it, otherwise it returns null
+ * removes given object from *LinkedList*, if it is in it, otherwise it returns null
  * @method remove
  * @param obj
  * object to be removed
@@ -619,7 +728,7 @@ LinkedList$.remove = function(obj){
 	return obj;
 };
 /**
- * removes given object from linkedList at given index (position)
+ * removes given object from *LinkedList* at given index (position)
  * @method removeByIndex
  * @param {Number} index
  * index of object to be removed
@@ -629,6 +738,11 @@ LinkedList$.removeByIndex = function(ind){
 	var obj = this.at(ind);
 	if(obj) 
 		return this.remove(obj);
+};
+
+LinkedList$.clear = function(){
+	while(this.length > 0)
+		this.shift();
 };
 
 
