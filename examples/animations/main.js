@@ -10,9 +10,19 @@ Star = function(left, top){
 
 
 Enemy = function(left, top){
-	dream.visual.Sprite.call(this, left, top, new dream.dynamic.SpriteAnimation(enemySprite.textures, true, 5));
+	dream.visual.Sprite.call(this, left, top);
+	
+	this.behavior.actions.add(
+		this.behaviors.add(
+			new dream.behavior.decorator.Controller(
+				new dream.behavior.animation.Sprite(enemySprite.textures),
+				true
+			),
+			"main"
+		)
+	);
 	//this.anchorX = this.anchorY = 50;
-	var exo, eyo;
+	var exo, eyo, da;
 	this.onDragStart.add(function(mouse){
 		var mouse = this.rect.transformation.unproject(mouse);
 		exo = mouse.left;
@@ -22,7 +32,7 @@ Enemy = function(left, top){
 		this.left -= exo;
 		this.top -= eyo;		
 	//	this.animations["main"].play();
-		this.dynamics.add(new dream.dynamic.Dynamic(function(){this.rotation+=5;}), 'main');
+		da = this.behavior.actions.add(new dream.behavior.Action(function(){this.rotation+=5;}));
 	});
 	this.onDrag.add(function(mouse){
 		this.left = mouse.left;
@@ -30,7 +40,7 @@ Enemy = function(left, top){
 	});
 	
 	this.onDragStop.add(function(mouse){
-		this.dynamics.remove('main');
+		this.behavior.actions.remove(da);
 	});
 }.inherits(dream.visual.Sprite);
 
@@ -40,7 +50,7 @@ Enemy = function(left, top){
 //	this.e1 = this.assets.add(new Enemy(0,0));
 //	this.e2 = this.assets.add(new Enemy(20,0));
 //	this.s = this.assets.add(new Star(10,10));
-//	this.s.animations.add(new dream.dynamic.Tween({left:60}, new dream.dynamic.interpolator.Sine, 50, true),"anim1");
+//	this.s.animations.add(new dream.behavior.animation.Tween({left:60}, new dream.behavior.animation.interpolator.Sine, 50, true),"anim1");
 //	this.s.animations.anim1.play();
 //}.inherits(dream.visual.Composite);
 
@@ -59,28 +69,28 @@ function init(){
 	
 //	for(var i=1; i<=2; i++){
 //		var s = world.assets.add(new Enemy(Math.random() * 500 | 0, Math.random() * 500 | 0), "enemy" + i);
-//		//s.steps.add(new dream.dynamic.Dynamic(function(){this.rotation += 5;}));
+//		//s.steps.add(new dream.behavior.Action(function(){this.rotation += 5;}));
 //	}
 	
 //	for(var i=0; i<=15; i++){
 //		with(world.assets.add(new Star(i*90, i*60), "star" + i)){
 //			alpha = 0.8;
 //			rotation = Math.random()*360 | 0;
-//			steps.add(new dream.dynamic.Dynamic(function(){this.rotation+=2;}));
+//			steps.add(new dream.behavior.Action(function(){this.rotation+=2;}));
 //		}
 //	}
 //	
 	//p= world.assets.add(new Star(100,20));
 	enemy = world.assets.add(new Enemy(10,100));
-	enemy.dynamics.main.stop();
-	enemy.dynamics.main.step(1);
-	t = new dream.dynamic.Timeline(300, true, 1);
-	t.addAt(3, new dream.dynamic.Tween({left:600}, null, 100, false, 1));
-	t.actions.add(new dream.dynamic.Action(101,function(ph){if(ph == 1)enemy.dynamics.main.play();else enemy.dynamics.main.stop();},true));
-	t.actions.add(new dream.dynamic.Action(201,function(ph){if(ph == 1)enemy.dynamics.main.stop();else enemy.dynamics.main.play();},true));
-	t.addAt(200, new dream.dynamic.Tween({rotation:355}, null, 100, false, 1));
-	enemy.dynamics.add(t,"t");
-	enemy.dynamics.t.play();
+	enemy.behaviors.main.action.fn.call(enemy,1, enemy.behaviors.main.action);
+	t = new dream.behavior.animation.Timeline(300);
+	t.addAt(3, new dream.behavior.animation.Tween({left:600}, 100));
+	t.actions[101] = (new dream.behavior.animation.FrameAction(function(ph){if(ph == 1) enemy.behaviors.main.play();else enemy.behaviors.main.stop();},true));
+	t.actions[201] = (new dream.behavior.animation.FrameAction(function(ph){if(ph == 1) enemy.behaviors.main.stop();else enemy.behaviors.main.play();},true));
+	t.addAt(200, new dream.behavior.animation.Tween({rotation:355}, 100));
+	enemy.behaviors.add(t,"t");
+	tc = enemy.behaviors.add(new dream.behavior.decorator.Controller(t, true),"tc");
+	enemy.behavior.actions.add(tc).play();
 	
 	
 	
@@ -89,14 +99,14 @@ function init(){
 //		//anchorX = width /2; 
 //		//anchorY = height /2;
 //		//left = top = 200;
-//		tween1 = tweens.add(new dream.dynamic.Tween({scale:2,left:400,top:400,alpha:0.2, rotation:360}, new dream.dynamic.interpolator.Sine, 200, true));
+//		tween1 = tweens.add(new dream.behavior.animation.Tween({scale:2,left:400,top:400,alpha:0.2, rotation:360}, new dream.behavior.animation.interpolator.Sine, 200, true));
 //		onMouseOver.add(function(){console.log("mi");});
 //		onMouseOut.add(function(){console.log("mo");});
 //	}
 //	
 //	ce = world.assets.add(new CompositeEnemy(400,50));
 //	ce.rotation = 90;
-//	tww=new dream.dynamic.Tween({rotation:180}, new dream.dynamic.interpolator.Sine, 100, true)
+//	tww=new dream.behavior.animation.Tween({rotation:180}, new dream.behavior.animation.interpolator.Sine, 100, true)
 //	ce.animations.add(tww);
 //	tww.play();
 	
@@ -123,14 +133,14 @@ function init(){
 //		fillStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0.25, "#00aaaa"), new dream.visual.drawing.ColorStop(0.75, "#aa0000")], 0, 0, 1, 1);
 //		rotation = 0;
 //		strokeStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0, "#330000"), new dream.visual.drawing.ColorStop(1, "#008888")], 0, 0, 0, 1);
-//		tr = tweens.add(new dream.dynamic.Tween({
+//		tr = tweens.add(new dream.behavior.animation.Tween({
 //		/*	width:150,
 //			scale:1.5,
 //			rotation:-15,
 //			alpha:0.8,*/
 //			"fillStyle.colorStops[0].position":.5, 
 //			"fillStyle.colorStops[1].position":.5
-//		}, 200, new dream.dynamic.interpolator.Sine, true));
+//		}, 200, new dream.behavior.animation.interpolator.Sine, true));
 //		onMouseOut.add(function(){console.log("r1mo");});
 //		onMouseOver.add(function(){console.log("r1mi");});
 //		onMouseDown.add(function(){console.log("r1md");});
@@ -152,7 +162,7 @@ function init(){
 //	paper.onClick.add(function(){console.log("pmc");});
 //	paper.onMouseMove.add(function(){console.log("pmm");});
 
-	//rp = paper.tweens.add(new dream.dynamic.Tween({rotation:360}, 1000, false, true));
+	//rp = paper.tweens.add(new dream.behavior.animation.Tween({rotation:360}, 1000, false, true));
 	world.onResize.add(function(){
 		this.left = exp.width/2;
 		this.top = exp.height/2;		
@@ -182,7 +192,7 @@ function init(){
 	stats.getDomElement().style.left = '0px';
 	stats.getDomElement().style.top = '0px';
 	document.getElementById("container").appendChild(stats.getDomElement() );
-	var stp=new dream.dynamic.Dynamic(function(){stats.update();});
-	world.dynamics.add(stp).play();
+	var stp=new dream.behavior.Action(function(){stats.update();});
+	world.behavior.actions.add(stp);
 };
 

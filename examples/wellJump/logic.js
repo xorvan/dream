@@ -3,13 +3,13 @@
 //importing packages
 var drawing = dream.visual.drawing,
 	dynamic = dream.dynamic,
-	bt = dynamic.behaviorTree,
-	interpolator = dream.dynamic.interpolator,
-	Tween = dream.dynamic.Tween,
+	bt = dream.behavior,
+	interpolator = dream.behavior.animation.interpolator,
+	Tween = dream.behavior.animation.Tween,
 	Provider = dream.provider.Provider,
 	List = dream.collection.List,
 	Text = dream.visual.drawing.Text,
-	Dynamic = dream.dynamic.Dynamic;
+	Dynamic = dream.behavior.Action;
 
 width = 640;
 
@@ -91,43 +91,54 @@ GameScene = function(jumper, gameScreen){
 		scene.bars.remove(obj);
 	});
 	
-	var tree = this.dynamics.add(new bt.selector.Priority).play();
+	var tree = new bt.selector.Priority([
+		new bt.selector.Sequence([
+			new bt.Condition(function(){
+				return jumper.behaviors.motionY.velocity > 0;
+			}),
+			new bt.selector.Concurrent([
+				jumper.behaviors.motionY,
+				new bt.Action(function(){
+					for(var i=0, bar; bar = this.bars[i]; i++){
+						if(jumper.boundary.right > bar.boundary.left && jumper.boundary.left < bar.boundary.right && Math.abs(bar.boundary.top - jumper.boundary.bottom) < 10){
+							var t;
+							if(t = bar.hit(jumper.origin)){
+								jumper.top = bar.top;
+								jumper.jump(t);
+								console.log("hit")
+								return false;
+								break;
+							}
+						}			
+					}
+					if(jumper.boundary.top > this.anchorY){
+						console.log("go");
+						dream.event.dispatch(this, "onGameOver");
+					}
+					return true;
+				})
+			])
+		]),
+		new bt.selector.Sequence([
+		    jumper.behaviors.bounce,
+			new bt.selector.Concurrent([
+				new bt.Action(function(){
+					var y = jumper.top + 400;
+					if(y < this.anchorY){
+						this.score.top = y - 30;
+						var s = -y|0;
+						this.score.text = s;
+						this.anchorY = y;
+						this.providers.bars.difficulty = 1 - (this.rate-s) / this.rate;
+					}
+					if(jumper.behaviors.motionY.velocity > 0) return true
+				}),
+				jumper.behaviors.motionY
+			],1, true)
+		])
+	]);
 	
-	var falling = tree.children.add(new bt.selector.Sequence);
-	
-	falling.children.add(new bt.Condition(function(){
-		return jumper.dynamics.motionY.velocity > 0;
-	}));
-	
-	falling.children.add(new bt.Action(function(){
-		for(var i=0, bar; bar = this.bars[i]; i++){
-			if(jumper.boundary.right > bar.boundary.left && jumper.boundary.left < bar.boundary.right && Math.abs(bar.boundary.top - jumper.boundary.bottom) < 10){
-				var t;
-				if(t = bar.hit(jumper.origin)){
-					jumper.top = bar.top;
-					jumper.jump(t);
-					break;
-				}
-			}			
-		}
-		if(jumper.boundary.top > this.anchorY){
-			console.log("go");
-			dream.event.dispatch(this, "onGameOver");
-		}
-		return true
-	}));
-	
-	tree.children.add(new bt.Action(function(){
-		var y = jumper.top + 400;
-		if(y < this.anchorY){
-			this.score.top = y - 30;
-			var s = -y|0;
-			this.score.text = s;
-			this.anchorY = y;
-			this.providers.bars.difficulty = 1-(this.rate-s)/this.rate;
-		}
-		
-	}));
+	this.behavior.actions.add(tree);
 	
 	
 //	this.dynamics.add(new Dynamic(function(){
@@ -166,7 +177,7 @@ dream.event.create($, "onGameOver");
 
 var BarProvider = function(){
 	Provider.call(this);
-	this.lastArea = new dream.Rect;
+	this.lastArea = new dream.geometry.Rect;
 	this.lastH = 0;
 	
 	this.difficulty = 0;

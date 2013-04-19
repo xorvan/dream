@@ -52,8 +52,8 @@ block example-script
 			stats.getDomElement().style.left = '0px';
 			stats.getDomElement().style.top = '0px';
 			document.body.appendChild(stats.getDomElement() );
-			var stp=new dream.dynamic.Dynamic(function(){stats.update();});
-			gameScreen.scenes.current.dynamics.add(stp).play();
+			var stp=new dream.behavior.Action(function(){stats.update();});
+			gameScreen.scenes.current.behavior.actions.add(stp);
 		}
 
 	

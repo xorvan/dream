@@ -37,6 +37,6 @@ block bench-script
 			stats.getDomElement().style.left = '0px';
 			stats.getDomElement().style.top = '0px';
 			document.body.appendChild(stats.getDomElement() );
-			var stp=new dream.dynamic.Dynamic(function(){stats.update();});
-			scene.dynamics.add(stp).play();
+			var stp=new dream.behavior.Action(function(){stats.update();});
+			scene.behavior.actions.add(stp);
 		}

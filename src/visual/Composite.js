@@ -5,7 +5,7 @@ dream.visual.Composite = function(left, top){
 	dream.visual.Composite._superClass.call(this, left, top);
 	var composite = this;
 	
-	//this.rect = new dream.Rect(left, top);
+	//this.rect = new dream.geometry.Rect(left, top);
 	this._isDirty = false;
 	this._isPresent = false;
 	this.assets = new dream.util.AssetLibrary();
@@ -91,11 +91,13 @@ dream.visual.Composite.prototype.addToRect = function(g){
 
 dream.visual.Composite.prototype.step = function (){
 	
+	if (this.behavior) this.behavior.step();
+	
 	for(var i = 0, l = this.pool.length; i < l; i++){
 		this.pool[i].step();
 	}
 
-	dream.visual.Composite._superClass.prototype.step.call(this);
+	dream.visual.Composite._superClass.prototype.step.call(this, true);
 	
 	if(this._isDirty){
 		dream.event.dispatch(this, "onImageChange", [this.boundary]);

@@ -3,9 +3,10 @@ firesprite =  new dream.visual.SequentialSpriteSheet("res/fire.png",{"main":{lef
 cubesprite =  new dream.visual.SequentialSpriteSheet("res/cube.png",{"main":{left:0, top:0, width:60, height:60, count:30, col:1}});
 enemySprite = new dream.visual.SequentialSpriteSheet("res/enemies.png",{"main":{left:0, top:0, width:100, height:75, count:4, col:1}});
 
+var bt = dream.behavior;
 
 Aj = function(left, top){
-	dream.visual.Sprite.call(this, left, top, new dream.dynamic.SpriteAnimation(ajsprite.textures, true, 15));
+	dream.visual.Sprite.call(this, left, top, new bt.decorator.Interval(new dream.behavior.animation.Sprite(ajsprite.textures), 15));
 	}.inherits(dream.visual.Sprite);
 	
 //	dream.visual.Sprite.call(this,left, top, {
@@ -21,11 +22,11 @@ Aj = function(left, top){
 
 
 Fire = function(left, top){
-	dream.visual.Sprite.call(this, left, top, new dream.dynamic.SpriteAnimation(firesprite.textures, true, 4));
+	dream.visual.Sprite.call(this, left, top, new bt.decorator.Interval(new dream.behavior.animation.Sprite(firesprite.textures), 4));
 }.inherits(dream.visual.Sprite);
 
 Cube = function(left, top){
-	dream.visual.Sprite.call(this, left, top, new dream.dynamic.SpriteAnimation(cubesprite.textures, true, 3));
+	dream.visual.Sprite.call(this, left, top, new bt.decorator.Interval(new dream.behavior.animation.Sprite(cubesprite.textures), 3));
 }.inherits(dream.visual.Sprite);
 
 Poly1 = function(left, top){
@@ -36,7 +37,7 @@ Poly1 = function(left, top){
 Star1 = function(left, top){
 	dream.visual.Bitmap.call(this, "res/star1.png", left, top, 80, 80);
 	this.anchorX = this.anchorY = 40;
-	this.dynamics.add(new dream.dynamic.Dynamic(function(){this.rotation += 5;})).play();
+	this.behavior.actions.add(new dream.behavior.Action(function(){this.rotation += 5;}));
 }.inherits(dream.visual.Bitmap);
 
 RotatingCircles = function(left, top, d1, d2){
@@ -52,9 +53,8 @@ RotatingCircles = function(left, top, d1, d2){
 	c1.fillStyle = "#0f0";
 	c2.fillStyle = "#00f";
 	
-	c2.dynamics.add(new dream.dynamic.Tween({left:20, top:20, scale:1.3, rotation:360}, new dream.dynamic.interpolator.Sine, 200, true)).play();
-	//c2.Dynamics.add(new dream.dynamic.Dynamic(function(){this.rotation += 10;},-1,2));
-	
+	c2.behavior.actions.add(new dream.behavior.animation.Tween({left:20, top:20, scale:1.3, rotation:360}, 200, new dream.behavior.animation.interpolator.Sine));
+	//c2.Dynamics.add(new dream.behavior.Action(function(){this.rotation += 10;},-1,2));
 }.inherits(dream.visual.Composite);
 
 
@@ -71,7 +71,7 @@ ThreeCircles = function(left, top, d1, d2, d3){
 	
 	c.fillStyle = "#0ff";
 	
-	rc.dynamics.add(new dream.dynamic.Dynamic(function(){this.rotation += 4;},-1,2)).play();
+	rc.behavior.actions.add(new dream.behavior.Action(function(){this.rotation += 4;}));
 	
 	this.anchorX = this.anchorY = d1/2;
 	
@@ -87,23 +87,23 @@ CompositeRect = function(left, top, width, height){
 	this.assets.add(tc3 = new ThreeCircles(width, 0, width/2, width/4, width/6 ), "tc3");
 	this.assets.add(tc4 = new ThreeCircles(width, height, width/3, width/4, width/6 ), "tc4");
 	
-	tc3.dynamics.add(new dream.dynamic.Tween({scale:1.5}, new dream.dynamic.interpolator.Sine, 20, true)).play();
+	tc3.behavior.actions.add(new dream.behavior.animation.Tween({scale:1.5}, 20, new dream.behavior.animation.interpolator.Sine));
 	
 	r.fillStyle = "#f0f";
 	
-	this.dynamics.add(new dream.dynamic.Tween({rotation:90, scale:1.5, left:left+200}, new dream.dynamic.interpolator.Sine, 90, true)).play();
+	this.behavior.actions.add(new dream.behavior.animation.Tween({rotation:90, scale:1.5, left:left+200}, 90, new dream.behavior.animation.interpolator.Sine));
 	
 }.inherits(dream.visual.Composite);
 
 Enemy = function(left, top){
-	dream.visual.Sprite.call(this, left, top, new dream.dynamic.SpriteAnimation(enemySprite.textures, true, 5));
+	dream.visual.Sprite.call(this, left, top, new dream.behavior.animation.Sprite(enemySprite.textures));
 	this.onDragStart.add(function(event){
 		var lm = event.localPosition;
 		this.anchorX = lm.left;
 		this.anchorY = lm.top;
 		this.left = event.position.left;
 		this.top = event.position.top;		
-		this.dynamics.add(new dream.dynamic.Dynamic(function(){this.rotation+=5;}), 'rot').play();
+		//this.dynamics.add(new dream.behavior.Action(function(){this.rotation+=5;}), 'rot').play();
 	});
 	
 	this.onDrag.add(function(event){
@@ -113,7 +113,7 @@ Enemy = function(left, top){
 	});
 	
 	this.onDragStop.add(function(mouse){
-		this.dynamics.remove('rot');
+		//this.dynamics.remove('rot');
 	});
 }.inherits(dream.visual.Sprite);
 
@@ -125,10 +125,10 @@ Paper1 = function(left, top){
 		fillStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0.25, "#00aaaa"), new dream.visual.drawing.ColorStop(0.75, "#aa0000")], 0, 0, 1, 1);
 		rotation = 0;
 		strokeStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0, "#330000"), new dream.visual.drawing.ColorStop(1, "#008888")], 0, 0, 0, 1);
-		tr = dynamics.add(new dream.dynamic.Tween({
+		tr = behavior.actions.add(new dream.behavior.animation.Tween({
 			"fillStyle.colorStops[0].position":.5, 
 			"fillStyle.colorStops[1].position":.5
-		}, new dream.dynamic.interpolator.Sine, 200, true)).play();
+		}, 200, new dream.behavior.animation.interpolator.Sine));
 
 	};
 	

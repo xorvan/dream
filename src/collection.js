@@ -446,14 +446,11 @@ dream.event.create(Selector$, "onDeselect");
  * @return {Bolean} select status
  */
 Selector$.select = function(obj){
-	if(true || this._hasObject(obj)){
 		if(this._current)
 			dream.event.dispatch(this, "onDeselect", this._current);
 		this._current = obj;
 		dream.event.dispatch(this, "onSelect", obj);
 		return true;
-	}
-	return false;
 };
 /**
  * *selectById* function selects the object in given ID;

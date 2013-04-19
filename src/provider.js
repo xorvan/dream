@@ -1,7 +1,7 @@
 (function(window){
 
 var Provider = function(){
-	this._area = new dream.Rect();
+	this._area = new dream.geometry.Rect();
 };
 
 var $ = Provider.prototype;

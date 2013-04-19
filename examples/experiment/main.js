@@ -9,14 +9,14 @@ Star = function(left, top){
 }.inherits(dream.visual.Bitmap);
 
 Enemy = function(left, top){
-	dream.visual.Sprite.call(this, left, top, new dream.dynamic.SpriteAnimation(enemySprite.textures, true, 5));
+	dream.visual.Sprite.call(this, left, top, new dream.behavior.animation.Sprite(enemySprite.textures));
 	this.onDragStart.add(function(event){
 		var lm = event.localPosition;
 		this.anchorX = lm.left;
 		this.anchorY = lm.top;
 		this.left = event.position.left;
 		this.top = event.position.top;		
-		this.dynamics.add(new dream.dynamic.Dynamic(function(){this.rotation+=5;}), 'rot').play();
+		this.behavior.actions.add(new dream.behavior.Action(function(){this.rotation+=5;}), 'rot').play();
 	});
 	
 	this.onDrag.add(function(event){
@@ -26,7 +26,7 @@ Enemy = function(left, top){
 	});
 	
 	this.onDragStop.add(function(mouse){
-		this.dynamics.remove('rot');
+		this.behavior.actions.remove('rot');
 	});
 }.inherits(dream.visual.Sprite);
 
@@ -36,7 +36,7 @@ CompositeEnemy = function(left, top){
 	this.e1 = this.assets.add(new Enemy(0,0));
 	this.e2 = this.assets.add(new Enemy(20,0));
 	this.s = this.assets.add(new Star(10,10));
-	this.s.dynamics.add(new dream.dynamic.Tween({left:60}, new dream.dynamic.interpolator.Sine, 50, true)).play();
+	this.s.behavior.actions.add(new dream.behavior.animation.Tween({left:60}, 50, new dream.behavior.animation.interpolator.Sine));
 }.inherits(dream.visual.Composite);
 
 
@@ -77,15 +77,15 @@ function init(){
 		//anchorX = width /2; 
 		//anchorY = height /2;
 		//left = top = 200;
-		tween1 = dynamics.add(new dream.dynamic.Tween({scale:2,left:400,top:400,alpha:0.2, rotation:360}, new dream.dynamic.interpolator.Sine, 200, true)).play();
+		tween1 = behavior.actions.add(new dream.behavior.animation.Tween({scale:2,left:400,top:400,alpha:0.2, rotation:360}, 200, new dream.behavior.animation.interpolator.Sine));
 		onMouseEnter.add(function(){console.log("me");});
 		onMouseLeave.add(function(){console.log("ml");});
 	}
 	
 	ce = world.assets.add(new CompositeEnemy(400,50));
 	ce.rotation = 90;
-	ce.dynamics.add(new dream.dynamic.Tween({rotation:180}, new dream.dynamic.interpolator.Sine, 100, true),"rotate").play();
-	ce.dynamics.add(new dream.dynamic.Tween({alpha:0}, null, 80, true),"alpha").play();
+	ce.behavior.actions.add(new dream.behavior.animation.Tween({rotation:180}, 100, new dream.behavior.animation.interpolator.Sine),"rotate");
+	ce.behavior.actions.add(new dream.behavior.animation.Tween({alpha:0}, 80),"alpha");
 //	ce.dynamics.alpha.actions.add(new dream.dynamic.Action(20,function(p){var x="booboo";},false));
 //	ce.dynamics.alpha.onCycle.add(function(){console.log("alpha cycle ended");});
 //	ce.dynamics.rotate.onCycle.add(function(){console.log("rotation cycle ended");});
@@ -96,14 +96,14 @@ function init(){
 		fillStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0.25, "#00aaaa"), new dream.visual.drawing.ColorStop(0.75, "#aa0000")], 0, 0, 1, 1);
 		rotation = 0;
 		strokeStyle = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0, "#330000"), new dream.visual.drawing.ColorStop(1, "#008888")], 0, 0, 0, 1);
-		tr = dynamics.add(new dream.dynamic.Tween({
+		tr = behavior.actions.add(new dream.behavior.animation.Tween({
 		/*	width:150,
 			scale:1.5,
 			rotation:-15,
 			alpha:0.8,*/
 			"fillStyle.colorStops[0].position":.5, 
 			"fillStyle.colorStops[1].position":.5
-		}, new dream.dynamic.interpolator.Sine, 200, true)).play();
+		}, 200, new dream.behavior.animation.interpolator.Sine));
 		onMouseLeave.add(function(){console.log("r1ml");});
 		onMouseEnter.add(function(){console.log("r1me");});
 		onMouseDown.add(function(){console.log("r1md");});
@@ -151,19 +151,19 @@ function init(){
 	paper.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.A, function(i){this.rotation += i;}));
 	paper.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.S, function(i){this.rotation -= i;}));
 	
-	st = new dream.bench.Stat();
-	st.element.style.position = 'absolute';
-	st.element.style.left = '0px';
-	st.element.style.top = '0px';
-	document.body.appendChild(st.element);
-	
-	var fps = new dream.bench.Probe("fps");
-	var rr = new dream.bench.Probe("redraw Regions");
-	st.probes.addArray([fps,rr]);
-	var stp=new dream.dynamic.Dynamic(function(){
-		fps.cnt ++;
-		world.redrawRegions.length;
-	});
+//	st = new dream.bench.Stat();
+//	st.element.style.position = 'absolute';
+//	st.element.style.left = '0px';
+//	st.element.style.top = '0px';
+//	document.body.appendChild(st.element);
+//	
+//	var fps = new dream.bench.Probe("fps");
+//	var rr = new dream.bench.Probe("redraw Regions");
+//	st.probes.addArray([fps,rr]);
+//	var stp=new dream.behavior.Action(function(){
+//		fps.cnt ++;
+//		world.redrawRegions.length;
+//	});
 	
 	
 //	stats=new Stats();
@@ -171,7 +171,7 @@ function init(){
 //	stats.getDomElement().style.left = '0px';
 //	stats.getDomElement().style.top = '0px';
 //	document.getElementById("container").appendChild(stats.getDomElement() );
-//	var stp = new dream.dynamic.Dynamic(function(){stats.update();});
-	world.dynamics.add(stp).play();
+//	var stp = new dream.behavior.Action(function(){stats.update();});
+//	world.behavior.actions.add(stp).play();
 };
 

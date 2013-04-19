@@ -9,10 +9,10 @@ var Graphic = function(left, top){
 	this.a = 1;
 	this._z = 0;
 	
-	this.anchor = new dream.Point();
-	this.origin = new dream.Point(left, top);
-	this.boundary = new dream.Rect(left, top);
-	this.rect = new dream.Rect(0, 0, 0, 0, new dream.transform.Generic(left, top));
+	this.anchor = new dream.geometry.Point();
+	this.origin = new dream.geometry.Point(left, top);
+	this.boundary = new dream.geometry.Rect(left, top);
+	this.rect = new dream.geometry.Rect(0, 0, 0, 0, new dream.geometry.transform.Generic(left, top));
 	 
 	var graphic = this;
 	
@@ -30,10 +30,12 @@ var Graphic = function(left, top){
 	this.isImageChanged = true;
 	this.isBoundaryChanged = true;
 	
-	this.dynamics = new dream.dynamic.DynamicList(this);
-	
-	this.dynamics.onAdd.add(function(dyn){
-		dyn.init(graphic);
+	this.behavior = new dream.behavior.selector.Concurrent();
+	this.behavior.init(this);
+
+	this.behaviors = new dream.collection.Dict();
+	this.behaviors.onAdd.add(function(behavior){
+		behavior.init(graphic);
 	});
 	
 	this.behaviours = new dream.collection.Dict();
@@ -90,9 +92,9 @@ $.render = function(ctx, origin, renderRect) {
 	ctx.restore();
 };
 
-$.step = function (){
+$.step = function (post){
 	
-	if (this.dynamics.isPlaying) this.dynamics.step();
+	if (this.behavior && !post) this.behavior.step();
 
 	var oldBoundary = this.boundary;
 	if(this.isBoundaryChanged){
@@ -164,8 +166,8 @@ $._updateBuffer = function(){
 		this.buffer.canvas.width = this.rect.width;
 		this.buffer.canvas.height = this.rect.height;
 	}
-	this.buffer.anchor = new dream.Point(this.rect.left, this.rect.top);
-	this.paint(this.buffer.context, new dream.Point(-this.rect.left, -this.rect.top));
+	this.buffer.anchor = new dream.geometry.Point(this.rect.left, this.rect.top);
+	this.paint(this.buffer.context, new dream.geometry.Point(-this.rect.left, -this.rect.top));
 };
 
 $.raiseMouseDown = function(event){
@@ -325,7 +327,7 @@ Object.defineProperty($, "z", {
 Object.defineProperty($, "image", {
 	get: function() {
 		var buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
-		this.paint(buffer.context, new dream.Point(-this.rect.left, -this.rect.top));
+		this.paint(buffer.context, new dream.geometry.Point(-this.rect.left, -this.rect.top));
 		return buffer.canvas;
 	}
 });
@@ -333,7 +335,7 @@ Object.defineProperty($, "image", {
 Object.defineProperty($, "imageData", {
 	get: function() {
 		var buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
-		this.paint(buffer.context, new dream.Point(-this.rect.left, -this.rect.top));
+		this.paint(buffer.context, new dream.geometry.Point(-this.rect.left, -this.rect.top));
 		return buffer.context.getImageData(0, 0, this.rect.width, this.rect.height);
 	}
 });

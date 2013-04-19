@@ -10,8 +10,8 @@ dream.scenery.Scene = function(){
 	dream.scenery.Scene._superClass.call(this);
 	var scene = this;
 	
-	this.screenBoundary = new dream.Rect; 
-	this.viewport = new dream.Rect; 
+	this.screenBoundary = new dream.geometry.Rect; 
+	this.viewport = new dream.geometry.Rect; 
 	
 	this.renderDistanceX = 1;
 	this.renderDistanceY = 1;
@@ -60,7 +60,7 @@ dream.scenery.Scene = function(){
 		if(o.isPresent) scene.renderList[o.z].splice(scene.renderList[o.z].indexOf(o),1);
 	});
 	
-	this.area = new dream.Rect;
+	this.area = new dream.geometry.Rect;
 	this.onResize.add(this.onBoundaryChange.add(function(){
 		scene.viewport = scene.rect.transformation.unprojectRect(scene.screenBoundary).boundary;
 		if(scene.viewport.width == 0 && scene.viewport.height == 0) this.pool.clear();
@@ -147,7 +147,7 @@ dream.scenery.Scene.prototype.prepare = function(callBack){
 dream.scenery.Camera = function(scene){
 	this.scene = scene;
 	
-}.inherits(dream.Rect);
+}.inherits(dream.geometry.Rect);
 
 Object.defineProperty(dream.scenery.Camera.prototype, "left", {
 	set : function(v){this.scene.anchorX = v;},

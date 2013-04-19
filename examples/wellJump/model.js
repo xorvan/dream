@@ -2,12 +2,10 @@
 
 //importing packages
 var drawing = dream.visual.drawing,
-	interpolator = dream.dynamic.interpolator,
-	behaviour = dream.behaviour,
-	Dynamic = dream.dynamic.Dynamic,
-	Timeline = dream.dynamic.Timeline,
+	interpolator = dream.behavior.animation.interpolator,
+	behavior = dream.behavior,
 	Composite = dream.visual.Composite,
-	Tween = dream.dynamic.Tween;
+	Tween = dream.behavior.animation.Tween;
 
 Jumper = function(left, top){
 	drawing.Circle.call(this, left, top, 30);
@@ -19,7 +17,7 @@ Jumper = function(left, top){
 	
 	var jumper = this;
 	
-	this.behaviours.add(new behaviour.Moving, "moving");
+	this.behaviours.add(new dream.behaviour.Moving, "moving");
 	
 	dream.input.onDeviceMotion.add(function(event){
 		var a = dream.input.deviceOrientation ? event.accelerationIncludingGravity.y : event.accelerationIncludingGravity.x;
@@ -32,8 +30,9 @@ Jumper = function(left, top){
 //	this.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.RIGHT, function(i){jumper.behaviours.moving.vx += Math.min(i,5)*.2;}));
 //	this.behaviours.add(new dream.behaviour.KeyBinding(dream.input.Key.LEFT, function(i){jumper.behaviours.moving.vx -= Math.min(i,5)*.2;}));
 
-//	var startTween = this.dynamics.add(new Tween({scaleY:0.5}, new interpolator.Sine(1/2), 10), "startTween");
-//	startTween.onEnd.add(function(){
+	var bounce = this.behaviors.add(new Tween({scaleY:0.5}, 10, new interpolator.Sine(1/2)), "bounce");
+
+	//	startTween.onEnd.add(function(){
 //		jumper.dynamics.upTween.init().play();
 //	});
 //	
@@ -49,7 +48,7 @@ Jumper = function(left, top){
 //		console.log("Game Over");
 //	});
 	
-	this.dynamics.add(new dream.dynamic.Motion("top", 0, 1), "motionY").play();
+	this.behaviors.add(new dream.behavior.Motion("top", 0, 1), "motionY");
 
 
 			
@@ -57,7 +56,7 @@ Jumper = function(left, top){
 var $ = Jumper.prototype;
 
 $.jump = function(type){
-	this.dynamics.motionY.velocity = type == 2 ? -40 : -20;
+	this.behaviors.motionY.velocity = type == 2 ? -40 : -20;
 };
 
 Bar = function(left, top){
@@ -77,8 +76,24 @@ BreakableBar = function(left, top){
 	Bar.call(this, left, top);
 	
 	this.fillStyle = new drawing.LinearGradient([new drawing.ColorStop(0, "#AA4455"), new drawing.ColorStop(1, "#330011")], 0, 0, 0, 1);
-	this.dynamics.add(new Tween({rotation:120, alpha:50}, new interpolator.Sine(1/2), 15), "breakTween");
-	this.dynamics.add(new Tween({rotation:-120, alpha:50}, new interpolator.Sine(1/2), 15), "breakLeftTween");
+	this.behavior.actions.add(
+		this.behaviors.add(
+			new behavior.decorator.Controller(
+				new Tween({rotation:120, alpha:.5}, 15, new interpolator.Sine(1/2))
+			)
+			, "breakTween"
+		)
+	);
+	this.behavior.actions.add(
+		this.behaviors.add(
+			new behavior.decorator.Controller(
+				new Tween({rotation:-120, alpha:.5}, 15, new interpolator.Sine(1/2))
+			)
+			, "breakLeftTween"
+		)
+	);
+		
+
 	//this.updateBuffer();
 }.inherits(Bar);
 
@@ -89,13 +104,13 @@ BreakableBar.prototype.hit = function(point){
 			this.anchorX = this.width;
 			this.left += this.width;
 		}
-		this.dynamics.breakLeftTween.play();			
+		this.behaviors.breakLeftTween.play();			
 	}else{
 		if(this.anchorX){
 			this.anchorX = 0;
 			this.left -= this.width;
 		}
-		this.dynamics.breakTween.play();
+		this.behaviors.breakTween.play();
 	}
 	return false;
 };
@@ -104,12 +119,19 @@ ElasticBar = function(left, top){
 	Bar.call(this, left, top);
 	
 	this.fillStyle = new drawing.LinearGradient([new drawing.ColorStop(0, "#449955"), new drawing.ColorStop(1, "#227711")], 0, 0, 0, 1);
-	this.dynamics.add(new Tween({$top:5}, new dream.dynamic.interpolator.Sine, 10), "elasticTween");
+	this.behavior.actions.add(
+		this.behaviors.add(
+			new behavior.decorator.Controller(
+				new Tween({$top:5}, 10, new dream.behavior.animation.interpolator.Sine)
+			)
+			, "elasticTween"
+		)
+	);
 	//this.updateBuffer();
 }.inherits(Bar);
 
 ElasticBar.prototype.hit = function(){
-	this.dynamics.elasticTween.play();
+	this.behaviors.elasticTween.play();
 	return 2;
 };
 

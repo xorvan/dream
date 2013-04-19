@@ -26,7 +26,7 @@ $.preventDefault = function(){
 var MouseEvent = function(domEvent, screenPosition, local){
 	InputEvent.call(this);
 	
-	this.screenPosition = screenPosition || new dream.Point; 
+	this.screenPosition = screenPosition || new dream.geometry.Point; 
 	this.position = this.screenPosition;
 	
 	this.local = local;
@@ -98,7 +98,7 @@ Object.defineProperty($, "metaKey", {
  */
 var InputHandler = function(screen){
 	this.mouse = {
-			position: new dream.Point,
+			position: new dream.geometry.Point,
 			isDown: false
 	};
 	
