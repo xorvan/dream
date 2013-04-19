@@ -300,6 +300,8 @@ var Dict = function(){
 }.inherits(Collection);
 var Dict$ = Dict.prototype;
 
+//Dict$.addArray = undefined;
+
 Dict$._hasObject = function(obj){
 	var i;
 	for(i in this.keys)
@@ -362,16 +364,20 @@ Dict$.removeByIndex = function(index){
 	if (index < 0 || index > this.length -1)
 		throw Error("index out of range");
 	var obj = this[index];
+	var key = this.keys[index];
 	if(index != this.length - 1){
 		var rObj = this.pop();
 		var rKey = this.keys.pop();
 		delete this[this.keys[index]];
 		this[index] = rObj;
 		this.keys[index] = rKey;
+		delete this[key];
 	} else {
 		this.splice(index,1);
 		this.keys.splice(index,1);
+		delete this[key];
 	}
+	
 	dream.event.dispatch(this, "onRemove", obj);
 	return obj;
 };
@@ -440,7 +446,7 @@ dream.event.create(Selector$, "onDeselect");
  * @return {Bolean} select status
  */
 Selector$.select = function(obj){
-	if(this._hasObject(obj)){
+	if(true || this._hasObject(obj)){
 		if(this._current)
 			dream.event.dispatch(this, "onDeselect", this._current);
 		this._current = obj;
