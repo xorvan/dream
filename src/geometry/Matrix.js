@@ -1,7 +1,21 @@
+/**
+ * @module geometry
+ * @namespace dream.geometry
+ */
 (function(window){
 
 /**
- * 
+ * Matrix is Mathematical Object which is used to work with Transformations of Objects
+ * you can make an Matrix Object with Specifing 6 parameters of it. note three items of x2, y2, 
+ * and last item are set to 0, 0, 1 respectively, because they have no use in *Transformation* of objects
+ * @class Matrix
+ * @constructor
+ * @param {Number} x0
+ * @param {Number} y0
+ * @param {Number} x1
+ * @param {Number} y1
+ * @param {Number} dx
+ * @param {Number} dy
  */
 var Matrix = function(x0, y0, x1, y1, dx, dy){
 	this.x0 = x0;
@@ -15,6 +29,12 @@ var Matrix = function(x0, y0, x1, y1, dx, dy){
 };
 var Matrix$ = Matrix.prototype;
 
+/**
+ * takes an input matrix and multiply current matrix with it, and returns the result
+ * @method multiplyBy
+ * @param {dream.geometry.Matrix} matrix
+ * @returns {dream.geometry.Matrix} result
+ */
 Matrix$.multiplyBy = function(matrix){
 	return new dream.geometry.transform.Matrix(
 			this.x0 * matrix.x0 + this.y0 * matrix.x1, this.x0 * matrix.y0 + this.y0 * matrix.y1, 
@@ -24,6 +44,12 @@ Matrix$.multiplyBy = function(matrix){
 	);
 };
 
+/**
+ * takes an input *Pint* and multiply current matrix with it, and returns the result
+ * @method multiplyByPoint
+ * @param {dream.geometry.Point} point
+ * @returns {dream.geometry.Matrix} result
+ */
 Matrix$.multiplyByPoint = function(point){
 	return new dream.geometry.Point(
 			this.x0 * point.left + this.x1 * point.top + this.dx,
@@ -31,6 +57,12 @@ Matrix$.multiplyByPoint = function(point){
 	);
 };
 
+/**
+ * returns the inverse of current matrix
+ * @property inverse
+ * @type {dream.geometry.Matrix} result
+ * @readOnly
+ */
 Object.defineProperty(Matrix$, "inverse", {
 	get : function () {
 		var x0 = this.x0;
