@@ -1,8 +1,8 @@
-enemySprite = new dream.visual.SequentialSpriteSheet("res/enemies.png",{"main":{left:0, top:0, width:100, height:75, count:4, col:1}});
+enemySprite = new dream.visual.SequentialSpriteSheet("../common_res/enemies.png",{"main":{left:0, top:0, width:100, height:75, count:4, col:1}});
 
 
 Star = function(left, top){
-	dream.visual.Bitmap.call(this,"res/star.png", left, top,  58, 51);
+	dream.visual.Bitmap.call(this,"../common_res/star.png", left, top,  58, 51);
 	this.anchorX = 581 / 2;
 	this.anchorY = 518 / 2;
 	this.scale = 0.1;

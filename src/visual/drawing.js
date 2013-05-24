@@ -1,7 +1,16 @@
+/**
+ * @module drawing
+ * @namespace dream.visual.drawing
+ */
 (function(){
 
 /**
- * @constructor
+ * the super class for creating *Shapes*, an instance of *Shape* could not be drawn to screen.
+ * any subclass of *Shape* should implement a draw function which receives context and origin *Point* as argument
+ * @class Shape
+ * @param {Number} left
+ * @param {Number} top
+ * @extends dream.visual.Graphic
  */
 var Shape = function(left, top){
 	Shape._superClass.call(this, left, top);
@@ -9,9 +18,15 @@ var Shape = function(left, top){
 	this.strokeOffset = 1;
 }.inherits(dream.visual.Graphic);
 
-var $ = Shape.prototype;
+var Shape$ = Shape.prototype;
 
-Object.defineProperty($, "fillStyle", {
+/**
+ * setter/getter property, it's value is/should be an instance of *Style* (and it's subclasses like *Color* or *Gradient*)
+ * or it should be color string like #222 or #b2a3c4
+ * @property fillStyle
+ * @type Object
+ */
+Object.defineProperty(Shape$, "fillStyle", {
 	get: function() {
 		return this._fs;
 	},
@@ -22,12 +37,22 @@ Object.defineProperty($, "fillStyle", {
 		this._fs = v;
 		dream.event.dispatch(this, "onImageChange", [this.boundary.clone()]);
 		
-		if(this._fs instanceof Style)
+		if(this._fs instanceof Style){
 			this._fs.onChange.propagateFlagged(this, "isImageChanged");
+			if(this._fs instanceof Pattern){
+				this.requiredResources = [v.source];
+			}
+		}
 	}
 });
 
-Object.defineProperty($, "strokeStyle", {
+/**
+ * setter/getter property, it's value is/should be an instance of *Style* (and it's subclasses like *Color* or *Gradient*)
+ * or it should be color string like #222 or #b2a3c4
+ * @property strokeStyle
+ * @type Object
+ */
+Object.defineProperty(Shape$, "strokeStyle", {
 	get: function() {
 		return this._ss;
 	},
@@ -43,7 +68,7 @@ Object.defineProperty($, "strokeStyle", {
 	}
 });
 
-$._setStrokeOffset = function(w){
+Shape$._setStrokeOffset = function(w){
 	var d = (((w + 1) / 2) | 0) - this.strokeOffset;
 	this.strokeOffset += d;
 	if(d){
@@ -55,7 +80,12 @@ $._setStrokeOffset = function(w){
 	}	
 };
 
-Object.defineProperty($, "lineStyle", {
+/**
+ * setter/getters property, it's value is/should be an instance of *LineStyle*
+ * @property lineStyle
+ * @type Object
+ */
+Object.defineProperty(Shape$, "lineStyle", {
 	get: function() {
 		return this._ls;
 	},
@@ -76,7 +106,7 @@ Object.defineProperty($, "lineStyle", {
 
 
 
-$.paint = function(context, origin){
+Shape$.paint = function(context, origin){
 	this.draw(context, origin);
 	
 	var r = this.rect;
@@ -100,7 +130,14 @@ $.paint = function(context, origin){
 
 
 /**
+ * this class creates a Rectangular shape based on four arguments given to it.
+ * @class Rect
+ * @param {Number} left
+ * @param {Number} top
+ * @param {Number} width
+ * @param {Number} height
  * @constructor
+ * @extends dream.visual.drawing.Shape 
  */
 var Rect = function(left, top, width, height){
 	Shape.call(this, left, top);
@@ -111,9 +148,9 @@ var Rect = function(left, top, width, height){
 	
 }.inherits(Shape);
 
-var $ = Rect.prototype;
+var Rect$ = Rect.prototype;
 
-$.draw = function(context, origin){
+Rect$.draw = function(context, origin){
 	context.beginPath();
 	context.rect(origin.left, origin.top, this.width, this.height);
 	context.closePath();
@@ -125,7 +162,12 @@ $.draw = function(context, origin){
 //	if(this.strokeStyle) context.strokeRect(origin.left, origin.top, this.width, this.height);
 //};
 
-Object.defineProperty($, "width", {
+/**
+ * setter/getter property for width of *Rect*
+ * @property width
+ * @type {Number}
+ */
+Object.defineProperty(Rect$, "width", {
 	get: function() {
 		return this._width;
 	},
@@ -138,7 +180,12 @@ Object.defineProperty($, "width", {
 	}
 });
 
-Object.defineProperty($, "height", {
+/**
+ * setter/getter property for height of *Rect*
+ * @property height
+ * @type {Number}
+ */
+Object.defineProperty(Rect$, "height", {
 	get: function() {
 		return this._height;
 	},
@@ -152,16 +199,27 @@ Object.defineProperty($, "height", {
 });
 
 /**
- * @constructor
+ * the super class for creating circular *Shapes*, any class that inherits from *CircularShape* should implement 
+ * draw method and also it has a radius property as well
+ * @class CircularShape
+ * @param {Number} left
+ * @param {Number} top
+ * @param {Number} radius
+ * @extends dream.visual.drawing.Shape
  */
 var CircularShape = function(left, top, radius){
 	Shape.call(this, left, top);
 	this.radius = radius;
 }.inherits(Shape);
 
-var $ = CircularShape.prototype;
+var CircularShape$ = CircularShape.prototype;
 
-Object.defineProperty($, "radius", {
+/**
+ * setter/getter property for radius of any *CircularShape*, like circle, Star, Poly etc.
+ * @property radius
+ * @type {Number}
+ */
+Object.defineProperty(CircularShape$, "radius", {
 	get: function() {
 		return this._radius;
 	},
@@ -174,9 +232,14 @@ Object.defineProperty($, "radius", {
 	}
 });
 
-
 /**
+ * create a circle with given parameters
+ * @class Circle
  * @constructor
+ * @param {Number} left
+ * @param {Number} top
+ * @param {Number} radius
+ * @extends dream.visual.drawing.CircularShape
  */
 var Circle = function(left, top, radius){
 	CircularShape.call(this, left, top, radius);
@@ -189,7 +252,14 @@ Circle.prototype.draw = function(context, origin){
 };
 
 /**
+ * create a Ellipse with given parameters
+ * @class Ellipse
  * @constructor
+ * @param {Number} left
+ * @param {Number} top
+ * @param {Number} radiusX
+ * @param {Number} radiusY
+ * @extends dream.visual.drawing.CircularShape
  */
 
 var Ellipse = function(left, top, radiusX, radiusY){
@@ -199,16 +269,21 @@ var Ellipse = function(left, top, radiusX, radiusY){
 	
 }.inherits(Shape);
 
-var $ = Ellipse.prototype;
+var Ellipse$ = Ellipse.prototype;
 
-$.draw = function(context, origin){
+Ellipse$.draw = function(context, origin){
 	context.scale(1, this._radiusY / this._radiusX);
 	context.beginPath();
 	context.arc(origin.left, origin.top * this._radiusX / this._radiusY, this._radiusX, 0, Math.PI * 2, true);
 	context.closePath();
 }; 
 
-Object.defineProperty($, "radiusX", {
+/**
+ * setter/getter property for radiusX which determines radius of *Ellipse* in X direction
+ * @property radiusX
+ * @type {Number}
+ */
+Object.defineProperty(Ellipse$, "radiusX", {
 	get: function() {
 		return this._radiusX;
 	},
@@ -221,7 +296,12 @@ Object.defineProperty($, "radiusX", {
 	}
 });
 
-Object.defineProperty($, "radiusY", {
+/**
+ * setter/getter property for radiusX which determines radius of *Ellipse* in Y direction
+ * @property radiusY
+ * @type {Number}
+ */
+Object.defineProperty(Ellipse$, "radiusY", {
 	get: function() {
 		return this._radiusY;
 	},
@@ -236,18 +316,32 @@ Object.defineProperty($, "radiusY", {
 
 
 /**
- * 
+ * create a slice of a circle, the angle parameter determines the degree at which circle should be cut, it starts 
+ * at degree 0 (center right of a circle) and grows clockwise,
+ *  (if you need another starting degree you can rotate the shape(
+ * @class CircleSlice
+ * @constructor
+ * @param {Number} left
+ * @param {Number} top
+ * @param {Number} radius
+ * @param {Number} angle
+ * @extends dream.visual.drawing.CircularShape
  */
 var CircleSlice = function(left, top, radius, angle){
 	CircularShape.call(this, left, top, radius);
 	this._angle = angle;
 }.inherits(CircularShape);
 
-var $ = CircleSlice.prototype;
+var CircleSlice$ = CircleSlice.prototype;
 
-dream.util.createFlagProperty($,"angle","isImageChanged");
+/**
+ * setter/getter property for angle of *CircleSlice*
+ * @property angle
+ * @type {Number}
+ */
+dream.util.createFlagProperty(CircleSlice$,"angle","isImageChanged");
 
-$.draw = function(context, origin){
+CircleSlice$.draw = function(context, origin){
 	context.translate(origin.left, origin.top);
 	context.beginPath();
 	var angs = this._angle * Math.PI / 180;
@@ -259,17 +353,30 @@ $.draw = function(context, origin){
 };
 
 /**
+ * create a Polygon with given parameters. the sides parameter/property sets the number of sides in te *Poly*,
+ * for example 3 sides create a triangle, 4 creates a rectangle and so on.
+ * @class Poly
  * @constructor
+ * @param {Number} left
+ * @param {Number} top
+ * @param {Number} radius
+ * @param {Number} sides
+ * @extends dream.visual.drawing.CircularShape
  */
 var Poly = function (left, top, radius, sides){
 	CircularShape.call(this, left, top, radius);
 	this._sides = sides;
 }.inherits(CircularShape);
-var $ = Poly.prototype;
+var Poly$ = Poly.prototype;
 
-dream.util.createFlagProperty($,"sides","isImageChanged");
+/**
+ * setter/getter property for sides of *Poly*
+ * @property sides
+ * @type {Number}
+ */
+dream.util.createFlagProperty(Poly$,"sides","isImageChanged");
 
-$.draw = function(context, origin){
+Poly$.draw = function(context, origin){
 	context.translate(origin.left, origin.top);
 	var ang = 2  * Math.PI / this.sides;
 	context.rotate(Math.PI / -2);
@@ -283,7 +390,15 @@ $.draw = function(context, origin){
 };
 
 /**
+ * create a star with given parameters. radius determines external radius of the star and
+ *  radius 2 determines internal radius, points parameter determines the number of rays of *Star*
+ * @class Star
  * @constructor
+ * @param {Number} left
+ * @param {Number} top
+ * @param {Number} radius
+ * @param {Number} sides
+ * @extends dream.visual.drawing.CircularShape
  */
 var Star=function (left, top, radius, radius2, points){
 	Shape.call(this, left, top);
@@ -292,9 +407,9 @@ var Star=function (left, top, radius, radius2, points){
 	this.points = points;
 }.inherits(Shape);
 
-var $ = Star.prototype;
+var Star$ = Star.prototype;
 
-Object.defineProperty($, "radius", {
+Object.defineProperty(Star$, "radius", {
 	get: function() {
 		return this._radius;
 	},
@@ -308,7 +423,13 @@ Object.defineProperty($, "radius", {
 		this.isImageChanged=true;
 	}
 });
-Object.defineProperty($, "radius2", {
+
+/**
+ * setter/getter property for points of *Star*
+ * @property radius2
+ * @type {Number}
+ */
+Object.defineProperty(Star$, "radius2", {
 	get: function() {
 		return this._radius2;
 	},
@@ -322,9 +443,15 @@ Object.defineProperty($, "radius2", {
 		this.isImageChanged=true;
 	}
 });
-dream.util.createFlagProperty($,"points","isImageChanged");
 
-$.draw = function(context, origin){
+/**
+ * setter/getter property for points of *Star*
+ * @property points
+ * @type {Number}
+ */
+dream.util.createFlagProperty(Star$,"points","isImageChanged");
+
+Star$.draw = function(context, origin){
 	var ang = Math.PI/(this.points);
 	context.translate(origin.left, origin.top);
 	context.rotate(Math.PI/-2);
@@ -351,9 +478,9 @@ var Text = function(left, top, text, font){
 	
 }.inherits(Shape);
 
-var $ = Text.prototype;
+var Text$ = Text.prototype;
 
-Object.defineProperty($, "text", {
+Object.defineProperty(Text$, "text", {
 	get: function() {
 		return this._text;
 	},
@@ -363,7 +490,7 @@ Object.defineProperty($, "text", {
 		this._update = true;
 	}
 });
-Object.defineProperty($, "font", {
+Object.defineProperty(Text$, "font", {
 	get: function() {
 		return this._font;
 	},
@@ -373,7 +500,7 @@ Object.defineProperty($, "font", {
 		this._update = true;
 	}
 });
-Object.defineProperty($, "fontSize", {
+Object.defineProperty(Text$, "fontSize", {
 	get: function() {
 		return this._font ? parseInt(this._font.split('px')[0]):10;
 	},
@@ -386,7 +513,7 @@ Object.defineProperty($, "fontSize", {
 		this._update = true;
 	}
 });
-Object.defineProperty($, "fontFace", {
+Object.defineProperty(Text$, "fontFace", {
 	get: function() {
 		return this._font ? this._font.split('px')[1].trim():"arial";
 	},
@@ -399,7 +526,7 @@ Object.defineProperty($, "fontFace", {
 		this._update = true;
 	}
 });
-Object.defineProperty($, "align", {
+Object.defineProperty(Text$, "align", {
 	get: function() {
 		return this._align;
 	},
@@ -409,7 +536,7 @@ Object.defineProperty($, "align", {
 		this._update = true;
 	}
 });
-Object.defineProperty($, "baseline", {
+Object.defineProperty(Text$, "baseline", {
 	get: function() {
 		return this._baseline;
 	},
@@ -420,7 +547,7 @@ Object.defineProperty($, "baseline", {
 	}
 });
 
-$.updateRect = function(context){
+Text$.updateRect = function(context){
 	var m = context.measureText(this._text);
 	this.rect.width = m.width;
 	this.rect.height = parseInt(context.font.split('px')[0]);
@@ -428,7 +555,7 @@ $.updateRect = function(context){
 	this.isBoundaryChanged = true;	
 };
 
-$.draw = function(context, origin){
+Text$.draw = function(context, origin){
 	//context.save();
 	context.font = this._font;
 	context.textAlign = this.align;
@@ -441,21 +568,33 @@ $.draw = function(context, origin){
 };
 
 /**
+ * draws the given  {{#crossLink "dream.geometry.Path"}}Path{{/crossLink}} in given position
+ * @class Freehand
  * @constructor
+ * @param {Number} left
+ * @param {Number} top
+ * @param {Object} path
+ * @extends dream.visual.drawing.Shape
  */
 var Freehand = function(left, top, path){
 	Shape.call(this, left, top);
 	this.path = path;
 }.inherits(Shape);
 
-var $ = Freehand.prototype;
+var Freehand$ = Freehand.prototype;
 
-$.draw = function(context, origin){
+Freehand$.draw = function(context, origin){
 	context.translate(origin.left, origin.top);
 	this.path.draw(context, origin);
 };
 
-Object.defineProperty($, "path", {
+/**
+ * setter/getter property for path to be drawn, note you can change the path or segments of path and everything will
+ * be reflected on screen
+ * @property path
+ * @type {Object}
+ */
+Object.defineProperty(Freehand$, "path", {
 	get: function() {
 		return this._path;
 	},
@@ -479,16 +618,46 @@ Object.defineProperty($, "path", {
 
 
 /**
- * @constructor
+ * super class for any style class 
+ * @class Style
  */
 var Style = function(){
 	
 };
+
+/**
+ * *onChange* event will raise whenever something is changed in a style like changing color or colorstops of 
+ * a gradient.
+ * @event onChange
+ */
 dream.event.create(Style.prototype,"onChange");
 
 
 /**
+ * creates a *Color* object which could be used as fillStyle or strokeStyle of shapes,
+ *  or could be used in colorStops of *Gradient*s. you can set *Color* both with RGBA and HSB values
+ *  or change between them, or even change individual parts of *Color* object with them
+ * @class Color
  * @constructor
+ * @param  SR 
+ * this parameter should be color string, either 3 digit color like "#222" or 6 digit color like "#2a2b3c"
+ * or it will be a number between 0 and 255 which is represented as red value of the color
+ * constructor determine it based on type of this parameter
+ * @param {Number} G 
+ * the green value of color
+ * @param {Number} B 
+ * the blue vlue of color
+ * @param {Number} A 
+ * the alpha value of color between 0 and 1, default is 1
+ * @extends dream.visual.drawing.Style
+ * @example
+ * var col = new dream.drawing.Color("#333",null,null, 0.5);
+ * @example
+ * var col = new dream.drawing.Color(120,120,35, 0.6);    
+ * var H = col.hue;    
+ * col.saturation = 0.5;
+ * @example
+ * var col = new dream.drawing.Color(0,0,0,1).setHSB(210, 0.6, 0.8)
  */
 var Color = function(sr,g,b,a){
 	this._hue = 0;
@@ -501,13 +670,28 @@ var Color = function(sr,g,b,a){
 	if(sr) this.setRGBA.call(this, sr, g, b, a);
 }.inherits(Style);
 
-var $ = Color.prototype;
+var Color$ = Color.prototype;
 
-$.createStyle = function(){
+Color$.createStyle = function(){
 	return 'rgba('+(this.red | 0)+','+(this.green | 0)+','+(this.blue | 0)+','+this.alpha+')';
 };
 
-$.setRGBA = function(sr,g,b,a){
+/**
+ * this function setup the color object with r,g,b,a parameters. it is like constructor but
+ * when you want to change the color from HSB space back to RGB it will be usefull.
+ * @method setRGBA
+ * @param  SR 
+ * this parameter should be color string, either 3 digit color like "#222" or 6 digit color like "#2a2b3c"
+ * or it will be a number between 0 and 255 which is represented as red value of the color
+ * constructor determine it based on type of this paraeter
+ * @param {Number} G 
+ * the green value of color
+ * @param {Number} B 
+ * the blue value of color
+ * @param {Number} A 
+ * the alpha value of color between 0 and 1, default is 1
+ */
+Color$.setRGBA = function(sr,g,b,a){
 	var red, green, blue;
 	if (typeof sr == 'string'){
 		if (sr.length == 4){
@@ -534,21 +718,31 @@ $.setRGBA = function(sr,g,b,a){
 	this._rgbChanged = true;
 };
 
-$.setHSB = function(h, s, b){
+/**
+ * this method setups *Color* object with HSB values.
+ * @method setHSB
+ * @param  H 
+ * the hue value of color
+ * @param {Number} S 
+ * the saturation value of color
+ * @param {Number} B 
+ * the brightness value of color
+ */
+Color$.setHSB = function(h, s, b){
 	this._hue = h;
 	this._saturation = s;
 	this._brightness = b;
 	this._hsbChanged = true;
 };
 
-$.updateRGB = function(){
+Color$.updateRGB = function(){
 	var arr = this.HSB2RGB(this._hue, this._saturation, this._brightness);
 	this._red = arr[0];
 	this._green = arr[1];
 	this._blue = arr[2];
 	this._hsbChanged = false;
 };
-$.updateHSB = function(){
+Color$.updateHSB = function(){
 	var arr = this.RGB2HSB(this._red, this._green, this._blue);
 	this._hue = arr[0];
 	this._saturation = arr[1];
@@ -556,7 +750,16 @@ $.updateHSB = function(){
 	this._rgbChanged = false;
 };
 
-$.RGB2HSB = function (r, g, b){
+/**
+ * this is a helper method that takes RGB values and returns equivalent HSB of it
+ * it's a utility function and does not have direct aplication.
+ * @method RGB2HSB
+ * @param {Number} r 
+ * @param {Number} g 
+ * @param {Number} b 
+ * @returns {Array} HSB
+ */
+Color$.RGB2HSB = function (r, g, b){
 	var r = r / 255;
 	var g = g / 255;
 	var bl = b / 255;
@@ -579,7 +782,16 @@ $.RGB2HSB = function (r, g, b){
     return [h, s, b];
 };
 
-$.HSB2RGB = function(hue, saturation, brightness){
+/**
+ * this is a helper method that takes HSB values and returns equivalent RGB of it
+ * it's a utility function and does not have direct aplication.
+ * @method HSB2RGB
+ * @param {Number} h 
+ * @param {Number} s 
+ * @param {Number} b 
+ * @returns {Array} RGB
+ */
+Color$.HSB2RGB = function(hue, saturation, brightness){
 	var h = hue;
 	var s = saturation;
 	var l = brightness;
@@ -631,8 +843,12 @@ $.HSB2RGB = function(hue, saturation, brightness){
 	    return  [r * 255, g * 255, b * 255];	
 };
 
-
-Object.defineProperty($, "hue", {
+/**
+ * sets/gets hue value of *Color*
+ * @property hue
+ * @type {Number}
+ */
+Object.defineProperty(Color$, "hue", {
 	get: function() {
 		if (this._rgbChanged)
 			this.updateHSB();
@@ -644,7 +860,13 @@ Object.defineProperty($, "hue", {
 		dream.event.dispatch(this, "onChange");
 	}
 });
-Object.defineProperty($, "saturation", {
+
+/**
+ * sets/gets saturation value of *Color*
+ * @property saturation
+ * @type {Number}
+ */
+Object.defineProperty(Color$, "saturation", {
 	get: function() {
 		if (this._rgbChanged)
 			this.updateHSB();
@@ -656,7 +878,13 @@ Object.defineProperty($, "saturation", {
 		dream.event.dispatch(this, "onChange");
 	}
 });
-Object.defineProperty($, "brightness", {
+
+/**
+ * sets/gets brightness value of *Color*
+ * @property brightness
+ * @type {Number}
+ */
+Object.defineProperty(Color$, "brightness", {
 	get: function() {
 		if (this._rgbChanged)
 			this.updateHSB();
@@ -669,7 +897,12 @@ Object.defineProperty($, "brightness", {
 	}
 });
 
-Object.defineProperty($, "red", {
+/**
+ * sets/gets red value of *Color*
+ * @property red
+ * @type {Number}
+ */
+Object.defineProperty(Color$, "red", {
 	get: function() {
 		if (this._hsbChanged)
 			this.updateRGB();
@@ -681,7 +914,13 @@ Object.defineProperty($, "red", {
 		dream.event.dispatch(this, "onChange");
 	}
 });
-Object.defineProperty($, "green", {
+
+/**
+ * sets/gets green value of *Color*
+ * @property green
+ * @type {Number}
+ */
+Object.defineProperty(Color$, "green", {
 	get: function() {
 		if (this._hsbChanged)
 			this.updateRGB();
@@ -693,7 +932,13 @@ Object.defineProperty($, "green", {
 		dream.event.dispatch(this, "onChange");
 	}
 });
-Object.defineProperty($, "blue", {
+
+/**
+ * sets/gets blue value of *Color*
+ * @property blue
+ * @type {Number}
+ */
+Object.defineProperty(Color$, "blue", {
 	get: function() {
 		if (this._hsbChanged)
 			this.updateRGB();
@@ -706,10 +951,27 @@ Object.defineProperty($, "blue", {
 	}
 });
 
-dream.util.createEventProperty($,"alpha","onChange");
+/**
+ * sets/gets alpha value of *Color*
+ * @property alpha
+ * @type {Number}
+ */
+dream.util.createEventProperty(Color$,"alpha","onChange");
 
 /**
+ * creates a *LineStyle* object which could be used as lineStyle of shapes,
+ * @class LineStyle
  * @constructor
+ * @param  {Number} width 
+ * determines width of Line
+ * @param {Object} cap 
+ * determines Line capping could be one of the values in the dream.visual.drawing.LineStyle.Cap
+ * Enumeration which includes: BUTT, ROUND or SQUARE
+ * @param {Object} join 
+ * determines how Lines will join toghether could be one of the values in the
+ *  dream.visual.drawing.LineStyle.Join Enumeration which includes: ROUND, BEVEL or MITER
+ * @param {Number} miterLimit 
+ * is only useful when the join property of *LineStyle* is set to MITER, default is 10
  */
 var LineStyle = function(width, cap, join, miterLimit){
 	this._width = width || 1;
@@ -719,14 +981,38 @@ var LineStyle = function(width, cap, join, miterLimit){
 	
 };
 
-var $ = LineStyle.prototype;
+var LineStyle$ = LineStyle.prototype;
 
-dream.event.create($, "onChange");
+/**
+ * *onChange* event will raise whenever something is changed in a *LineStyle* like join or width properties
+ * @event onChange
+ */
+dream.event.create(LineStyle$, "onChange");
 
-dream.util.createEventProperty($,"width","onChange");
-dream.util.createEventProperty($,"cap","onChange");
-dream.util.createEventProperty($,"join","onChange");
-dream.util.createEventProperty($,"miterLimit","onChange");
+/**
+ * sets/gets width value of *LineStyle*
+ * @property width 
+ * @type {Number}
+ */
+dream.util.createEventProperty(LineStyle$,"width","onChange");
+/**
+ * sets/gets cap value of *LineStyle*
+ * @property cap 
+ * @type {Object}
+ */
+dream.util.createEventProperty(LineStyle$,"cap","onChange");
+/**
+ * sets/gets join value of *LineStyle*
+ * @property join 
+ * @type {Object}
+ */
+dream.util.createEventProperty(LineStyle$,"join","onChange");
+/**
+ * sets/gets miterLimit value of *LineStyle*
+ * @property miterLimit 
+ * @type {Number}
+ */
+dream.util.createEventProperty(LineStyle$,"miterLimit","onChange");
 
 
 LineStyle.Cap = {
@@ -742,18 +1028,36 @@ LineStyle.Join = {
 };
 
 /**
+ * creates a *ColorStop* object which could be used in composing Gradients.
+ * a *ColorStop* has a position and color properties which defines it
+ * @class ColorStop
  * @constructor
+ * @param  {Number} position 
+ * position of *ColorStop* between 0 and 1
+ * @param {Object} color 
+ * is an instance of *Color*
+ * @example
+ * var cs = new dream.visual.drawing.ColorStop(0.1, new  dream.visual.drawing.Color("#222"))
  */
 var ColorStop = function(position, color){
 	this._position = position;
 	this._color = color;
 };
 
-var $ = ColorStop.prototype;
+var ColorStop$ = ColorStop.prototype;
 
-dream.event.create($, "onChange");
+/**
+ * *onChange* event will raise whenever something is changed in a *ColorStop* like position or Color
+ * @event onChange
+ */
+dream.event.create(ColorStop$, "onChange");
 
-Object.defineProperty($, "position", {
+/**
+ * sets/gets position value of *ColorStop*
+ * @property position
+ * @type {Number}
+ */
+Object.defineProperty(ColorStop$, "position", {
 	get: function() {
 		return this._position;
 	},
@@ -763,7 +1067,12 @@ Object.defineProperty($, "position", {
 	}
 });
 
-Object.defineProperty($, "color", {
+/**
+ * sets/gets color value of *ColorStop*
+ * @property color
+ * @type {Object}
+ */
+Object.defineProperty(ColorStop$, "color", {
 	get: function() {
 		return this._color;
 	},
@@ -779,8 +1088,12 @@ Object.defineProperty($, "color", {
 
 
 /**
+ * the super class for LinearGradient and RadialGradient. any Gradient is defined with a colorStops 
+ * {{#crossLink "dream.collection.List"}}List{{/crossLink}} and it's start/end positions.
+ *  any {{#crossLink "dream.visual.drawing.ColorStop"}}colorstop{{/crossLink}} can be added to it 
+ *  or removed from it or changed in runtime to change the *Gradient* 
+ * @class ColorStop
  * @param {Array<dream.visual.drawing.ColorStop>} colorStops
- * @constructor
  */
 var Gradient = function(colorStops){
 	this.colorStops = new dream.collection.List;
@@ -799,9 +1112,29 @@ var Gradient = function(colorStops){
 	this.colorStops.addArray(colorStops);
 }.inherits(Style);
 
-
 /**
+ * this class instances are LinearGradients that could be used in fillStyle and strokeStyle of any *Shape*
+ * @class LinearGradient
  * @constructor
+ * @extends dream.visual.drawing.Gradient
+ * @param {Array<dream.visual.drawing.ColorStop>} colorStops
+ * the color stops that define the look and composition of Gradient
+ * @param {Number} startX 
+ * the start position of Gradient in x axis, between 0 and 1
+ * @param {Number} startY 
+ * the ending position of Gradient in Y axis, between 0 and 1
+ * @param {Number} endX 
+ * the start position of Gradient in x axis, between 0 and 1
+ * @param {Number} endY 
+ * the ending position of Gradient in y axis, between 0 and 1
+ * @example
+ * var colorstop = dream.visual.drawing.ColorStop;    
+ * var color = dream.visual.drawing.Color;    
+ * var lg = new dream.visual.drawing.LinearGradient(null, 0, 0, 0, 1);    
+ * lg.colorStops.add(new colorstop(0.1 , new color("#222"));    
+ * lg.colorStops.add(new colorstop(0.5 , new color("#444"));    
+ * lg.colorStops.add(new colorstop(1 , new color("#aaa"));    
+ * lg.colorStops[0].position = 0.2;    
  */
 var LinearGradient = function(colorStops, startX, startY, endX, endY){
 	Gradient.call(this, colorStops);
@@ -821,7 +1154,24 @@ LinearGradient.prototype.createStyle = function(context, rect){
 };
 
 /**
+ * this class instances are *RadialGradients* that could be used in fillStyle and strokeStyle of any *Shape*
+ * @class RadialGradient
  * @constructor
+ * @extends dream.visual.drawing.Gradient
+ * @param {Array<dream.visual.drawing.ColorStop>} colorStops
+ * the color stops that define the look and composition of Gradient
+ * @param {Number} startX 
+ * the start position of Gradient in x axis, between 0 and 1
+ * @param {Number} startY 
+ * the ending position of Gradient in Y axis, between 0 and 1
+ * @param {Number} startR 
+ * the radius of inner Circle of *RadialGradient*, between 0 and 1
+ * @param {Number} endX 
+ * the start position of Gradient in x axis, between 0 and 1
+ * @param {Number} endY 
+ * the ending position of Gradient in y axis, between 0 and 1
+ * @param {Number} endR 
+ * the radius of outer Circle of *RadialGradient*, between 0 and 1
  */
 var RadialGradient = function(colorStops, startX, startY, startR, endX, endY, endR){
 	Gradient.call(this, colorStops);
@@ -842,6 +1192,37 @@ RadialGradient.prototype.createStyle = function(context, rect){
 		gr.addColorStop(cs.position, cs.color instanceof Color ? cs.color.createStyle():cs.color);
 	return gr;
 };
+
+/**
+ * class for creating Pattern Style, in which you give an image url and the repeat type of
+ * it to be used as fillStyle or strokeStyle of a *Shape* 
+ * @class Pattern
+ * @param {String} ImageUrl
+ * the url of image with which pattern should be built
+ * @param {Object} repeatType
+ * one of values in dream.visual.drawing.Pattern.repeatTypes which are REPEAT, REPEAT-X, REPEAT-Y and NO_REPEAT
+ * @example 
+ * var pattern = dream.visual.drawing.Pattern;    
+ * var fs = new pattern("../img/example1.png", pattern.REPEAT); 
+ */
+var Pattern = function(img, type){
+	this.source = new dream.static.Resource(img);
+	this.repeatType = type || "repeat";
+	
+}.inherits(Style);
+
+
+Pattern.repeatType = {
+		'REPEAT': "repeat",
+		'REPEAT-X': "repeat-x",
+		'REPEAT-Y': "repeat-y",
+		'NO-REPEAT': "no-repeat"
+	};
+
+Pattern.prototype.createStyle = function(context, rect){
+	return context.createPattern(this.source.content, this.repeatType);
+};
+
 
 // exports
 dream.visual.drawing = {
@@ -866,7 +1247,8 @@ dream.visual.drawing = {
 		ColorStop:ColorStop,
 		Gradient:Gradient,
 		LinearGradient:LinearGradient,
-		RadialGradient:RadialGradient	
+		RadialGradient:RadialGradient,
+		Pattern:Pattern	
 		
 };
 

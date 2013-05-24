@@ -1,9 +1,19 @@
-
+/**
+ * @module dream.visual
+ * @namespace dream.visual
+ */
 (function(){
 		
 /**
-* @constructor
- * @extends dream.VisualAsset
+ * superclass for all viewable objects on the screen. note no direct instance of *Graphic* could be displayed
+ * on screen. any class that is subclassing *Graphic* should implement a *paint* method to which the context
+ * and origin *Point* will be sent in render loop. 
+ *@class Graphic 
+ *@param {Number} left
+ *the left position of Graphic
+ *@param {Number} top
+ *the top position of Graphic
+ *@extends dream.VisualAsset
  */
 var Graphic = function(left, top){	
 	this.a = 1;

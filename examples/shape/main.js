@@ -8,7 +8,7 @@ function init(){
 	
 	shapeScreen = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 1600, 1200);
 	
-	scene = shapeScreen.scenes.current = new dream.scenery.Scene;
+	scene = new dream.scenery.Scene;
 	
 	p1 = scene.assets.add(new drawing.Poly(200,150,100,0));
 	//with(p1){
@@ -55,6 +55,10 @@ function init(){
 	gr1 = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0.25,"#00aaaa"), new dream.visual.drawing.ColorStop(0.75, "#aa0000")], 0, 0, 0, 1);			
 	//p5.fillStyle=gr1;
 	//p5.strokeStyle=gr1;
+	r2 = new dream.visual.drawing.Rect(250, 400, 200, 150);
+	r2.fillStyle =new dream.visual.drawing.Pattern("../common_res/enemies.png", "repeat"); // #23a"
+	
+	scene.assets.add(r2);
 	
 	c1 = new dream.visual.drawing.Circle(250,250,60);
 	c1.fillStyle = new drawing.LinearGradient([new drawing.ColorStop(0, new drawing.Color("#52a23a")), 
@@ -96,6 +100,9 @@ function init(){
 	
 	t1=new dream.visual.drawing.Text(550,20,"salam mehdi")
 	scene.assets.add(t1);
+	
+	
+	shapeScreen.scenes.current = scene;
 	
 	//Stats.js
 	stats=new Stats();
