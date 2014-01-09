@@ -40,7 +40,7 @@ Object.defineProperty(Shape$, "fillStyle", {
 		if(this._fs instanceof Style){
 			this._fs.onChange.propagateFlagged(this, "isImageChanged");
 			if(this._fs instanceof Pattern){
-				this.requiredResources = [v.source];
+				this.requiredResources = [v._source];
 			}
 		}
 	}
@@ -1206,10 +1206,12 @@ RadialGradient.prototype.createStyle = function(context, rect){
  * var fs = new pattern("../img/example1.png", pattern.REPEAT); 
  */
 var Pattern = function(img, type){
-	this.source = new dream.static.Resource(img);
-	this.repeatType = type || "repeat";
+	this._source = new dream.static.Resource(img);
+	this._repeatType = type || "repeat";
 	
 }.inherits(Style);
+
+Pattern$ = Pattern.prototype;
 
 
 Pattern.repeatType = {
@@ -1219,8 +1221,46 @@ Pattern.repeatType = {
 		'NO-REPEAT': "no-repeat"
 	};
 
+
+/**
+ * sets/gets repeatType value of *Pattern*, you can change repeatType property of *Pattern* in tun time by
+ * setting it again.
+ * @property repeatType
+ * @type {Object}
+ */
+Object.defineProperty(Pattern$, "repeatType", {
+	get: function() {
+		return this._repeatType;
+	},
+	set: function(v){
+		if (v == 'repeat' || v == 'repeat-x' || v =='repeat-y' || v == 'no-repeat') 
+			this._repeatType = v;
+		dream.event.dispatch(this, "onChange");
+	}
+});
+
+/**
+ * sets/gets source value of *Pattern*, you can change the image of pattern on runtime by setting source property
+ * of *Pattern* to an instance of dream.static.Resource, make sure the resourec is loaded before setting it.
+ * note source is diffrent than the imageUrl you pass to constructor for creating a *Pattern*. the url
+ * is used to create an instance of dream.static.Resource and engine will automaticaly loads it for you
+ * when loading a scene, however you can create such instance and load it manually.
+ * @property source
+ * @type {Object}
+ */
+Object.defineProperty(Pattern$, "source", {
+	get: function() {
+		return this._source;
+	},
+	set: function(v){
+		if (v instanceof dream.static.Resource && v.content != null) 
+			this._source = v;
+		dream.event.dispatch(this, "onChange");
+	}
+});
+
 Pattern.prototype.createStyle = function(context, rect){
-	return context.createPattern(this.source.content, this.repeatType);
+	return context.createPattern(this._source.content, this._repeatType);
 };
 
 

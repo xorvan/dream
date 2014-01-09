@@ -107,9 +107,9 @@ Controller$.step = function(frame) {
 				dream.event.dispatch(this, "onCycle");
 			} else {
 				anim._counter = 0;
-				dream.event.dispatch(this, "onEnd");
 				this.isPlaying = false;
 				res = true;
+				dream.event.dispatch(this, "onEnd");
 			}
 		}
 	} else {
@@ -121,9 +121,9 @@ Controller$.step = function(frame) {
 				dream.event.dispatch(this, "onCycle");
 			} else {
 				anim._counter = anim.duration + 1;
-				dream.event.dispatch(this, "onEnd");
 				this.isPlaying = false;
 				res = true;
+				dream.event.dispatch(this, "onEnd");
 			}
 		}
 	}

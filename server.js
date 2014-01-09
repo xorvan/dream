@@ -39,6 +39,6 @@ app.get("/benchs/index", function (req, res) {
 	  res.render('benchs/index.jade');
 	});
 
-app.listen(8080, function(){
+app.listen(8000, function(){
 	  console.log("Express server listening on port %d in %s mode", this.address().port, app.settings.env);
 });

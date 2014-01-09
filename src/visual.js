@@ -18,9 +18,9 @@ var SpriteSheet = function(data){
 	data && this.textures.addJson(data);
 };
 
-var $ = SpriteSheet.prototype;
+var SpriteSheet$ = SpriteSheet.prototype;
 
-$.getTextureArray =function(name){
+SpriteSheet$.getTextureArray =function(name){
 	var list = [];
 	var len = name.length;
 	for (var i = 0, texture;texture = this.textures[i]; i++)
@@ -28,7 +28,6 @@ $.getTextureArray =function(name){
 			list.push(texture);
 	return list;
 };
-
 
 
 /**

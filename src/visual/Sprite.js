@@ -66,4 +66,4 @@ Object.defineProperty($, "requiredResources", {
 // exports
 dream.visual.Sprite = Sprite;
 
-})();
+})(window);

@@ -81,15 +81,20 @@ function init(){
 //	}
 //	
 	//p= world.assets.add(new Star(100,20));
-	enemy = world.assets.add(new Enemy(10,100));
+	enemy = world.assets.add(new Enemy(300,300));
 	enemy.behaviors.main.action.fn.call(enemy,1, enemy.behaviors.main.action);
 	t = new dream.behavior.animation.Timeline(300);
+	ti = new dream.behavior.decorator.Controller(t);
+	ti.onEnd.add(function(){
+		this.isBackward = !this.isBackward;
+		this.play();
+	})
 	t.addAt(3, new dream.behavior.animation.Tween({left:600}, 100));
 	t.actions[101] = (new dream.behavior.animation.FrameAction(function(ph){if(ph == 1) enemy.behaviors.main.play();else enemy.behaviors.main.stop();},true));
 	t.actions[201] = (new dream.behavior.animation.FrameAction(function(ph){if(ph == 1) enemy.behaviors.main.stop();else enemy.behaviors.main.play();},true));
-	t.addAt(200, new dream.behavior.animation.Tween({rotation:355}, 100));
-	enemy.behaviors.add(t,"t");
-	tc = enemy.behaviors.add(new dream.behavior.decorator.Controller(t, true),"tc");
+	t.addAt(200, new dream.behavior.animation.Tween({rotation:360}, 100));
+	enemy.behaviors.add(ti,"t");
+	tc = enemy.behaviors.add(ti, "tc");
 	enemy.behavior.actions.add(tc).play();
 	
 	
@@ -163,28 +168,28 @@ function init(){
 //	paper.onMouseMove.add(function(){console.log("pmm");});
 
 	//rp = paper.tweens.add(new dream.behavior.animation.Tween({rotation:360}, 1000, false, true));
-	world.onResize.add(function(){
-		this.left = exp.width/2;
-		this.top = exp.height/2;		
-	});
+	// world.onResize.add(function(){
+	// 	this.left = exp.width/2;
+	// 	this.top = exp.height/2;		
+	// });
 	
-	world.onMouseMove.add(function(mouse){
-		var m = this.rect.transformation.unproject(mouse);
-		this.anchorX = m.left;
-		this.anchorY = m.top;
+	// world.onMouseMove.add(function(mouse){
+	// 	var m = this.rect.transformation.unproject(mouse);
+	// 	this.anchorX = m.left;
+	// 	this.anchorY = m.top;
 		
-		this.left = mouse.left;
-		this.top = mouse.top;
-	});
+	// 	this.left = mouse.left;
+	// 	this.top = mouse.top;
+	// });
 	
 	exp.scenes.add(world, "world");	
 	exp.scenes.current = world;//| exp.scenes.select("world");
-	world.behaviours.addArray(
-			[new dream.behaviour.KeyboardNavigable(),
-			 new dream.behaviour.SnapAnchorToPointer(),
-			 new dream.behaviour.WheelZoomable(),
-			 new dream.behaviour.KeyboardZoomable()
-			 ]);
+	// world.behaviours.addArray(
+	// 		[new dream.behaviour.KeyboardNavigable(),
+	// 		 new dream.behaviour.SnapAnchorToPointer(),
+	// 		 new dream.behaviour.WheelZoomable(),
+	// 		 new dream.behaviour.KeyboardZoomable()
+	// 		 ]);
 
 	
 	stats=new Stats();

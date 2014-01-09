@@ -15,6 +15,6 @@ var Condition = function(fn, interval, init){
 }.inherits(dream.behavior.Action);
 
 //exports
-dream.behavior. Condition = Condition;
+dream.behavior.Condition = Condition;
 
 })(window);

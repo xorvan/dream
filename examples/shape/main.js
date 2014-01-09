@@ -55,7 +55,7 @@ function init(){
 	gr1 = new dream.visual.drawing.LinearGradient([new dream.visual.drawing.ColorStop(0.25,"#00aaaa"), new dream.visual.drawing.ColorStop(0.75, "#aa0000")], 0, 0, 0, 1);			
 	//p5.fillStyle=gr1;
 	//p5.strokeStyle=gr1;
-	r2 = new dream.visual.drawing.Rect(250, 400, 200, 150);
+	r2 = new dream.visual.drawing.Rect(250, 400, 500, 150);
 	r2.fillStyle =new dream.visual.drawing.Pattern("../common_res/enemies.png", "repeat"); // #23a"
 	
 	scene.assets.add(r2);
