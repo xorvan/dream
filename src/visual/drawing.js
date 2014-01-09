@@ -39,9 +39,6 @@ Object.defineProperty(Shape$, "fillStyle", {
 		
 		if(this._fs instanceof Style){
 			this._fs.onChange.propagateFlagged(this, "isImageChanged");
-			if(this._fs instanceof Pattern){
-				this.requiredResources = [v._source];
-			}
 		}
 	}
 });
@@ -1206,8 +1203,8 @@ RadialGradient.prototype.createStyle = function(context, rect){
  * var fs = new pattern("../img/example1.png", pattern.REPEAT); 
  */
 var Pattern = function(img, type){
-	this._source = new dream.static.Resource(img);
-	this._repeatType = type || "repeat";
+	this.bitmap = img
+	this.repeatType = type || "repeat";
 	
 }.inherits(Style);
 
@@ -1233,8 +1230,11 @@ Object.defineProperty(Pattern$, "repeatType", {
 		return this._repeatType;
 	},
 	set: function(v){
-		if (v == 'repeat' || v == 'repeat-x' || v =='repeat-y' || v == 'no-repeat') 
+		if (v == 'repeat' || v == 'repeat-x' || v =='repeat-y' || v == 'no-repeat'){
 			this._repeatType = v;
+		}else{
+			console.log("Invalid Repeat Type");
+		}
 		dream.event.dispatch(this, "onChange");
 	}
 });
@@ -1248,19 +1248,22 @@ Object.defineProperty(Pattern$, "repeatType", {
  * @property source
  * @type {Object}
  */
-Object.defineProperty(Pattern$, "source", {
+Object.defineProperty(Pattern$, "bitmap", {
 	get: function() {
-		return this._source;
+		return this._bitmap;
 	},
 	set: function(v){
-		if (v instanceof dream.static.Resource && v.content != null) 
-			this._source = v;
+		if (v instanceof dream.visual.Bitmap){
+			this._bitmap = v;
+		}else{
+			console.log("Invalid source for Pattern Style, it should be instance of Bitmap");
+		}
 		dream.event.dispatch(this, "onChange");
 	}
 });
 
-Pattern.prototype.createStyle = function(context, rect){
-	return context.createPattern(this._source.content, this._repeatType);
+Pattern$.createStyle = function(context, rect){
+	return context.createPattern(this._bitmap.image, this._repeatType);
 };
 
 

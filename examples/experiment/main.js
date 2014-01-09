@@ -2,14 +2,14 @@ var enemySprite = new dream.visual.SequentialSpriteSheet("../common_res/enemies.
 
 
 Star = function(left, top){
-	dream.visual.Bitmap.call(this,"../common_res/star.png", left, top,  58, 51);
+	dream.visual.Bitmap.call(this, left, top,"../common_res/star.png");
 	this.anchorX = 581 / 2;
 	this.anchorY = 518 / 2;
 	this.scale = 0.1;
 }.inherits(dream.visual.Bitmap);
 
 Enemy = function(left, top){
-	dream.visual.Sprite.call(this, left, top, new dream.behavior.animation.Sprite(enemySprite.textures));
+	dream.visual.Bitmap.call(this, left, top, new dream.behavior.animation.Sprite(enemySprite.textures));
 	this.onDragStart.add(function(event){
 		var lm = event.localPosition;
 		this.anchorX = lm.left;
@@ -28,7 +28,7 @@ Enemy = function(left, top){
 	this.onDragStop.add(function(mouse){
 		this.behavior.actions.remove('rot');
 	});
-}.inherits(dream.visual.Sprite);
+}.inherits(dream.visual.Bitmap);
 
 CompositeEnemy = function(left, top){
 	dream.visual.Composite.call(this, left, top);
@@ -70,7 +70,7 @@ function init(){
 //		}
 //	}
 	
-	p= world.assets.add(new dream.visual.Bitmap("../common_res/star.png", 0, 0));
+	p= world.assets.add(new dream.visual.Bitmap(0, 0, "../common_res/star.png"));
 	enemy = world.assets.add(new Enemy(100,10));
 	//|enemy = world.assets.add(new dream.visual.Sprite(new dream.visual.SpriteFrameSet("res/enemies.png", 0, 0, 100, 75, 4), 50, 50, 100, 75));
 	with(enemy){

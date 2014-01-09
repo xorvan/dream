@@ -11,7 +11,7 @@ function init(){
 	
 	scene = new dream.scenery.Scene;
 	
-	b1=new Bitmap("pic1.jpg", 100, 40, 400, 350);
+	b1=new Bitmap(100, 40,"pic1.jpg");
 	
 	blur =  new filter.Blur(5);
 	mosaic  =  new filter.Mosaic

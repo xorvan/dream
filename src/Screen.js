@@ -124,6 +124,8 @@ dream.Screen.prototype.paintWithoutRedrawRegion = function(ctx, rect, renderRect
 };
 
 dream.Screen.prototype.paintWithClippingRedrawRegion = function(ctx, origin, renderRect) {
+	origin.left = origin.left | 0;
+	origin.top = origin.top | 0;
 	var rgCount = 0;
 	var scene = this.scenes.current;
 	scene.step();
@@ -131,7 +133,7 @@ dream.Screen.prototype.paintWithClippingRedrawRegion = function(ctx, origin, ren
 	for(var i = 0, ll = this.redrawRegions.length; i < ll; i++){
 		var rr = this.redrawRegions[i];
 		if(rg = rr.getIntersectWith(renderRect)){
-			var l = (rg.left | 0) - 1, t = (rg.top | 0) - 1, w = (rg.width | 0) + 2 , h = (rg.height | 0) + 2;
+			var l = (rg.left | 0), t = (rg.top | 0), w = (rg.width | 0) , h = (rg.height | 0);
 			ctx.save();
 			ctx.beginPath();
 			ctx.rect(l, t, w, h);

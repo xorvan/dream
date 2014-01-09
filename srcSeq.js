@@ -38,7 +38,6 @@ exports.files = [
 	'src/visual/graphic.js', 
 	'src/visual/Bitmap.js',
 	'src/visual/Composite.js', 
-	'src/visual/Sprite.js', 
 	'src/visual/Map.js', 
 	'src/scenery.js',
 	'src/visual/drawing.js',

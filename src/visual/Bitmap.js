@@ -1,92 +1,92 @@
-(function (){
+(function() {
+
+	/**
+	 * @constructor
+	 */
+	var Bitmap = function(left, top, data) {
+		Bitmap._superClass.call(this, left, top);
+		
+		if(data)
+			if (data instanceof dream.behavior.Action){
+				this.behavior.actions.add(this.behaviors.add(data, "main"));
+			}else if(typeof data == "string"){
+				this.texture = new dream.visual.Texture(data);
+			}else if(data instanceof ImageData){
+				var buff = new dream.util.BufferCanvas(data.width, data.height);
+				buff.context.putImageData(data,0 ,0);
+				this.texture = new dream.visual.Texture(buff.canvas);
+			}else if(data instanceof dream.visual.Texture){
+				this.texture = data;
+			}else{
+				this.behaviors.addJson(data);
+			}
+		
+	}.inherits(dream.visual.Graphic);
+
+	var $ = Bitmap.prototype;
+
+	Object.defineProperty($, "texture", {
+		get : function() {
+			return this._texture;
+		},
+		set : function(v) {
+			this._texture = v;
+			if(v.img.isLoaded){
+				if (this.rect.width != v.rect.width || this.rect.height != v.rect.height
+						|| this.rect.left != -v.anchorX
+						|| this.rect.top != -v.anchorY) {
+					this.rect.width = v.rect.width;
+					this.rect.height = v.rect.height;
+					this.rect.left = -v.anchorX;
+					this.rect.top = -v.anchorY;
+					this.isBoundaryChanged = true;
+				}
+				this.isImageChanged = true;				
+			}else{
+				var self = this;
+				v.img.onLoad.add(function(){
+					self.rect.width = v.rect.width;
+					self.rect.height = v.rect.height;
+					self.rect.left = -v.anchorX;
+					self.rect.top = -v.anchorY;
+					self.isBoundaryChanged = true;
+					self.isImageChanged = true;
+				})
+			}
+		}
+	});
+
+	$.paint = function(ctx, origin, renderRect) {
+		//TODO consider renderRect
+		var f, content;
+		if(f = this.texture)
+			if(content = f.img.content){
+				ctx.drawImage(content, f.rect.left, f.rect.top,
+						f.rect.width, f.rect.height, (origin.left - f.anchorX),
+						(origin.top - f.anchorY), f.rect.width, f.rect.height);
+			}
+		};
+		
+Object.defineProperty($, "requiredResources", {
+	get : function () {
+		var r = new dream.collection.List;
+		if(this.texture &&  this.texture.img instanceof dream.static.Resource) r.add(this.texture.img)
+		for(var i=0, sa; sa = this.behaviors[i]; i++){
+			if (sa instanceof dream.behavior.decorator.Decorator){
+				while(sa.action) sa = sa.action;
+			}
+		
+			if (sa instanceof dream.behavior.animation.Sprite){
+				for(var j = 0; j < sa.frames.length; j++ )
+					r.add(new dream.static.Resource(sa.frames[j].url));
+			}
+		}
+		return r;
+	}
 	
-var Bitmap = function(img, left, top, width, height){
-	dream.visual.Bitmap._superClass.call(this, left, top);
-	this._width = width;
-	this._height = height;
-	this.rect.width = width;
-	this.rect.height = height;
-	if(img)
-		this.img = img;
-
-}.inherits(dream.visual.Graphic);
-
-var $ = Bitmap.prototype;
-
-Object.defineProperty($, "img", {
-	set : function(v) {
-		var bitmap = this;
-		if (typeof v == "string"){
-			this.source = new dream.static.Resource(v);
-			this.requiredResources = [this.source];
-			this.source.load(function(){
-				if (!bitmap._width)
-					bitmap._width = bitmap.rect.width = this.content.width;
-				if (!bitmap._height)
-					bitmap._height = bitmap.rect.height = this.content.height;
-				bitmap.isBoundaryChanged = true;
-				bitmap.isImageChanged = true;
-			});
-		}else if (v instanceof ImageData){
-			var buff = new dream.util.BufferCanvas(img.width, img.height);
-			this.source = {content:buff.canvas};
-			if (!this._width)
-				this._width = this.rect.width = this.source.width;
-			if (!this._height)
-				this._height = this.rect.height = this.source.height;
-			buff.context.putImageData(v, 0, 0);
-			bitmap.isBoundaryChanged = true;
-		}else if(v instanceof Object){
-			this.source = {content:v};
-			if (!this._width)
-				this._width = this.rect.width = this.source.width;
-			if (!this._height)
-				this._height = this.rect.height = this.source.height;
-			bitmap.isBoundaryChanged = true;
-			bitmap.isImageChanged = true;
-		}else 
-			throw new Error("Invalid Bitmap Image!");
-
-	}
 });
-
-Object.defineProperty($, "width", {
-	get : function() {
-		return this._width;
-	},
-	set : function(v) {
-		this._width = v;
-		this.rect.width = v;
-		this.isBoundaryChanged = true;
-		this.isImageChanged = true;
-	}
-});
-Object.defineProperty($, "height", {
-	get : function() {
-		return this._height;
-	},
-	set : function(v) {
-		this._height = v;
-		this.rect.height = v;
-		this.isBoundaryChanged = true;
-		this.isImageChanged = true;	}
-});
-
-$.paint = function(ctx, origin, renderRect){
-	//TODO to get fixed after snaptopixel issue
-	var c = this.source.content;
-	if( false && renderRect && !renderRect.covers(this.boundary)){
-		var ldr = this.rect.transformation.unprojectRect(renderRect).boundary.getIntersectWith(this.rect);
-		var xf = c.width / this.rect.width, yf = c.height / this.rect.height;
-		//console.log(ldr);
-		ctx.drawImage(c, ldr.left * xf, ldr.top * yf, (ldr.width -1) * xf, (ldr.height -1) * yf, (origin.left|0) + ldr.left|0, (origin.top|0) + ldr.top|0, ldr.width, ldr.height);
-	}else{
-		if (c) ctx.drawImage(c, 0, 0, c.width, c.height, origin.left|0, origin.top|0, this._width, this._height);
-	}
-	
-};
 
 // exports
 dream.visual.Bitmap = Bitmap;
 
-})();
+})(window);

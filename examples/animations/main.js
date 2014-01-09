@@ -2,7 +2,7 @@ enemySprite = new dream.visual.SequentialSpriteSheet("../common_res/enemies.png"
 
 
 Star = function(left, top){
-	dream.visual.Bitmap.call(this,"../common_res/star.png", left, top,  58, 51);
+	dream.visual.Bitmap.call(this,left, top, "../common_res/star.png");
 	this.anchorX = 581 / 2;
 	this.anchorY = 518 / 2;
 	this.scale = 0.1;
@@ -10,7 +10,7 @@ Star = function(left, top){
 
 
 Enemy = function(left, top){
-	dream.visual.Sprite.call(this, left, top);
+	dream.visual.Bitmap.call(this, left, top);
 	
 	this.behavior.actions.add(
 		this.behaviors.add(
@@ -42,7 +42,7 @@ Enemy = function(left, top){
 	this.onDragStop.add(function(mouse){
 		this.behavior.actions.remove(da);
 	});
-}.inherits(dream.visual.Sprite);
+}.inherits(dream.visual.Bitmap);
 
 //CompositeEnemy = function(left, top){
 //	dream.visual.Composite.call(this, left, top);

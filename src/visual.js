@@ -6,10 +6,32 @@ dream.visual = {};
 (function (){
 
 var Texture = function(img, left, top, width, height, anchorX, anchorY){
-	this.url = img;
-	this.img = new dream.static.Resource(img);
+	left = left || 0;
+	top = top || 0;
+	if(typeof img == "string"){
+		this.url = img;
+		this.img = new dream.static.Resource(img);
+		if(!width || !height){
+			if(this.img.isLoaded){
+				width = this.img.content.width;
+				height = this.img.content.height;
+			}else{
+				var self = this;
+				this.img.onLoad.add(function(){
+					console.log("setting rect size", self.img.content, self.img.content.width, self.img.content.height);
+					self.rect.width = self.img.content.width;
+					self.rect.height = self.img.content.height;
+				})
+			}
+		}
+		
+	}else{
+		this.img = {content: img};
+		height = img.height;
+		width = img.width;
+	}
 	this.anchorX = anchorX == undefined ? 0:anchorX; 
-	this.anchorY = anchorY == undefined ? 0:anchorY; ;
+	this.anchorY = anchorY == undefined ? 0:anchorY;
 	this.rect = new dream.geometry.Rect(left, top, width, height);
 };
 	

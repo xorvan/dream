@@ -15,7 +15,7 @@
  *the top position of Graphic
  *@extends dream.VisualAsset
  */
-var Graphic = function(left, top){	
+var Graphic = function(left, top){
 	this.a = 1;
 	this._z = 0;
 	
@@ -65,26 +65,27 @@ var Graphic = function(left, top){
 	
 }.inherits(dream.VisualAsset);
 
-var $ = Graphic.prototype;
+var Graphic$ = Graphic.prototype;
 
-dream.event.create($, "onImageChange");
-dream.event.create($, "onBoundaryChange");
-dream.event.create($, "onZChange");
+dream.event.create(Graphic$, "onImageChange");
+dream.event.create(Graphic$, "onBoundaryChange");
+dream.event.create(Graphic$, "onZChange");
 
-$.selectionThreshold = 4;
+Graphic$.selectionThreshold = 4;
 
-$.translate = function(point){
+Graphic$.translate = function(point){
 	this.left = point.left;
 	this.top = point.top;
 };
 
-$.paintFromBuffer = function(ctx, origin, renderRect){
+Graphic$.paintFromBuffer = function(ctx, origin, renderRect){
 	// TODO apply renderRect
 	var buf = this.buffer, ba = buf.anchor;
 	ctx.drawImage(buf.canvas, origin.left + ba.left, origin.top + ba.top);
 };
 
-$.render = function(ctx, origin, renderRect) {
+Graphic$.render = function(ctx, origin, renderRect) {
+	if(!this.visible) return 0;
 	ctx.save();	
 	if(this.a != 1) ctx.globalAlpha = this.alpha;
 //	var m = this.rect.transformation.matrix;
@@ -95,14 +96,14 @@ $.render = function(ctx, origin, renderRect) {
 		this.paintFromBuffer(ctx, o);
 	else{
 		if(this.filters.length)
-			ctx.drawImage(this.filters.apply(this.imageData), o.left + this.rect.left, o.top + this.rect.top);
+			ctx.drawImage(this.filters.apply(this.imageData), (o.left | 0) + this.rect.left, (o.top | 0) + this.rect.top);
 		else
-			this.paint(ctx, o, renderRect);	
+			this.paint(ctx, o, renderRect);
 	}
 	ctx.restore();
 };
 
-$.step = function (post){
+Graphic$.step = function (post){
 	
 	if (this.behavior && !post) this.behavior.step();
 
@@ -140,7 +141,7 @@ $.step = function (post){
 	
 }; 
 
-$.checkHover = function (event){
+Graphic$.checkHover = function (event){
 	var pl;
 	if(event.position.isIn(this.boundary) && (pl = event.localPosition, this.imageData.data[ (((pl.top|0) - this.rect.top) * this.rect.width + ( pl.left|0) - this.rect.left)*4 + 3 ] > this.selectionThreshold)){
 		if(!this.isHovered) dream.event.dispatch(this, "onMouseEnter", event);
@@ -151,7 +152,7 @@ $.checkHover = function (event){
 	}
 };
 
-Object.defineProperty($, "useBuffer", {
+Object.defineProperty(Graphic$, "useBuffer", {
 	get : function() {
 		return !!this.buffer;
 	},
@@ -166,7 +167,7 @@ Object.defineProperty($, "useBuffer", {
 	}
 });
 
-$._updateBuffer = function(){
+Graphic$._updateBuffer = function(){
 	if (this.buffer == null){
 		this.buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
 		this.onImageChange.add(function(){
@@ -180,13 +181,13 @@ $._updateBuffer = function(){
 	this.paint(this.buffer.context, new dream.geometry.Point(-this.rect.left, -this.rect.top));
 };
 
-$.raiseMouseDown = function(event){
+Graphic$.raiseMouseDown = function(event){
 	dream.event.dispatch(this, "onMouseDown$capture", event);
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseDown", event);
 	this.isMouseDown = true;
 };
 
-$.raiseMouseUp = function(event, clickEvent){
+Graphic$.raiseMouseUp = function(event, clickEvent){
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseUp$capture", event);
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseUp", event);
 	if(this.isMouseDown){
@@ -196,7 +197,7 @@ $.raiseMouseUp = function(event, clickEvent){
 	}
 };
 
-$.raiseMouseMove = function(event, dragEvent){
+Graphic$.raiseMouseMove = function(event, dragEvent){
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseMove$capture", event);
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onMouseMove", event);
 	if(this.isMouseDown){
@@ -208,19 +209,19 @@ $.raiseMouseMove = function(event, dragEvent){
 	}
 };
 
-$.raiseMouseLeave = function(event){
+Graphic$.raiseMouseLeave = function(event){
 	this.isHovered = false;
 	this.hovered = null;
 	dream.event.dispatch(this, "onMouseLeave", event);
 };
 
 
-$.raiseDrag = function(event){
+Graphic$.raiseDrag = function(event){
 	dream.event.dispatch(this, "onDrag$capture", event);
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onDrag", event);
 };
 
-$.raiseDragStop = function(event){
+Graphic$.raiseDragStop = function(event){
 	this.dragging = false;
 	this.isDragging = false;
 	this.isMouseDown = false;
@@ -228,13 +229,13 @@ $.raiseDragStop = function(event){
 	if(!event._isPropagationStopped) dream.event.dispatch(this, "onDragStop", event);
 };
 
-Object.defineProperty($, "bitmap", {
+Object.defineProperty(Graphic$, "bitmap", {
 	get : function() {
 		return new dream.visual.Bitmap(this.imageData, 0, 0, this.rect.width, this.rect.height);
 	}
 });
 
-Object.defineProperty($, "left", {
+Object.defineProperty(Graphic$, "left", {
 	get : function() {
 		return this.origin.left;
 	},
@@ -244,7 +245,7 @@ Object.defineProperty($, "left", {
 	}
 });
 
-Object.defineProperty($, "top", {
+Object.defineProperty(Graphic$, "top", {
 	get : function() {
 		return this.origin.top;
 	},
@@ -254,7 +255,7 @@ Object.defineProperty($, "top", {
 	}
 });
 
-Object.defineProperty($, "rotation", {
+Object.defineProperty(Graphic$, "rotation", {
 	get : function() {
 		return this.rect.transformation.rotation;
 	},
@@ -263,7 +264,7 @@ Object.defineProperty($, "rotation", {
 	}
 });
 
-Object.defineProperty($, "alpha", {
+Object.defineProperty(Graphic$, "alpha", {
 	get : function() {
 		return this.a;
 	},
@@ -273,7 +274,7 @@ Object.defineProperty($, "alpha", {
 	}
 });
 
-Object.defineProperty($, "scaleX", {
+Object.defineProperty(Graphic$, "scaleX", {
 	get : function() {
 		return this.rect.transformation.scaleX;
 	},
@@ -282,7 +283,7 @@ Object.defineProperty($, "scaleX", {
 	}
 });
 
-Object.defineProperty($, "scaleY", {
+Object.defineProperty(Graphic$, "scaleY", {
 	get : function() {
 		return this.rect.transformation.scaleY;
 	},
@@ -291,7 +292,7 @@ Object.defineProperty($, "scaleY", {
 	}
 });
 
-Object.defineProperty($, "scale", {
+Object.defineProperty(Graphic$, "scale", {
 	get : function() {
 		return this.rect.transformation.scaleX > this.rect.transformation.scaleY ? this.rect.transformation.scaleY : this.rect.transformation.scaleX;
 	},
@@ -301,7 +302,7 @@ Object.defineProperty($, "scale", {
 	}
 });
 
-Object.defineProperty($, "anchorX", {
+Object.defineProperty(Graphic$, "anchorX", {
 	get : function() {
 		return this.rect.transformation.anchorX;
 	},
@@ -310,7 +311,7 @@ Object.defineProperty($, "anchorX", {
 	}
 });
 
-Object.defineProperty($, "anchorY", {
+Object.defineProperty(Graphic$, "anchorY", {
 	get : function() {
 		return this.rect.transformation.anchorY;
 	},
@@ -319,7 +320,7 @@ Object.defineProperty($, "anchorY", {
 	}
 });
 
-Object.defineProperty($, "z", {
+Object.defineProperty(Graphic$, "z", {
 	get : function() {
 		return this._z;
 	},
@@ -334,15 +335,16 @@ Object.defineProperty($, "z", {
 	}
 });
 
-Object.defineProperty($, "image", {
+Object.defineProperty(Graphic$, "image", {
 	get: function() {
 		var buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
 		this.paint(buffer.context, new dream.geometry.Point(-this.rect.left, -this.rect.top));
+
 		return buffer.canvas;
 	}
 });
 
-Object.defineProperty($, "imageData", {
+Object.defineProperty(Graphic$, "imageData", {
 	get: function() {
 		var buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
 		this.paint(buffer.context, new dream.geometry.Point(-this.rect.left, -this.rect.top));
@@ -350,7 +352,7 @@ Object.defineProperty($, "imageData", {
 	}
 });
 
-Object.defineProperty($, "mask", {
+Object.defineProperty(Graphic$, "mask", {
 	get : function() {
 		return this._mask;
 	},

@@ -56,7 +56,14 @@ function init(){
 	//p5.fillStyle=gr1;
 	//p5.strokeStyle=gr1;
 	r2 = new dream.visual.drawing.Rect(250, 400, 500, 150);
-	r2.fillStyle =new dream.visual.drawing.Pattern("../common_res/enemies.png", "repeat"); // #23a"
+
+
+	tx1  = new dream.visual.Texture("../common_res/star.png", 0, 0, 300, 300);
+	btmp1 = new dream.visual.Bitmap(0,0,tx1);
+	btmp1.visible = false;
+	// btmp1.width = 100;
+	scene.assets.add(btmp1);
+	r2.fillStyle =new drawing.Pattern(btmp1, "repeat"); // #23a"
 	
 	scene.assets.add(r2);
 	

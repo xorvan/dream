@@ -50,7 +50,6 @@ var Rect = function(left, top, width, height, transformation){
  * @type dream.geometry.transform
  */
 var Rect$ = Rect.prototype;
-
 /**
  * the right position of *Rect* in regard to it's parent, it is only getter
  * @property right

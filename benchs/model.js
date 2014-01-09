@@ -6,10 +6,10 @@ enemySprite = new dream.visual.SequentialSpriteSheet("res/enemies.png",{"main":{
 var bt = dream.behavior;
 
 Aj = function(left, top){
-	dream.visual.Sprite.call(this, left, top, new bt.decorator.Interval(new dream.behavior.animation.Sprite(ajsprite.textures), 15));
-	}.inherits(dream.visual.Sprite);
+	dream.visual.Bitmap.call(this, left, top, new bt.decorator.Interval(new dream.behavior.animation.Sprite(ajsprite.textures), 15));
+	}.inherits(dream.visual.Bitmap);
 	
-//	dream.visual.Sprite.call(this,left, top, {
+//	dream.visual.Bitmap.call(this,left, top, {
 //		"default": new SpriteAnimation(ajSpritesheet.getTextures("walking", [1,2,3,2]), 2),
 //		"running": new SpriteAnimation(ajSpritesheet.textures.startsWith("running"), 2),
 //		"running": new SpriteAnimation("aj.xml#running*", 2),
@@ -22,22 +22,24 @@ Aj = function(left, top){
 
 
 Fire = function(left, top){
-	dream.visual.Sprite.call(this, left, top, new bt.decorator.Interval(new dream.behavior.animation.Sprite(firesprite.textures), 4));
-}.inherits(dream.visual.Sprite);
+	dream.visual.Bitmap.call(this, left, top, new bt.decorator.Interval(new dream.behavior.animation.Sprite(firesprite.textures), 4));
+}.inherits(dream.visual.Bitmap);
 
 Cube = function(left, top){
-	dream.visual.Sprite.call(this, left, top, new bt.decorator.Interval(new dream.behavior.animation.Sprite(cubesprite.textures), 3));
-}.inherits(dream.visual.Sprite);
+	dream.visual.Bitmap.call(this, left, top, new bt.decorator.Interval(new dream.behavior.animation.Sprite(cubesprite.textures), 3));
+}.inherits(dream.visual.Bitmap);
 
 Poly1 = function(left, top){
-	dream.visual.Bitmap.call(this, "res/poly1.png", left, top, 150, 150);
+	dream.visual.Bitmap.call(this,left, top, "res/poly1.png");
 	//this.updateBuffer();
 }.inherits(dream.visual.Bitmap);
 
 Star1 = function(left, top){
-	dream.visual.Bitmap.call(this, "res/star1.png", left, top, 80, 80);
-	this.anchorX = this.anchorY = 40;
+	dream.visual.Bitmap.call(this,left, top, "res/star1.png");
+	this.anchorX = this.anchorY = 259;
 	this.behavior.actions.add(new dream.behavior.Action(function(){this.rotation += 5;}));
+	this.scaleX = 0.2;
+	this.scaleY = 0.2;
 }.inherits(dream.visual.Bitmap);
 
 RotatingCircles = function(left, top, d1, d2){
@@ -96,7 +98,7 @@ CompositeRect = function(left, top, width, height){
 }.inherits(dream.visual.Composite);
 
 Enemy = function(left, top){
-	dream.visual.Sprite.call(this, left, top, new dream.behavior.animation.Sprite(enemySprite.textures));
+	dream.visual.Bitmap.call(this, left, top, new dream.behavior.animation.Sprite(enemySprite.textures));
 	this.onDragStart.add(function(event){
 		var lm = event.localPosition;
 		this.anchorX = lm.left;
@@ -115,7 +117,7 @@ Enemy = function(left, top){
 	this.onDragStop.add(function(mouse){
 		//this.dynamics.remove('rot');
 	});
-}.inherits(dream.visual.Sprite);
+}.inherits(dream.visual.Bitmap);
 
 
 Paper1 = function(left, top){
