@@ -92,6 +92,13 @@ Graphic$.render = function(ctx, origin, renderRect) {
 //	ctx.transform(m.x0, m.y0, m.x1, m.y1, m.dx|0, m.dy |0);
 	var o = this.rect.transformation.apply(ctx, origin);
 //	o.left |= 0, o.top |= 0;
+	if(this._shadow){
+		ctx.shadowOffsetX = this._shadow.offsetX;
+		ctx.shadowOffsetY = this._shadow.offsetY;
+		ctx.shadowBlur = this._shadow.blur;
+		ctx.shadowColor = this._shadow.colorValue;
+	}
+
 	if (this.buffer)
 		this.paintFromBuffer(ctx, o);
 	else{
@@ -377,6 +384,24 @@ Object.defineProperty(Graphic$, "mask", {
 			console.log("mask object should be instance of Shape and have a path");
 	}
 });
+
+
+Object.defineProperty(Graphic$, "shadow", {
+	get : function() {
+		return this._shadow;
+	},
+	set : function(v) {
+		this._shadow = v;
+		var gfx = this;
+		if(v){
+			this._shadow.onChange.add(function(){
+				gfx.isImageChanged = true;
+			})
+			
+		}
+	}
+});
+
 
 // exports
 

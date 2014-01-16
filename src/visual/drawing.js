@@ -955,6 +955,42 @@ Object.defineProperty(Color$, "blue", {
  */
 dream.util.createEventProperty(Color$,"alpha","onChange");
 
+
+var Shadow = function(color, offsetX, offsetY, blur){
+	this._offsetX = offsetX || 0;
+	this._offsetY = offsetY || 0;
+	this._blur = blur;
+	this.color = color || "#000";
+}
+
+var Shadow$ = Shadow.prototype;
+
+dream.event.create(Shadow$, "onChange");
+
+dream.util.createEventProperty(Shadow$,"offsetX","onChange");
+dream.util.createEventProperty(Shadow$,"offsetY","onChange");
+dream.util.createEventProperty(Shadow$,"blur","onChange");
+
+Object.defineProperty(Shadow$, "color", {
+	get: function() {
+		return this._color;
+	},
+	set: function(v){ 
+		var shd = this;
+		if(v instanceof Color){
+			v.onChange.add(function(){
+				shd.colorValue = v.createStyle();
+			})
+			this.colorValue = v.createStyle();
+		}else if(typeof v == "string"){
+			this.colorValue = v;
+		}
+		this._color = v;
+		dream.event.dispatch(this, "onChange");
+	}
+});
+
+
 /**
  * creates a *LineStyle* object which could be used as lineStyle of shapes,
  * @class LineStyle
@@ -1291,7 +1327,8 @@ dream.visual.drawing = {
 		Gradient:Gradient,
 		LinearGradient:LinearGradient,
 		RadialGradient:RadialGradient,
-		Pattern:Pattern	
+		Pattern:Pattern,
+		Shadow: Shadow
 		
 };
 
