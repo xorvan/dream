@@ -572,6 +572,7 @@ LinkedList$.pop = function(){
 	this.last.next = null;
 	this.length--;
 	delete obj.previous;
+	delete obj.next;
 	if(this.length == 0) this.first = null;
 	dream.event.dispatch(this, "onRemove", obj);
 	return obj;

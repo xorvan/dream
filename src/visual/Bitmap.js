@@ -23,40 +23,43 @@
 		
 	}.inherits(dream.visual.Graphic);
 
-	var $ = Bitmap.prototype;
+	var Bitmap$ = Bitmap.prototype;
 
-	Object.defineProperty($, "texture", {
+	Object.defineProperty(Bitmap$, "texture", {
 		get : function() {
 			return this._texture;
 		},
 		set : function(v) {
-			this._texture = v;
-			if(v.img.isLoaded){
-				if (this.rect.width != v.rect.width || this.rect.height != v.rect.height
-						|| this.rect.left != -v.anchorX
-						|| this.rect.top != -v.anchorY) {
-					this.rect.width = v.rect.width;
-					this.rect.height = v.rect.height;
-					this.rect.left = -v.anchorX;
-					this.rect.top = -v.anchorY;
-					this.isBoundaryChanged = true;
+			if(v instanceof dream.visual.Texture){
+				this._texture = v;
+				if(v.img.isLoaded){
+					if (this.rect.width != v.rect.width || this.rect.height != v.rect.height
+							|| this.rect.left != -v.anchorX
+							|| this.rect.top != -v.anchorY) {
+						this.rect.width = v.rect.width;
+						this.rect.height = v.rect.height;
+						this.rect.left = -v.anchorX;
+						this.rect.top = -v.anchorY;
+						this.isBoundaryChanged = true;
+					}
+					this.isImageChanged = true;				
+				}else{
+					var self = this;
+					v.img.onLoad.add(function(){
+						self.rect.width = v.rect.width;
+						self.rect.height = v.rect.height;
+						self.rect.left = -v.anchorX;
+						self.rect.top = -v.anchorY;
+						self.isBoundaryChanged = true;
+						self.isImageChanged = true;
+					})
 				}
-				this.isImageChanged = true;				
-			}else{
-				var self = this;
-				v.img.onLoad.add(function(){
-					self.rect.width = v.rect.width;
-					self.rect.height = v.rect.height;
-					self.rect.left = -v.anchorX;
-					self.rect.top = -v.anchorY;
-					self.isBoundaryChanged = true;
-					self.isImageChanged = true;
-				})
 			}
-		}
+				
+			}
 	});
 
-	$.paint = function(ctx, origin, renderRect) {
+	Bitmap$.paint = function(ctx, origin, renderRect) {
 		//TODO consider renderRect
 		var f, content;
 		if(f = this.texture)
@@ -67,7 +70,7 @@
 			}
 		};
 		
-Object.defineProperty($, "requiredResources", {
+Object.defineProperty(Bitmap$, "requiredResources", {
 	get : function () {
 		var r = new dream.collection.List;
 		if(this.texture &&  this.texture.img instanceof dream.static.Resource) r.add(this.texture.img)

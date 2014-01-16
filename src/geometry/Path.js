@@ -15,7 +15,7 @@ var Path = function(s){
 			pth.updateLength();
 			dream.event.dispatch(pth, "onChange");
 		});
-		dream.event.dispatch(pth, "onChange");
+		dream.event.dispatch(obj, "onChange");
 		// manage adding move for zooms
 		
 		// manage adding for smooth curves

@@ -209,6 +209,9 @@ Object.defineProperty($, "previous", {
 		return this._previous;
 	},
 	set: function(v){
+		if(!v.cp1 || !v.cp2){
+			throw(new Error("SmoothCubicBezier could only be added after another cubic bezier"))
+		}
 		var seg = this;
 		if(this._previous) this._previous.dest.onChange.removeByOwner(this);
 		if(this._previous) this._previous.cp2.onChange.removeByOwner(this);
@@ -271,6 +274,9 @@ Object.defineProperty($, "previous", {
 		return this._previous;
 	},
 	set: function(v){
+		if(!v.cp){
+			throw(new Error("SmoothQuadraticBezier could only be added after another Quadratic bezier"))
+		}
 		var seg = this;
 		if(this._previous) this._previous.dest.onChange.removeByOwner(this);
 		if(this._previous) this._previous.cp.onChange.removeByOwner(this);

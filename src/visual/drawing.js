@@ -87,7 +87,7 @@ Object.defineProperty(Shape$, "lineStyle", {
 		return this._ls;
 	},
 	set: function(v){
-		dream.util.assert(v instanceof LineStyle, "lineStyle must be LineStyle!");
+		dream.util.assert(v instanceof LineStyle, "lineStyle must be instanceof LineStyle!");
 		this._ls = v;
 		this.isImageChanged = true;
 		
@@ -555,8 +555,8 @@ Text$.updateRect = function(context){
 Text$.draw = function(context, origin){
 	//context.save();
 	context.font = this._font;
-	context.textAlign = this.align;
-	context.textBaseline = this.baseline;
+	context.textAlign = this._align;
+	context.textBaseline = this._baseline;
 	if (this._update)
 		this.updateRect(context);
 	
@@ -600,7 +600,7 @@ Object.defineProperty(Freehand$, "path", {
 		if(this._path) this._path.onChange.removeByOwner(fh);
 		this._path = v;
 		this._path.onChange.add(function(obj){
-			console.log("fhcc")
+			//console.log("fhcc")
 			fh.rect.left = v.rect.left;
 			fh.rect.top = v.rect.top;
 			fh.rect.width = v.rect.width;
