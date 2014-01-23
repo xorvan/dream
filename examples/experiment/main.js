@@ -16,7 +16,7 @@ Enemy = function(left, top){
 		this.anchorY = lm.top;
 		this.left = event.position.left;
 		this.top = event.position.top;		
-		this.behavior.actions.add(new dream.behavior.Action(function(){this.rotation+=5;}), 'rot').play();
+		this.behavior.actions.add(new dream.behavior.Action(function(){this.rotation+=5;}), 'rot');
 	});
 	
 	this.onDrag.add(function(event){

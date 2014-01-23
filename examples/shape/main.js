@@ -105,7 +105,10 @@ function init(){
 	
 	//some text
 	
-	t1=new dream.visual.drawing.Text(550,20,"salam mehdi")
+	t1=new dream.visual.drawing.Text(750,150,"my jig saw IL YUQ q V n")
+	t1.fontSize = 25;
+	t1.fillStyle = "#f55";
+	t1.strokeStyle = "#55f"
 	scene.assets.add(t1);
 	
 	

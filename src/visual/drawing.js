@@ -467,12 +467,16 @@ Star$.draw = function(context, origin){
  * @constructor
  */
 
-var Text = function(left, top, text, font){
+var Text = function(left, top, text, font, dir){
 	Shape.call(this, left, top);
 	this.text = text;
 	this.font = font;
-	this._calcWidth = true;
-	
+	this._updateRect();
+	this.heightFactor = 1.4;
+	this._baseline = "alphabetic";
+	this._align = "start";
+	this.direction = dir || "ltr";
+
 }.inherits(Shape);
 
 var Text$ = Text.prototype;
@@ -484,7 +488,20 @@ Object.defineProperty(Text$, "text", {
 	set: function(v){
 		this._text = v;
 		this.isImageChanged = true;
-		this._update = true;
+		this.isBoundaryChanged = true;
+		this._updateRect();
+	}
+});
+
+Object.defineProperty(Text$, "direction", {
+	get: function() {
+		return this._dir;
+	},
+	set: function(v){
+		this._dir = v;
+		this.isImageChanged = true;
+		this.isBoundaryChanged = true;
+		this._updateRect();
 	}
 });
 Object.defineProperty(Text$, "font", {
@@ -494,7 +511,8 @@ Object.defineProperty(Text$, "font", {
 	set: function(v){
 		this._font = v;
 		this.isImageChanged = true;
-		this._update = true;
+		this.isBoundaryChanged = true;
+		this._updateRect();
 	}
 });
 Object.defineProperty(Text$, "fontSize", {
@@ -507,7 +525,8 @@ Object.defineProperty(Text$, "fontSize", {
 		else
 			this._font = v+"px arial";
 		this.isImageChanged = true;
-		this._update = true;
+		this.isBoundaryChanged = true;
+		this._updateRect();
 	}
 });
 Object.defineProperty(Text$, "fontFace", {
@@ -520,7 +539,7 @@ Object.defineProperty(Text$, "fontFace", {
 		else
 			this._font = "10px "+v;
 		this.isImageChanged = true;
-		this._update = true;
+		this._updateRect();
 	}
 });
 Object.defineProperty(Text$, "align", {
@@ -528,9 +547,13 @@ Object.defineProperty(Text$, "align", {
 		return this._align;
 	},
 	set: function(v){
-		this._align = v;
-		this.isImageChanged = true;
-		this._update = true;
+		if(v=="start" || v=="end" || v=="left" || v=="right" || v=="center"){
+			this._align = v;
+			this.isImageChanged = true;
+			this._updateRect();
+		}else{
+			console.error("Wrong align property!");
+		}
 	}
 });
 Object.defineProperty(Text$, "baseline", {
@@ -538,30 +561,107 @@ Object.defineProperty(Text$, "baseline", {
 		return this._baseline;
 	},
 	set: function(v){
-		this._baseline = v;
-		this.isImageChanged = true;
-		this._update = true;
-	}
+		if(v=="top" || v=="middle" || v=="bottom" || v=="alphabetic" || v=="hanging" || v=="ideographic"){
+			this._baseline = v;
+			this.isImageChanged = true;
+			this.isBoundaryChanged = true;
+			this._updateRect();
+		}else{
+			console.error("Wrong baseline value");
+			
+			}
+		}
 });
 
-Text$.updateRect = function(context){
-	var m = context.measureText(this._text);
+Text$._updateRect = function(){
+	ctx = this.image.getContext('2d')
+	var fontSize = parseInt(ctx.font.split('px')[0])
+	var m = ctx.measureText(this._text);
 	this.rect.width = m.width;
-	this.rect.height = parseInt(context.font.split('px')[0]);
-	this._update = false;
-	this.isBoundaryChanged = true;	
+	this.rect.height = fontSize * this.heightFactor;
+	switch(this._baseline){
+		case "top":
+			this.rect.top = (this.heightFactor - 1) * this.fontSize * -0.5;
+			break;
+		case "bottom":
+			this.rect.top = (1 + (this.heightFactor - 1)/2) * this.fontSize * -1;
+			break;
+		case "alphabetic":
+			this.rect.top = (1 + (this.heightFactor - 1)/2) * this.fontSize * -0.8;
+			break;
+		case "middle":
+			this.rect.top = this.heightFactor * this.fontSize * -0.5;
+			break;
+		case "hanging":
+			this.rect.top = ((this.heightFactor - 1)/3 + 0.1) * this.fontSize * -1;
+			break;
+		case "ideographic":
+			this.rect.top = (1 + (this.heightFactor - 1)/2) * this.fontSize * -0.92;
+			break;	
+	}
+	switch(this._align){
+		case "center":
+			this.rect.left = m.width / -2;
+			break;
+		case "right":
+			this.rect.left = m.width * -1;	 
+			break;
+		case "end":
+			if(this._dir == "ltr"){
+				this.rect.left = m.width * -1;
+			}else{
+				this.rect.left = 0;
+			}
+			break;
+		case "start":
+			if(this._dir == "ltr"){
+				this.rect.left = 0;
+			}else{
+				this.rect.left = m.width * -1;
+			}
+			break;	
+		default:
+			this.rect.left = 0;
+			break;
+	}
+	//this._update = false;
+	this.isBoundaryChanged = true;
 };
 
 Text$.draw = function(context, origin){
-	//context.save();
 	context.font = this._font;
 	context.textAlign = this._align;
 	context.textBaseline = this._baseline;
-	if (this._update)
-		this.updateRect(context);
+	// if (this._update)
+	// 	this.updateRect(context);
 	
-	context.fillText(this._text, origin.left, origin.top);
+	
 	//context.restore();
+};
+
+Text$.paint = function(context, origin){
+
+	var dirTemp = context.canvas.style.direction;
+	context.canvas.style.direction = this._dir;
+	this.draw(context, origin);
+	
+	var r = this.rect;
+	if(this._ls){
+		context.lineWidth=this._ls._width;
+		context.lineCap=this._ls._cap;
+		context.lineJoin=this._ls._join;
+		if (this._ls._join == LineStyle.Join.MITER)
+			context.miterLimit= this._ls._miterLimit;
+		}
+	if(this._fs) {
+		context.fillStyle = this._fs instanceof Style ? this._fs.createStyle(context, new dream.geometry.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._fs;
+		context.fillText(this._text, origin.left, origin.top);
+	}
+	if(this._ss){
+		context.strokeStyle = this._ss instanceof Style ? this._ss.createStyle(context, new dream.geometry.Rect(r.left + origin.left, r.top + origin.top, r.width, r.height)) : this._ss;
+		context.strokeText(this._text, origin.left, origin.top);
+	}
+	context.canvas.style.direction = this.dirTemp;
 };
 
 /**
@@ -977,6 +1077,9 @@ Object.defineProperty(Shadow$, "color", {
 	},
 	set: function(v){ 
 		var shd = this;
+		if(v != this._color){
+			this._color.onChange.removeByOwner(this);
+		}
 		if(v instanceof Color){
 			v.onChange.add(function(){
 				shd.colorValue = v.createStyle();
@@ -984,6 +1087,8 @@ Object.defineProperty(Shadow$, "color", {
 			this.colorValue = v.createStyle();
 		}else if(typeof v == "string"){
 			this.colorValue = v;
+		}else{
+			throw(new Error("color should be string or instance of dream.visual.drawing.Color"))
 		}
 		this._color = v;
 		dream.event.dispatch(this, "onChange");
