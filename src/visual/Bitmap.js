@@ -25,6 +25,16 @@
 
 	var Bitmap$ = Bitmap.prototype;
 
+	Bitmap$.resetBoundary = function(){
+		var v = this._texture;
+		this.rect.width = v.rect.width;
+		this.rect.height = v.rect.height;
+		this.rect.left = -v.anchorX;
+		this.rect.top = -v.anchorY;
+
+		Bitmap._superClass.prototype.resetBoundary.call(this);
+	}
+
 	Object.defineProperty(Bitmap$, "texture", {
 		get : function() {
 			return this._texture;
@@ -36,21 +46,13 @@
 					if (this.rect.width != v.rect.width || this.rect.height != v.rect.height
 							|| this.rect.left != -v.anchorX
 							|| this.rect.top != -v.anchorY) {
-						this.rect.width = v.rect.width;
-						this.rect.height = v.rect.height;
-						this.rect.left = -v.anchorX;
-						this.rect.top = -v.anchorY;
-						this.isBoundaryChanged = true;
+						this.resetBoundary();
 					}
 					this.isImageChanged = true;				
 				}else{
 					var self = this;
 					v.img.onLoad.add(function(){
-						self.rect.width = v.rect.width;
-						self.rect.height = v.rect.height;
-						self.rect.left = -v.anchorX;
-						self.rect.top = -v.anchorY;
-						self.isBoundaryChanged = true;
+						self.resetBoundary();
 						self.isImageChanged = true;
 					})
 				}

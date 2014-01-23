@@ -386,17 +386,36 @@ Object.defineProperty(Graphic$, "mask", {
 });
 
 
+Graphic$.resetBoundary = function(){
+	if(this._shadow){
+		var rct = this.rect.clone();
+		rct.width += this._shadow.blur * 2;
+		rct.height += this._shadow.blur * 2;
+		rct.left -+ this._shadow.blur - this._shadow.offsetX;
+		rct.top -+ this._shadow.blur - this._shadow.offsetY;
+		this.rect = this.rect.add(rct);
+	}
+	this.isBoundaryChanged = true;
+}
+
+
 Object.defineProperty(Graphic$, "shadow", {
 	get : function() {
 		return this._shadow;
 	},
 	set : function(v) {
+		if(this._shadow  && this._shadow.onChange){
+			this._shadow.onChange.removeByOwner(this)
+		}
 		this._shadow = v;
 		var gfx = this;
+
+		var handleChange;
 		if(v){
-			this._shadow.onChange.add(function(){
-				gfx.isImageChanged = true;
+			this._shadow.onChange.add(handleChange = function(){
+				gfx.resetBoundary()
 			})
+			handleChange();
 			
 		}
 	}

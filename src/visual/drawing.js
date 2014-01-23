@@ -20,6 +20,23 @@ var Shape = function(left, top){
 
 var Shape$ = Shape.prototype;
 
+Shape$.resetBoundary = function(){
+	if(this._ls){
+		w = this._ls.width;
+		var d = (((w + 1) / 2) | 0) - this.strokeOffset;
+		this.strokeOffset += d;
+		if(d){
+			this.rect.left -= d;
+			this.rect.top -= d;
+			this.rect.width += d * 2;
+			this.rect.height += d * 2;
+		}
+	}
+
+	Shape._superClass.prototype.resetBoundary.call(this);
+}
+
+
 /**
  * setter/getter property, it's value is/should be an instance of *Style* (and it's subclasses like *Color* or *Gradient*)
  * or it should be color string like #222 or #b2a3c4
@@ -65,18 +82,6 @@ Object.defineProperty(Shape$, "strokeStyle", {
 	}
 });
 
-Shape$._setStrokeOffset = function(w){
-	var d = (((w + 1) / 2) | 0) - this.strokeOffset;
-	this.strokeOffset += d;
-	if(d){
-		this.rect.left -= d;
-		this.rect.top -= d;
-		this.rect.width += d * 2;
-		this.rect.height += d * 2;
-		this.isBoundaryChanged = true;
-	}	
-};
-
 /**
  * setter/getters property, it's value is/should be an instance of *LineStyle*
  * @property lineStyle
@@ -88,13 +93,15 @@ Object.defineProperty(Shape$, "lineStyle", {
 	},
 	set: function(v){
 		dream.util.assert(v instanceof LineStyle, "lineStyle must be instanceof LineStyle!");
+		if(this._ls){
+			this._ls.onChange.removeByOwner(this)
+		}
 		this._ls = v;
 		this.isImageChanged = true;
-		
-		this._setStrokeOffset(v.width);
+		this.resetBoundary();
 		var shape = this;
 		this._ls.onChange.add(function(){
-			shape._setStrokeOffset(v.width);
+			shape.resetBoundary();
 			shape.isImageChanged = true;
 		});
 	}
@@ -164,16 +171,20 @@ Rect$.draw = function(context, origin){
  * @property width
  * @type {Number}
  */
+Rect$.resetBoundary = function(){
+	this.rect.width = this._width;
+	this.rect.height = this._height;
+	Shape$.resetBoundary.call(this);
+}
+
 Object.defineProperty(Rect$, "width", {
 	get: function() {
 		return this._width;
 	},
 	set: function(v){
-		this.rect.left = -this.strokeOffset;
-		this.rect.width = v + this.strokeOffset*2;
 		this._width = v;
 		this.isImageChanged = true;
-		this.isBoundaryChanged = true;
+		this.resetBoundary();
 	}
 });
 
@@ -187,11 +198,9 @@ Object.defineProperty(Rect$, "height", {
 		return this._height;
 	},
 	set: function(v){
-		this.rect.top = -this.strokeOffset;
-		this.rect.height = v + this.strokeOffset*2;
 		this._height = v;
 		this.isImageChanged = true;
-		this.isBoundaryChanged = true;
+		this.resetBoundary();
 	}
 });
 
@@ -211,6 +220,13 @@ var CircularShape = function(left, top, radius){
 
 var CircularShape$ = CircularShape.prototype;
 
+CircularShape$.resetBoundary = function(){
+	this.rect.width = this._radius * 2;
+	this.rect.height = this._radius * 2;
+	this.rect.left = this.rect.top = -1 * this._radius;
+
+	CircularShape._superClass.prototype.resetBoundary.call(this);
+}
 /**
  * setter/getter property for radius of any *CircularShape*, like circle, Star, Poly etc.
  * @property radius
@@ -222,10 +238,8 @@ Object.defineProperty(CircularShape$, "radius", {
 	},
 	set: function(v){
 		this._radius = v;
-		this.rect.width = this.rect.height = v*2 + this.strokeOffset*2;
-		this.rect.left = this.rect.top = - v - this.strokeOffset;
-		this.isBoundaryChanged=true;
-		this.isImageChanged=true;
+		this.resetBoundary();
+		this.isImageChanged = true;
 	}
 });
 
@@ -268,6 +282,14 @@ var Ellipse = function(left, top, radiusX, radiusY){
 
 var Ellipse$ = Ellipse.prototype;
 
+Ellipse$.resetBoundary = function(){
+	this.rect.width = this._radiusX  * 2;
+	this.rect.left = -1 * this._radiusX ;
+	this.rect.height = this._radiusY  * 2;
+	this.rect.top = -1 * this._radiusY ;
+
+	Ellipse._superClass.prototype.resetBoundary.call(this);
+}
 Ellipse$.draw = function(context, origin){
 	context.scale(1, this._radiusY / this._radiusX);
 	context.beginPath();
@@ -405,18 +427,19 @@ var Star=function (left, top, radius, radius2, points){
 }.inherits(Shape);
 
 var Star$ = Star.prototype;
-
+Star$.resetBoundary = function(){
+	var rad = (this._radius > this._radius2) ? this._radius:this._radius2;
+	this.rect.width = this.rect.height = rad * 2;
+	this.rect.left = this.rect.top =  -1 * rad;
+	Star._superClass.prototype.resetBoundary.call(this);
+}
 Object.defineProperty(Star$, "radius", {
 	get: function() {
 		return this._radius;
 	},
 	set: function(v){
 		this._radius = v;
-		if(this._radius > this._radius2){
-			this.rect.width = this.rect.height = v*2 + this.strokeOffset*2;
-			this.rect.left = this.rect.top = -v - this.strokeOffset;
-			this.isBoundaryChanged = true;
-		}
+		this.resetBoundary();
 		this.isImageChanged=true;
 	}
 });
@@ -432,11 +455,7 @@ Object.defineProperty(Star$, "radius2", {
 	},
 	set: function(v){
 		this._radius2 = v;
-		if(this.radius2 > this._radius){
-			this.rect.width = this.rect.height = v*2 + this.strokeOffset*2;
-			this.rect.left = this.rect.top = -v - this.strokeOffset;
-			this.isBoundaryChanged = true;
-		}
+		this.resetBoundary();
 		this.isImageChanged=true;
 	}
 });
@@ -471,7 +490,7 @@ var Text = function(left, top, text, font, dir){
 	Shape.call(this, left, top);
 	this.text = text;
 	this.font = font;
-	this._updateRect();
+	this.resetBoundary();
 	this.heightFactor = 1.4;
 	this._baseline = "alphabetic";
 	this._align = "start";
@@ -489,7 +508,7 @@ Object.defineProperty(Text$, "text", {
 		this._text = v;
 		this.isImageChanged = true;
 		this.isBoundaryChanged = true;
-		this._updateRect();
+		this.resetBoundary();
 	}
 });
 
@@ -501,7 +520,7 @@ Object.defineProperty(Text$, "direction", {
 		this._dir = v;
 		this.isImageChanged = true;
 		this.isBoundaryChanged = true;
-		this._updateRect();
+		this.resetBoundary();
 	}
 });
 Object.defineProperty(Text$, "font", {
@@ -512,7 +531,7 @@ Object.defineProperty(Text$, "font", {
 		this._font = v;
 		this.isImageChanged = true;
 		this.isBoundaryChanged = true;
-		this._updateRect();
+		this.resetBoundary();
 	}
 });
 Object.defineProperty(Text$, "fontSize", {
@@ -526,7 +545,7 @@ Object.defineProperty(Text$, "fontSize", {
 			this._font = v+"px arial";
 		this.isImageChanged = true;
 		this.isBoundaryChanged = true;
-		this._updateRect();
+		this.resetBoundary();
 	}
 });
 Object.defineProperty(Text$, "fontFace", {
@@ -539,7 +558,7 @@ Object.defineProperty(Text$, "fontFace", {
 		else
 			this._font = "10px "+v;
 		this.isImageChanged = true;
-		this._updateRect();
+		this.resetBoundary();
 	}
 });
 Object.defineProperty(Text$, "align", {
@@ -550,7 +569,7 @@ Object.defineProperty(Text$, "align", {
 		if(v=="start" || v=="end" || v=="left" || v=="right" || v=="center"){
 			this._align = v;
 			this.isImageChanged = true;
-			this._updateRect();
+			this.resetBoundary();
 		}else{
 			console.error("Wrong align property!");
 		}
@@ -565,7 +584,7 @@ Object.defineProperty(Text$, "baseline", {
 			this._baseline = v;
 			this.isImageChanged = true;
 			this.isBoundaryChanged = true;
-			this._updateRect();
+			this.resetBoundary();
 		}else{
 			console.error("Wrong baseline value");
 			
@@ -573,8 +592,8 @@ Object.defineProperty(Text$, "baseline", {
 		}
 });
 
-Text$._updateRect = function(){
-	ctx = this.image.getContext('2d')
+Text$.resetBoundary = function(){
+	var ctx = this.image.getContext('2d')
 	var fontSize = parseInt(ctx.font.split('px')[0])
 	var m = ctx.measureText(this._text);
 	this.rect.width = m.width;
@@ -624,8 +643,7 @@ Text$._updateRect = function(){
 			this.rect.left = 0;
 			break;
 	}
-	//this._update = false;
-	this.isBoundaryChanged = true;
+	Text._superClass.prototype.resetBoundary.call(this);
 };
 
 Text$.draw = function(context, origin){
@@ -691,6 +709,14 @@ Freehand$.draw = function(context, origin){
  * @property path
  * @type {Object}
  */
+Freehand$.resetBoundary = function(){
+	this.rect.left = this._path.rect.left;
+	this.rect.top = this._path.rect.top;
+	this.rect.width = this._path.rect.width;
+	this.rect.height = this._path.rect.height;
+ 	Freehand._superClass.prototype.resetBoundary.call(this);
+}
+
 Object.defineProperty(Freehand$, "path", {
 	get: function() {
 		return this._path;
@@ -699,13 +725,10 @@ Object.defineProperty(Freehand$, "path", {
 		var fh = this;
 		if(this._path) this._path.onChange.removeByOwner(fh);
 		this._path = v;
+		this.resetBoundary();
 		this._path.onChange.add(function(obj){
 			//console.log("fhcc")
-			fh.rect.left = v.rect.left;
-			fh.rect.top = v.rect.top;
-			fh.rect.width = v.rect.width;
-			fh.rect.height = v.rect.height;
-			fh.isBoundaryChanged = true;
+			fh.resetBoundary.call(fh);
 			fh.isImageChanged = true;
 		})();
 	}
@@ -1077,7 +1100,7 @@ Object.defineProperty(Shadow$, "color", {
 	},
 	set: function(v){ 
 		var shd = this;
-		if(v != this._color){
+		if(v != this._color && this._color instanceof Color){
 			this._color.onChange.removeByOwner(this);
 		}
 		if(v instanceof Color){
