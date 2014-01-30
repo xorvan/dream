@@ -99,6 +99,8 @@ function init(){
 	s1=new dream.visual.drawing.Star(430,175,50,50,5);
 	s1.fillStyle = new drawing.RadialGradient([new drawing.ColorStop(0, new drawing.Color("#8b0596")), 
 		                                        new drawing.ColorStop(1, new drawing.Color("#Eb55F9"))], .5, .5, 0, .5, .5, .4);
+	shadd=new dream.visual.drawing.Shadow("#000", 5, 2, 5);
+	s1.shadow = shadd;
 	s1.strokeStyle = "#8b0596";
 	s1.behavior.actions.add(new animation.Tween({radius:125, rotation:90}, 300, new interpolator.Sine));
 	scene.assets.add(s1);

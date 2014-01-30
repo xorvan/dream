@@ -128,7 +128,7 @@ dream.Screen.prototype.paintWithClippingRedrawRegion = function(ctx, origin, ren
 	origin.top = origin.top | 0;
 	var rgCount = 0;
 	var scene = this.scenes.current;
-	scene.step();
+	scene.step(this.fc);
 	var rg;
 	for(var i = 0, ll = this.redrawRegions.length; i < ll; i++){
 		var rr = this.redrawRegions[i];
