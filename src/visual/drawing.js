@@ -98,10 +98,10 @@ Object.defineProperty(Shape$, "lineStyle", {
 		}
 		this._ls = v;
 		this.isImageChanged = true;
-		this.resetBoundary();
+		this.isBoundaryChanged = true;
 		var shape = this;
 		this._ls.onChange.add(function(){
-			shape.resetBoundary();
+			shape.isBoundaryChanged = true;
 			shape.isImageChanged = true;
 		});
 	}
@@ -184,7 +184,7 @@ Object.defineProperty(Rect$, "width", {
 	set: function(v){
 		this._width = v;
 		this.isImageChanged = true;
-		this.resetBoundary();
+		this.isBoundaryChanged = true;
 	}
 });
 
@@ -200,7 +200,7 @@ Object.defineProperty(Rect$, "height", {
 	set: function(v){
 		this._height = v;
 		this.isImageChanged = true;
-		this.resetBoundary();
+		this.isBoundaryChanged = true;
 	}
 });
 
@@ -239,7 +239,7 @@ Object.defineProperty(CircularShape$, "radius", {
 	set: function(v){
 		this._radius = v;
 		this.isImageChanged = true;
-		this.resetBoundary();
+		this.isBoundaryChanged = true;
 	}
 });
 
@@ -439,7 +439,7 @@ Object.defineProperty(Star$, "radius", {
 	},
 	set: function(v){
 		this._radius = v;
-		this.resetBoundary();
+		this.isBoundaryChanged = true;
 		this.isImageChanged=true;
 	}
 });
@@ -455,8 +455,8 @@ Object.defineProperty(Star$, "radius2", {
 	},
 	set: function(v){
 		this._radius2 = v;
-		this.resetBoundary();
-		this.isImageChanged=true;
+		this.isBoundaryChanged = true;
+		this.isImageChanged = true;
 	}
 });
 
@@ -490,7 +490,7 @@ var Text = function(left, top, text, font, dir){
 	Shape.call(this, left, top);
 	this.text = text;
 	this.font = font;
-	this.resetBoundary();
+	this.isBoundaryChanged = true;
 	this.heightFactor = 1.4;
 	this._baseline = "alphabetic";
 	this._align = "start";
@@ -508,7 +508,6 @@ Object.defineProperty(Text$, "text", {
 		this._text = v;
 		this.isImageChanged = true;
 		this.isBoundaryChanged = true;
-		this.resetBoundary();
 	}
 });
 
@@ -520,7 +519,6 @@ Object.defineProperty(Text$, "direction", {
 		this._dir = v;
 		this.isImageChanged = true;
 		this.isBoundaryChanged = true;
-		this.resetBoundary();
 	}
 });
 Object.defineProperty(Text$, "font", {
@@ -531,7 +529,6 @@ Object.defineProperty(Text$, "font", {
 		this._font = v;
 		this.isImageChanged = true;
 		this.isBoundaryChanged = true;
-		this.resetBoundary();
 	}
 });
 Object.defineProperty(Text$, "fontSize", {
@@ -545,7 +542,6 @@ Object.defineProperty(Text$, "fontSize", {
 			this._font = v+"px arial";
 		this.isImageChanged = true;
 		this.isBoundaryChanged = true;
-		this.resetBoundary();
 	}
 });
 Object.defineProperty(Text$, "fontFace", {
@@ -558,7 +554,7 @@ Object.defineProperty(Text$, "fontFace", {
 		else
 			this._font = "10px "+v;
 		this.isImageChanged = true;
-		this.resetBoundary();
+		this.isBoundaryChanged = true;
 	}
 });
 Object.defineProperty(Text$, "align", {
@@ -569,7 +565,7 @@ Object.defineProperty(Text$, "align", {
 		if(v=="start" || v=="end" || v=="left" || v=="right" || v=="center"){
 			this._align = v;
 			this.isImageChanged = true;
-			this.resetBoundary();
+			this.isBoundaryChanged = true;
 		}else{
 			console.error("Wrong align property!");
 		}
@@ -584,7 +580,6 @@ Object.defineProperty(Text$, "baseline", {
 			this._baseline = v;
 			this.isImageChanged = true;
 			this.isBoundaryChanged = true;
-			this.resetBoundary();
 		}else{
 			console.error("Wrong baseline value");
 			
@@ -725,10 +720,10 @@ Object.defineProperty(Freehand$, "path", {
 		var fh = this;
 		if(this._path) this._path.onChange.removeByOwner(fh);
 		this._path = v;
-		this.resetBoundary();
+		this.isBoundaryChanged = true;
 		this._path.onChange.add(function(obj){
 			//console.log("fhcc")
-			fh.resetBoundary.call(fh);
+			fh.isBoundaryChanged = true;
 			fh.isImageChanged = true;
 		})();
 	}

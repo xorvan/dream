@@ -46,13 +46,13 @@
 					if (this.rect.width != v.rect.width || this.rect.height != v.rect.height
 							|| this.rect.left != -v.anchorX
 							|| this.rect.top != -v.anchorY) {
-						this.resetBoundary();
+						this.isBoundaryChanged = true;
 					}
 					this.isImageChanged = true;				
 				}else{
 					var self = this;
 					v.img.onLoad.add(function(){
-						self.resetBoundary();
+						self.isBoundaryChanged = true;
 						self.isImageChanged = true;
 					})
 				}

@@ -122,6 +122,7 @@ Graphic$.step = function (fc, post){
 
 	var oldBoundary = this.boundary;
 	if(this.isBoundaryChanged){
+		this.resetBoundary();
 		this.boundary = this.rect.boundary;
 		
 		if(this.isImageChanged){
@@ -388,7 +389,6 @@ Graphic$.resetBoundary = function(){
 		rct.top -+ this._shadow.blur - this._shadow.offsetY;
 		this.rect = this.rect.add(rct);
 	}
-	this.isBoundaryChanged = true;
 }
 
 Object.defineProperty(Graphic$, "shadow", {
@@ -405,7 +405,7 @@ Object.defineProperty(Graphic$, "shadow", {
 		var handleChange;
 		if(v){
 			this._shadow.onChange.add(handleChange = function(){
-				gfx.resetBoundary()
+				gfx.isBoundaryChanged = true;
 			})
 			handleChange();
 			
