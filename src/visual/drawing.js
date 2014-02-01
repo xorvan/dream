@@ -283,9 +283,9 @@ var Ellipse = function(left, top, radiusX, radiusY){
 var Ellipse$ = Ellipse.prototype;
 
 Ellipse$.resetBoundary = function(){
-	this.rect.width = this._radiusX  * 2;
+	this.rect.width = this._radiusX  * 2 + 2;
 	this.rect.left = -1 * this._radiusX ;
-	this.rect.height = this._radiusY  * 2;
+	this.rect.height = this._radiusY  * 2 + 2;
 	this.rect.top = -1 * this._radiusY ;
 
 	Ellipse._superClass.prototype.resetBoundary.call(this);
@@ -308,8 +308,6 @@ Object.defineProperty(Ellipse$, "radiusX", {
 	},
 	set: function(v){
 		this._radiusX = v;
-		this.rect.left = -v - this.strokeOffset;
-		this.rect.width = (v + this.strokeOffset) * 2;
 		this.isImageChanged = true;
 		this.isBoundaryChanged = true;
 	}
@@ -326,8 +324,6 @@ Object.defineProperty(Ellipse$, "radiusY", {
 	},
 	set: function(v){
 		this._radiusY = v;
-		this.rect.top = -v - this.strokeOffset;
-		this.rect.height = (v + this.strokeOffset) * 2;
 		this.isImageChanged = true;
 		this.isBoundaryChanged = true;
 	}

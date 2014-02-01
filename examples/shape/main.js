@@ -17,6 +17,7 @@ function init(){
 			p1.behavior.actions.add(
 				new bt.decorator.Controller(
 						new animation.Tween({sides:12, "fillStyle.blue":255}, 700, new interpolator.Sine)
+						, true
 					)
 			), "sideTween"
 		).play();

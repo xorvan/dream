@@ -27,6 +27,7 @@
 
 	Bitmap$.resetBoundary = function(){
 		var v = this._texture;
+		if(!v) return false;
 		this.rect.width = v.rect.width;
 		this.rect.height = v.rect.height;
 		this.rect.left = -v.anchorX;

@@ -124,17 +124,18 @@ Graphic$.step = function (fc, post){
 	if(this.isBoundaryChanged){
 		this.resetBoundary();
 		this.boundary = this.rect.boundary;
-		
+				
+		if(!this.boundary.isEqualWith(oldBoundary)){
+			dream.event.dispatch(this, "onBoundaryChange", oldBoundary);
+			this.isImageChanged = true;
+		}
+
 		if(this.isImageChanged){
 			dream.event.dispatch(this, "onImageChange", this.boundary.hasIntersectWith(oldBoundary) ? [this.boundary.add(oldBoundary)] : [this.boundary, oldBoundary]);
 			this.isImageChanged = false;
 		}
 		
-		if(!this.boundary.isEqualWith(oldBoundary)){
-			dream.event.dispatch(this, "onBoundaryChange", oldBoundary);
-			oldBoundary = this.boundary.clone();
-		}
-		
+		oldBoundary = this.boundary.clone();
 		this.isBoundaryChanged = false;
 	}else if(this.isImageChanged){
 		dream.event.dispatch(this, "onImageChange", [this.boundary]);
