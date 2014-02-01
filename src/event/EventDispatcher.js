@@ -63,7 +63,8 @@ EventDispatcher$.buffer = function(){
 };
 
 EventDispatcher$.flush = function(filter){
-	var queue = filter ? (filter(this.queue) || this.queue) : this.queue,
+	if(!this.queue || !this.queue.length) return false;
+	var queue = filter ? (filter(this.queue) || []) : this.queue,
 		obj = this.obj;
 	
 	for(var ii = 0, ll = queue.length; ii < ll; ii++){

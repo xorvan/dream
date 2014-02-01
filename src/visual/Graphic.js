@@ -23,17 +23,12 @@ var Graphic = function(left, top){
 	this.origin = new dream.geometry.Point(left, top);
 	this.boundary = new dream.geometry.Rect(left, top);
 	this.rect = new dream.geometry.Rect(0, 0, 0, 0, new dream.geometry.transform.Generic(left, top));
+	this._matrix = this.rect.transformation.matrix;
 	 
-	var graphic = this;
+	var self = this;
 	
-	this.rect.transformation.onChange.add(function(){
-		graphic.isImageChanged = true;
-		graphic.isBoundaryChanged = true;
-	});
-
-	this.rect.transformation.onPositionChange.add(function(){
-		graphic.isPositionChanged = true;
-	});
+	this.rect.transformation.onChange.buffer();
+	this.rect.transformation.onChange.propagateFlagged(this, "isBoundaryChanged");
 	
 	this.visible = true;
 	
@@ -45,12 +40,12 @@ var Graphic = function(left, top){
 
 	this.behaviors = new dream.collection.Dict();
 	this.behaviors.onAdd.add(function(behavior){
-		behavior.init(graphic);
+		behavior.init(self);
 	});
 	
 	this.behaviours = new dream.collection.Dict();
 	this.behaviours.onAdd.add(function(behaviour){
-		behaviour.obj = graphic;
+		behaviour.obj = self;
 		behaviour.enable();
 	});
 	
@@ -58,9 +53,9 @@ var Graphic = function(left, top){
 		behaviour.disable();
 	});
 	
-	graphic.filters = new dream.visual.filter.FilterList;
-	graphic.filters.onChange.add(function(){
-		graphic.isImageChanged = true;
+	self.filters = new dream.visual.filter.FilterList;
+	self.filters.onChange.add(function(){
+		self.isImageChanged = true;
 	});
 	
 }.inherits(dream.VisualAsset);
@@ -112,7 +107,15 @@ Graphic$.render = function(ctx, origin, renderRect) {
 
 Graphic$.step = function (post){
 	
+	var self = this;
+	
 	if (this.behavior && !post) this.behavior.step();
+
+	this.rect.transformation.onChange.flush(function(q){
+		if(!self.rect.transformation.matrix.equals(this._matrix)){
+			return [q[q.length - 1]];
+		}
+	});
 
 	var oldBoundary = this.boundary;
 	if(this.isBoundaryChanged){
@@ -129,18 +132,6 @@ Graphic$.step = function (post){
 		}
 		
 		this.isBoundaryChanged = false;
-	}else if(this.isPositionChanged){
-		this.boundary = this.rect.boundary;
-		if(!this.boundary.isEqualWith(oldBoundary)){
-			dream.event.dispatch(this, "onBoundaryChange", oldBoundary);
-			dream.event.dispatch(this, "onImageChange", this.boundary.hasIntersectWith(oldBoundary) ? [this.boundary.add(oldBoundary)] : [this.boundary, oldBoundary]);
-			oldBoundary = this.boundary.clone();
-		}else if(this.isImageChanged){
-			dream.event.dispatch(this, "onImageChange", this.boundary.hasIntersectWith(oldBoundary) ? [this.boundary.add(oldBoundary)] : [this.boundary, oldBoundary]);
-		}
-		this.isPositionChanged = false;
-		this.isImageChanged = false;
-		
 	}else if(this.isImageChanged){
 		dream.event.dispatch(this, "onImageChange", [this.boundary]);
 		this.isImageChanged = false;
@@ -385,7 +376,6 @@ Object.defineProperty(Graphic$, "mask", {
 	}
 });
 
-
 Graphic$.resetBoundary = function(){
 	if(this._shadow){
 		var rct = this.rect.clone();
@@ -397,7 +387,6 @@ Graphic$.resetBoundary = function(){
 	}
 	this.isBoundaryChanged = true;
 }
-
 
 Object.defineProperty(Graphic$, "shadow", {
 	get : function() {
@@ -423,7 +412,6 @@ Object.defineProperty(Graphic$, "shadow", {
 
 
 // exports
-
 dream.visual.Graphic = Graphic;
 
 })();

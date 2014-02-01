@@ -45,7 +45,7 @@ Matrix$.multiplyBy = function(matrix){
 };
 
 /**
- * takes an input *Pint* and multiply current matrix with it, and returns the result
+ * takes an input *Pont* and multiply current matrix with it, and returns the result
  * @method multiplyByPoint
  * @param {dream.geometry.Point} point
  * @returns {dream.geometry.Matrix} result
@@ -76,6 +76,17 @@ Object.defineProperty(Matrix$, "inverse", {
 		return new Matrix(y1/n, -y0/n, -x1/n, x0/n, (x1*dy-y1*dx)/n, -(x0*dy-y0*dx)/n);
 	}
 });
+
+/**
+ * Returns true if this *Matrix* is equal with given matrix parameter.
+ * @method equals
+ * @param {dream.geometry.Matrix} matrix
+ */
+Matrix$.equals = function(matrix){
+	return this.x0 == matrix.x0 && this.y0 == matrix.y0 && 
+		this.x1 == matrix.x1 && this.y1 == matrix.y1 && 
+		this.dx == matrix.dx && this.dy == matrix.dy;
+};
 
 dream.geometry.Matrix = Matrix;
 

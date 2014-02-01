@@ -15,40 +15,42 @@
  * this parameter should be an instance of dream.geometry.transform
  */
 var Rect = function(left, top, width, height, transformation){
+	/**
+	 * the left position of *Rect* in regard to it's parent, it is a getter/setter
+	 * @property left
+	 * @type Number
+	 */
+	this.left = left || 0;
+
+	/**
+	 * the top position of *Rect* in regard to it's parent, it is a getter/setter
+	 * @property top
+	 * @type Number
+	 */
+
+	this.top = top || 0;
+	/**
+	 * the width of *Rect*, it is a getter/setter
+	 * @property width
+	 * @type Number
+	 */
 	this.width = width || 0;
+
+	/**
+	 * the height position of *Rect*, it is a getter/setter
+	 * @property height
+	 * @type Number
+	 */
 	this.height = height || 0;
 	
-	this.left = left || 0;
-	this.top = top || 0;
-	
+	/**
+	 * the transformation of *Rect*, it is a getter/setter
+	 * @property left
+	 * @type dream.geometry.transform
+	 */	
 	this.transformation = transformation || new dream.geometry.transform.Identity;
 };
 
-/**
- * the left position of *Rect* in regard to it's parent, it is a getter/setter
- * @property left
- * @type Number
- */
-/**
- * the top position of *Rect* in regard to it's parent, it is a getter/setter
- * @property top
- * @type Number
- */
-/**
- * the width of *Rect*, it is a getter/setter
- * @property width
- * @type Number
- */
-/**
- * the height position of *Rect*, it is a getter/setter
- * @property height
- * @type Number
- */
-/**
- * the transformation of *Rect*, it is a getter/setter
- * @property left
- * @type dream.geometry.transform
- */
 var Rect$ = Rect.prototype;
 /**
  * the right position of *Rect* in regard to it's parent, it is only getter

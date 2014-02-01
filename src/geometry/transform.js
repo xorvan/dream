@@ -124,8 +124,23 @@ Transformation$.unprojectRect = function(rect){
 	return new dream.geometry.Rect(rect.left, rect.top, rect.width, rect.height, this.inverse.compose(rect.transformation));
 };
 
+/**
+ * applies transformation on context and/or origin and returns new origin.
+ * @method apply
+ * @param {Context} context
+ * @param {dream.geometry.Point} origin
+ */
 Transformation$.apply = function(context, origin){
 	return origin;
+};
+
+/**
+ * Returns true if this *Transformation* is equal with given transformation parameter.
+ * @method equals
+ * @param {dream.geometry.transform.Transformation} transformation
+ */
+Transformation$.equals = function(transformation){
+	return this.matrix.equals(transformation.matrix);
 };
 
 /**
