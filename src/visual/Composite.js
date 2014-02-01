@@ -95,15 +95,17 @@
 	};
 
 
-	Composite$.step = function (){
-		
+	Composite$.step = function (fc){
+		// console.log(fc, this.fc);
+		if(this.fc == fc) return false;
+
 		if (this.behavior) this.behavior.step();
 		
 		for(var i = 0, l = this.pool.length; i < l; i++){
-			this.pool[i].step();
+			this.pool[i].step(fc);
 		}
 
-		dream.visual.Composite._superClass.prototype.step.call(this, true);
+		dream.visual.Composite._superClass.prototype.step.call(this, fc, true);
 		
 		if(this._isDirty){
 			dream.event.dispatch(this, "onImageChange", [this.boundary]);

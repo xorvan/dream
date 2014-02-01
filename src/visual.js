@@ -18,7 +18,7 @@ var Texture = function(img, left, top, width, height, anchorX, anchorY){
 			}else{
 				var self = this;
 				this.img.onLoad.add(function(){
-					console.log("setting rect size", self.img.content, self.img.content.width, self.img.content.height);
+					// console.log("setting rect size", self.img.content, self.img.content.width, self.img.content.height);
 					self.rect.width = self.img.content.width;
 					self.rect.height = self.img.content.height;
 				})

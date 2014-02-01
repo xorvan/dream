@@ -19,9 +19,12 @@ block bench-script
 				scene.assets.add(c);
 			}
 			
-			
+			var crm = new CompositeRect(0, 0, 100, 100);
+			crm.useBuffer = true;
+			ooo = {};
 			for(var i = 0; i < 5; i++ ){
-				cr = new CompositeRect(Math.random() * 900, Math.random() * 200 + 200, Math.random() * 50 + 50, Math.random() * 50 + 50);
+				var cr = ooo[i] = new dream.visual.Mirror(Math.random() * 900, Math.random() * 200 + 200, crm)
+				cr.scale = Math.random();
 				scene.assets.add(cr);
 			}
 			

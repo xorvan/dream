@@ -12,8 +12,10 @@ block bench-script
 				scene.assets.add(c);
 			}
 			
+			var mcr = new Paper2(0, 0);
+			mcr.useBuffer = true;
 			for(var i = 0; i < 16; i++ ){
-				cr = new Paper2(Math.random() * 900, Math.random() * 800 - 200);
+				var cr = new dream.visual.Mirror(Math.random() * 900, Math.random() * 800 - 200, mcr);
 				scene.assets.add(cr);
 			}
 			

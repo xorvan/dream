@@ -238,8 +238,8 @@ Object.defineProperty(CircularShape$, "radius", {
 	},
 	set: function(v){
 		this._radius = v;
-		this.resetBoundary();
 		this.isImageChanged = true;
+		this.resetBoundary();
 	}
 });
 
@@ -1082,7 +1082,7 @@ dream.util.createEventProperty(Color$,"alpha","onChange");
 var Shadow = function(color, offsetX, offsetY, blur){
 	this._offsetX = offsetX || 0;
 	this._offsetY = offsetY || 0;
-	this._blur = blur;
+	this._blur = blur || 0;
 	this.color = color || "#000";
 }
 

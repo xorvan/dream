@@ -105,7 +105,10 @@ Graphic$.render = function(ctx, origin, renderRect) {
 	ctx.restore();
 };
 
-Graphic$.step = function (post){
+Graphic$.step = function (fc, post){
+	// console.log(fc, this.fc);
+	if(fc == this.fc) return false;
+	this.fc = fc;
 	
 	var self = this;
 	
