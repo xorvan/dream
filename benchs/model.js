@@ -1,6 +1,7 @@
 ajsprite =    new dream.visual.SequentialSpriteSheet("res/aj.png",{"main":{left:270, top:0, width:88, height:160, count:3, col:1}});
 //firesprite =  new dream.visual.SequentialSpriteSheet("res/fire.png",{"main":{left:0, top:0, width:64, height:64, count:16, col:1}});
-firesprite =  new dream.visual.JsonSpriteSheet("res/r22.json");
+firesprite =  new dream.visual.XmlSpriteSheet("res/sprites.xml");
+// firesprite =  new dream.visual.JsonSpriteSheet("res/rr.json");
 tts =  new dream.visual.JsonSpriteSheet("res/tts.json");
 cubesprite =  new dream.visual.SequentialSpriteSheet("res/cube.png",{"main":{left:0, top:0, width:60, height:60, count:30, col:1}});
 enemySprite = new dream.visual.SequentialSpriteSheet("res/enemies.png",{"main":{left:0, top:0, width:100, height:75, count:4, col:1}});

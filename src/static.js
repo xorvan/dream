@@ -308,8 +308,31 @@ var DocumentResourceLoader = function(xhr, url, onLoad){
 	
 }.inherits(ResourceLoader);
 
-DocumentResourceLoader.mimeType = /(text\/xml) | (application\/xml)/;
-ResourceLoader.register(DocumentResourceLoader);/**
+DocumentResourceLoader.mimeType = /(text\/xml)/;
+ResourceLoader.register(DocumentResourceLoader);
+
+var XmlSheetResourceLoader = function(xhr, url, onLoad){
+	XmlSheetResourceLoader._superClass.call(this, xhr, url, onLoad);
+	
+}.inherits(DocumentResourceLoader);
+
+Object.defineProperty(XmlSheetResourceLoader.prototype, "dependencies", {
+	get : function () {
+
+		if(this.content){
+			var imgpath = this.content.getElementsByTagName('TextureAtlas')[0].getAttribute('imagePath');
+			// console.log("xml content: ", this.content, imgpath);
+			return [new Resource(dream.util.resolveUrl(imgpath, this.url))]
+		}else{
+			return null;
+		}
+	}
+});
+
+XmlSheetResourceLoader.mimeType = /application\/xml/;
+ResourceLoader.register(XmlSheetResourceLoader);
+
+/**
 
  * @constructor
  * @extends dream.static.ResourceLoader
