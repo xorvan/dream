@@ -32,7 +32,10 @@
 		if(this.host){
 			this.setHostValue(this.prop, this.getHostValue(this.prop) + this.velocity);
 			this.velocity += this.acceleration;
-			if(this.fn) return this.fn.call(this.host);
+			if(this.fn) 
+				return this.fn.call(this.host, this) 
+			else 
+				return true;
 		}
 	};
 	

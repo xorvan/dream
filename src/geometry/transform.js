@@ -177,8 +177,11 @@ var Translation = function(left, top){
 }.inherits(Transformation);
 var Translation$ = Translation.prototype;
 
-dream.util.createEventFlagProperty(Translation$, "left", "onPositionChange");
-dream.util.createEventFlagProperty(Translation$, "top", "onPositionChange");
+// dream.util.createEventFlagProperty(Translation$, "left", "onPositionChange");
+// dream.util.createEventFlagProperty(Translation$, "top", "onPositionChange");
+
+dream.util.createEventFlagProperty(Translation$, "left");
+dream.util.createEventFlagProperty(Translation$, "top");
 
 Object.defineProperty(Translation$, "hasTransform", {
 	get : function () {

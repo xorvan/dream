@@ -257,12 +257,16 @@ var ImageResourceLoader = function(xhr, url, onLoad){
 	var rl = this;
 
 	if(xhr.responseType == ResourceLoader.Type.BLOB){
+		XX = xhr
 		xhr.onload = function(ev) {
 			var img = new Image();
 			img.onload = function(e) {
+				console.log("loaded!!")
 				window.URL.revokeObjectURL(img.src);
 				onLoad();
 			};
+			// this.response.type = "image/png";
+			RR = this.response
 			img.src = window.URL.createObjectURL(this.response);
 			rl.content = img;
 		};

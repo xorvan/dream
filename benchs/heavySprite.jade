@@ -1,12 +1,12 @@
 extends bench
 block bench-script
-	script
+	script.
 		function init(){
 			test = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 800, 600);
 			test.frameRate = 250;
 			
 			scene = new dream.scenery.Scene;
-
+			
 			
 			for(var i = 0; i < 250; i++ ){
 				var c = new Poly1(Math.random() * 900, Math.random() * 600);
@@ -23,12 +23,12 @@ block bench-script
 				var c = new Cube(Math.random() * 700 + 100, Math.random() * 600);
 				scene.assets.add(c);
 			}
-
+			
 			for(var i = 0; i < 250; i++ ){
 				var cr = new Fire(Math.random() * 900, Math.random() * 800 - 200);
 				scene.assets.add(cr);
 			}
-
+			
 			test.scenes.current = scene;
 			
 			
