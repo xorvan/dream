@@ -47,9 +47,9 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 		scene.prepare(function(){
 			screen.render(scene);
 		});
-		console.log(scene.screenBoundary);
+		// console.log(scene.screenBoundary);
 		dream.event.dispatch(scene, "onResize");
-		console.log(scene.viewport);
+		// console.log(scene.viewport);
 		
 	});
 	

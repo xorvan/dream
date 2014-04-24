@@ -30,7 +30,7 @@ dream.event.create(Transformation$, "onChange");
  * @event onPositionChange
  * 
  */
-dream.event.create(Transformation$, "onPositionChange");
+// dream.event.create(Transformation$, "onPositionChange");
 
 /**
  * this property returns the transformation matrix of current transformation. it is readonly
@@ -63,6 +63,12 @@ Object.defineProperty(Transformation$, "inverse", {
 });
 
 Transformation$.hasTransform = false;
+
+Transformation$.getMultipliedInverse = function(factor){
+	var m = this.matrix.inverse.multiplyDeltaByNumber(factor);
+	return new Custom(m.x0, m.y0, m.x1, m.y1, m.dx, m.dy);
+};
+
 
 /**
  * this method will multiply the transformation matrix of given *Transformation* to produce the effectof boh transformation
@@ -177,8 +183,8 @@ var Translation = function(left, top){
 }.inherits(Transformation);
 var Translation$ = Translation.prototype;
 
-dream.util.createEventFlagProperty(Translation$, "left", "onPositionChange");
-dream.util.createEventFlagProperty(Translation$, "top", "onPositionChange");
+dream.util.createEventFlagProperty(Translation$, "left", "onChange");
+dream.util.createEventFlagProperty(Translation$, "top", "onChange");
 
 Object.defineProperty(Translation$, "hasTransform", {
 	get : function () {
@@ -345,8 +351,8 @@ var Composite = function(transformations){
 	this.transformations = new dream.collection.Dict;
 	this.transformations.onAdd.add(function(obj){
 		obj.onChange.propagate(composite);
-		obj.onPositionChange.propagate(composite);
-		obj.onChange.add(obj.onPositionChange.add(function(){composite.isChanged = true;}));
+		// obj.onPositionChange.propagate(composite);
+		obj.onChange.add(function(){composite.isChanged = true;});
 		dream.event.dispatch(composite, "onChange");
 		composite.isChanged = true;
 	});
