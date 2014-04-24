@@ -45,6 +45,7 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 		}, screen);
 
 		scene.prepare(function(){
+			console.log("prepared")
 			screen.render(scene);
 		});
 		// console.log(scene.screenBoundary);
@@ -158,6 +159,7 @@ dream.Screen.prototype.paintWithBufferdRedrawRegion = function(ctx, rect, render
 		
 	var rg;
 	for(var i = 0, l = this.redrawRegions.length; i < l; i++){
+		var rr = this.redrawRegions[i];
 		if(rg = rr.getIntersectWith(renderRect)){
 			var rb = this.rerenderBuffer;
 			rb.canvas.width = rg.width;
