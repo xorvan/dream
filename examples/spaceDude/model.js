@@ -16,8 +16,8 @@ fireSprite =  new visual.SequentialSpriteSheet("res/burning.png", {"main":{left:
 Dude = function(top, left){
 	visual.Composite.call(this, top, left)
 
-	this.rect.width = 100;
-	this.rect.height = 100;
+	// this.rect.width = 100;
+	// this.rect.height = 100;
 
 	var body = new visual.Bitmap(0, 0, "res/space-dude.png")
 	this.assets.add(body)
@@ -30,12 +30,12 @@ Dude = function(top, left){
 
 	this.assets.add(burning)
 
-	this.behaviors.add(new behavior.Motion("top", 0, .8, function(motion){
-		if(motion.velocity > 30){
-			motion.velocity = 30;
+	this.behaviors.add(new behavior.Motion("top", 0, .4, function(motion){
+		if(motion.velocity > 20){
+			motion.velocity = 20;
 			motion.acceleration = 0;
-		} else 	if(motion.velocity < -30){
-			motion.velocity = -30;
+		} else 	if(motion.velocity < -20){
+			motion.velocity = -20;
 			motion.acceleration = 0;
 		}
 		burning.visible = motion.acceleration < 0;
@@ -43,7 +43,7 @@ Dude = function(top, left){
 
 	}), "motionY");
 
-	this.engineOn = false; 
+	this.engineOn = false;
 
 	var self = this;
 
@@ -59,7 +59,7 @@ Dude = function(top, left){
 
 Dude.prototype.start = function(){
 	this.behavior.actions.add(this.behaviors.motionY);
-	this.behavior.actions.add(new behavior.Motion("left", 10, 0), "motionX");
+	this.behavior.actions.add(new behavior.Motion("left", 5, 0), "motionX");
 }
 
 Rocket = function(top, left, rotation){
@@ -85,11 +85,11 @@ Wall = function(top, left, rotation){
 
 StartGameButton = function(left, top){
 	Composite.call(this, left, top);
-	
+
 	this.border = this.assets.add(new drawing.Rect(0,0,200,70));
 	this.border.strokeStyle = "#666";
 	this.border.fillStyle = "#eee";
-	
+
 	this.caption = this.assets.add(new drawing.Text(55, 50, "Start"));
 	this.caption.fontSize = 40;
 }.inherits(Composite);

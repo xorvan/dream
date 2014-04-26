@@ -20,10 +20,10 @@ width = 640;
 init = function(){
 	console.log("init")
 	gameScreen = new dream.Screen(document.getElementById("mainCanvas"), width, 400, width, 1200);
-		
+
 	menuScene = gameScreen.scenes.add(new MenuScene);
 	gameScreen.scenes.current = menuScene;
-	
+
 	// if(window.initStat) initStat();
 
 	startGame();
@@ -36,7 +36,7 @@ startGame = function(){
 	gameScene = gameScreen.scenes.current = new GameScene();
 	gameScene.onGameOver.add(function(){
 		console.log("Game Over!");
-		startGame();	
+		startGame();
 	});
 	gameScene.isImageChanged = true;
 
@@ -44,21 +44,21 @@ startGame = function(){
 
 MenuScene = function(jumper, gameScreen){
 	dream.scenery.Scene.call(this);
-	
-	this.title = this.assets.add(new Text(width/2, 100, "Well Jump"));	
+
+	this.title = this.assets.add(new Text(width/2, 100, "Well Jump"));
 	this.title.fontSize = 60;
 	this.title.align = drawing.Align.CENTER;
 
-	this.score = this.assets.add(new Text(width/2, 200, ""));	
+	this.score = this.assets.add(new Text(width/2, 200, ""));
 	this.score.fontSize = 40;
 	this.score.align = drawing.Align.CENTER;
-	
+
 	this.startButton = this.assets.add(new StartGameButton((width - 200)/2, 400));
 	this.startButton.onClick.add(function(){
 		startGame();
 	});
-	
-	
+
+
 }.inherits(dream.scenery.Scene);
 
 GameScene = function(){
@@ -67,7 +67,7 @@ GameScene = function(){
 	// this.rect.height = gameScreen.height;
 	// this.rect.width = gameScreen.width;
 
-	dude = new Dude(100, 200);
+	dude = new Dude(50, 200);
 	this.assets.add(dude);
 
 	rocket = new Rocket(-100, -200);
@@ -97,7 +97,7 @@ GameScene = function(){
 			dude.top = 0;
 		}
 
-		self.camera.left = dude.left - 100;
+		self.camera.left = dude.left - 50;
 
 		for(var j = 0; j < walls.length; j++){
 			var w = walls[j];
@@ -124,8 +124,8 @@ GameScene = function(){
 
 	function shot(angle){
 		var rocket = new Rocket(dude.left + dude.rect.width, dude.top + 18, angle);
-		self.assets.add(rocket)	
-		rockets.push(rocket)	
+		self.assets.add(rocket)
+		rockets.push(rocket)
 	}
 
 	var touchX, touchY;
@@ -138,9 +138,9 @@ GameScene = function(){
 		if(e.changedTouches){
 			touchX = e.changedTouches[0].pageX;
 			touchY = e.changedTouches[0].pageY;
-			e.preventDefault();			
+			e.preventDefault();
 		}
-		dude.behaviors.motionY.acceleration = -.8;
+		dude.behaviors.motionY.acceleration = -.7;
 	}));
 
 	window.addEventListener("touchend", dream.input.onKeyUp.add(function(e){
@@ -154,7 +154,7 @@ GameScene = function(){
 				shot(angle)
 			}
 		}
-		dude.behaviors.motionY.acceleration = .6;
+		dude.behaviors.motionY.acceleration = .5;
 	}));
 
 	this.onClick.add(function(){
