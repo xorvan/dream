@@ -83,8 +83,12 @@ Object.defineProperty(Bitmap$, "requiredResources", {
 			}
 		
 			if (sa instanceof dream.behavior.animation.Sprite){
-				for(var j = 0; j < sa.frames.length; j++ )
-					r.add(new dream.static.Resource(sa.frames[j].url));
+				if(sa.sheetUri){
+					r.add(new dream.static.Resource(sa.sheetUri));
+				}else{
+					for(var j = 0; j < sa.frames.length; j++ )
+						r.add(new dream.static.Resource(sa.frames[j].url));
+				}
 			}
 		}
 		return r;

@@ -57,6 +57,14 @@ Matrix$.multiplyByPoint = function(point){
 	);
 };
 
+Matrix$.multiplyDeltaByNumber = function(number){
+	return new dream.geometry.transform.Matrix(
+			this.x0, this.y0, 
+			this.x1, this.y1, 
+			this.dx * number, this.dy * number
+	);
+};
+
 /**
  * returns the inverse of current matrix
  * @property inverse

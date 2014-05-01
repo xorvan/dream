@@ -116,12 +116,24 @@
 		
 	}; 
 
+	Composite$.doRender = function(g, ctx, origin, renderRect){
+		var origin;
+		if(g.drawDistance !== undefined){
+			ctx.save();
+			origin = this.rect.transformation.getMultipliedInverse(g.drawDistance).apply(ctx, origin)
+			g.render(ctx, origin, renderRect);
+			ctx.restore();
+		}else{
+			g.render(ctx, origin, renderRect);
+		}
+	}
+
 	Composite$.paint = function(ctx, origin, renderRect) {
 		if(!renderRect || renderRect.covers(this.boundary)){
 			for(var zi in this.renderList){
 				var rl = this.renderList[zi];
 				for(var i = 0, l = rl.length; i < l; i++){
-					rl[i].render(ctx, origin, this.rect);
+					this.doRender(rl[i], ctx, origin, this.rect)
 				}		
 			}		
 		}else{
@@ -131,7 +143,7 @@
 				for(var i = 0, l = rl.length; i < l; i++){
 					var g = rl[i];
 					if(g.boundary.hasIntersectWith(ldr)){
-						g.render(ctx, origin, ldr);
+						this.doRender(g, ctx, origin, ldr);
 					}
 				}
 			}		

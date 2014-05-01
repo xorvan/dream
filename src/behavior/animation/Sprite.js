@@ -11,11 +11,31 @@ var Animation = dream.behavior.animation.Animation;
  * @extends dream.behavior.animation.Animation
  * @constructor
  */
-var Sprite = function(textureArray){
-	Sprite._superClass.call(this, undefined, textureArray.length);
+var Sprite = function(input){
+	Sprite._superClass.call(this);
 	this.isPassive = true;
 	this.frames = new dream.collection.List();
-	this.frames.addArray(textureArray);	
+	var self = this;
+	if(input instanceof Array){
+		this.frames.addArray(input);
+		this.duration = input.length;
+	}else{
+		// input is spritesheet
+		if(input.isLoaded){
+			var textureArray = input.textures;
+			this.frames.addArray(textureArray);
+			this.duration = textureArray.length;
+		}else{
+			this.sheetUri = input.sheetUri;
+			console.log("input sheet is: ", input)
+			input.sheet.onLoad.add(function(){
+				self.frames.addArray(input.textures);
+				self.duration = input.textures.length;
+			})
+		}
+		
+	}
+	
 }.inherits(Animation);
 
 var Sprite$ = Sprite.prototype;

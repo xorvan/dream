@@ -1,12 +1,19 @@
 ajsprite =    new dream.visual.SequentialSpriteSheet("res/aj.png",{"main":{left:270, top:0, width:88, height:160, count:3, col:1}});
-firesprite =  new dream.visual.SequentialSpriteSheet("res/fire.png",{"main":{left:0, top:0, width:64, height:64, count:16, col:1}});
+//firesprite =  new dream.visual.SequentialSpriteSheet("res/fire.png",{"main":{left:0, top:0, width:64, height:64, count:16, col:1}});
+firesprite =  new dream.visual.XmlSpriteSheet("res/sprites.xml");
+// firesprite =  new dream.visual.JsonSpriteSheet("res/rr.json");
+tts =  new dream.visual.JsonSpriteSheet("res/tts.json");
 cubesprite =  new dream.visual.SequentialSpriteSheet("res/cube.png",{"main":{left:0, top:0, width:60, height:60, count:30, col:1}});
 enemySprite = new dream.visual.SequentialSpriteSheet("res/enemies.png",{"main":{left:0, top:0, width:100, height:75, count:4, col:1}});
+
+// new dream.behavior.animation.Sprite(new Resource("res/tts.json#gher*;Content-Type=application/spritesheet+json"));
+// new dream.behavior.animation.Sprite(new Resource("res/cube.png#left=0&top=0&width=60&height=60&count=30&col=1"));
+
 
 var bt = dream.behavior;
 
 Aj = function(left, top){
-	dream.visual.Bitmap.call(this, left, top, new bt.decorator.Interval(new dream.behavior.animation.Sprite(ajsprite.textures), 15));
+	dream.visual.Bitmap.call(this, left, top, new bt.decorator.Interval(new dream.behavior.animation.Sprite(ajsprite), 15));
 	}.inherits(dream.visual.Bitmap);
 	
 //	dream.visual.Bitmap.call(this,left, top, {
@@ -22,11 +29,15 @@ Aj = function(left, top){
 
 
 Fire = function(left, top){
-	dream.visual.Bitmap.call(this, left, top, new bt.decorator.Interval(new dream.behavior.animation.Sprite(firesprite.textures), 4));
+	dream.visual.Bitmap.call(this, 50,50, new bt.decorator.Interval(new dream.behavior.animation.Sprite(firesprite), 90));
+}.inherits(dream.visual.Bitmap);
+
+TT = function(left, top){
+	dream.visual.Bitmap.call(this, 150, 150, new bt.decorator.Interval(new dream.behavior.animation.Sprite(tts.getTextureArray("gher")), 70));
 }.inherits(dream.visual.Bitmap);
 
 Cube = function(left, top){
-	dream.visual.Bitmap.call(this, left, top, new bt.decorator.Interval(new dream.behavior.animation.Sprite(cubesprite.textures), 3));
+	dream.visual.Bitmap.call(this, left, top, new bt.decorator.Interval(new dream.behavior.animation.Sprite(cubesprite), 3));
 }.inherits(dream.visual.Bitmap);
 
 Poly1 = function(left, top){
