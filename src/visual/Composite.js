@@ -129,6 +129,7 @@
 	}
 
 	Composite$.paint = function(ctx, origin, renderRect) {
+		if(this._isScene) this._paintCounter ++;
 		if(!renderRect || renderRect.covers(this.boundary)){
 			for(var zi in this.renderList){
 				var rl = this.renderList[zi];
@@ -143,10 +144,31 @@
 				for(var i = 0, l = rl.length; i < l; i++){
 					var g = rl[i];
 					if(g.boundary.hasIntersectWith(ldr)){
+						if(this._isScene){
+							this._rrCounter ++;
+							if(isNaN(this._rrProfile[zi])) 
+								this._rrProfile[zi]=0;
+							this._rrProfile[zi] += 1;
+						}
 						this.doRender(g, ctx, origin, ldr);
 					}
 				}
-			}		
+			}
+			if(this._isScene){
+				
+				this._paintCounter ++;
+				if(this._paintCounter > 30){
+					console.log("total count of rr: ", this._rrCounter);	
+					console.log("z profle is: ", this._rrProfile);
+					for(var jj=0; jj < this._rrProfile.length; jj++){
+						this._rrProfile[jj] = 0;
+					}
+					this._paintCounter = 0
+					this._rrCounter = 0;
+				}
+				
+				
+			}
 		}
 	};
 

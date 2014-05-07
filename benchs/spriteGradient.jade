@@ -9,6 +9,7 @@ block bench-script
 			
 			for(var i = 0; i < 200; i++ ){
 				var c = new Poly1(Math.random() * 900, Math.random() * 600);
+				c.z=1;
 				scene.assets.add(c);
 			}
 			
@@ -16,15 +17,18 @@ block bench-script
 			mcr.useBuffer = true;
 			for(var i = 0; i < 16; i++ ){
 				var cr = new dream.visual.Mirror(Math.random() * 900, Math.random() * 800 - 200, mcr);
+				cr.z=2;
 				scene.assets.add(cr);
 			}
 			
 			for(var i = 0; i < 100; i++ ){
 				var c = new Cube(Math.random() * 700 + 100, Math.random() * 600);
+				c.z=4
 				scene.assets.add(c);
 			}
 
 			en=new Enemy(0,0);
+			en.z=3
 			en.behavior.actions.add(new dream.behavior.animation.Tween({left:900,top:300,alpha:0.1,rotation:355}, 300, new dream.behavior.animation.interpolator.Sine));
 			scene.assets.add(en);
 

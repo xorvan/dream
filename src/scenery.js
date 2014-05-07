@@ -17,6 +17,11 @@ dream.scenery.Scene = function(){
 	this.renderDistanceY = 1;
 	
 	this.areaChangeRate = .5;
+
+	this._isScene = true;
+	this._rrProfile = [];
+	this._rrCounter  = 0;
+	this._paintCounter  = 0;
 	
 	
 	this.loader = new dream.static.Loader();
