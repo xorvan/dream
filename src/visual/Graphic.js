@@ -80,6 +80,11 @@ Graphic$.paintFromBuffer = function(ctx, origin, renderRect){
 };
 
 Graphic$.render = function(ctx, origin, renderRect) {
+	if(ctx instanceof dream.util.Plane){
+		var plane = ctx
+		//this is a plane of a scene not a context
+		var ctx = ctx.ctx;
+	}
 	if(!this.visible) return 0;
 	ctx.save();	
 	if(this.a != 1) ctx.globalAlpha = this.alpha;
@@ -100,7 +105,7 @@ Graphic$.render = function(ctx, origin, renderRect) {
 		if(this.filters.length)
 			ctx.drawImage(this.filters.apply(this.imageData), (o.left | 0) + this.rect.left, (o.top | 0) + this.rect.top);
 		else
-			this.paint(ctx, o, renderRect);
+			this.paint(plane ? plane:ctx, o, renderRect);
 	}
 	ctx.restore();
 };

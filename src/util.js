@@ -256,6 +256,19 @@ dream.util.RedrawRegionList.prototype.clear = function(){
 	this.splice(0, this.length);
 };
 
+
+
+dream.util.Plane = function(arr){
+	this.z = arr || [];
+	this.redrawRegions = new dream.util.RedrawRegionList();
+	this.ctx = undefined;
+	this.perf = {
+		rgProfile: [],
+		rgCount: 0,
+		paintCount: 0
+	}
+}
+
 /**
  * @constructor
  */
