@@ -228,12 +228,133 @@
 	 * @author Mehdi
 	 * @constructor
 	 */
-	var QuadTree = function(comp){
+	var QuadTree = function(width, height){
+		this.width = width;
+		this.height = height;
+		this.list = {};
 
-	}
+	};
 
 	QuadTree$ = QuadTree.prototype;
 
+	QuadTree$.clear = function(){
+		this.list = {};
+	};
+
+	QuadTree$.examine = function(obj, ind, halve){
+		var halve =  halve || 0;
+		var ind = ind || "";
+		var lv = ind.length+1;
+		var wh = this.width/Math.pow(2, lv) | 0;
+		var hh = this.height/Math.pow(2, lv) | 0;
+		var t = obj.__partTop || obj.top;
+		var l = obj.__partLeft || obj.left;
+		var w = obj.__partWidth || obj.width;
+		var h = obj.__partHeight || obj.height;
+		var b = t + h
+		var r = l + w;
+		// console.log("working with object:(ind, l,t,w,h,wh,hh) ",ind, l, t, w, h, wh, hh);
+		if((l < wh && r > wh && t < hh && b > hh) || (w*h*2 > wh*hh) || halve > 2){
+			//object covers the full level
+			addToIndex.call(this,obj,ind);
+			return true;
+		}
+		if(r < wh){
+			//object is in left half
+			// console.log("left");
+			if(b < hh){
+				// console.info("left top");
+				this.examine(obj, ind+"1")
+			}
+			else if(t > hh){
+				// console.log("left bottom");
+				obj.__partTop = t - hh
+				this.examine(obj, ind+"2")
+			}
+			else{
+				// spans in both vertical regions
+				obj.__partHeight = hh - t;
+				this.examine(obj, ind+"1", halve+1);
+				obj.__partHeight = b - hh;
+				obj.__partTop = hh
+				this.examine(obj, ind+"2", halve+1);
+
+			}
+
+		}else if(l > wh){
+			// right span
+			// console.log("right");
+			if(b < hh){
+				// console.log("right top");
+				obj.__partLeft = l - wh
+				this.examine(obj, ind+"4")
+			}
+			else if(t > hh){
+				// console.log("right bottom");
+				obj.__partLeft = l - wh;
+				obj.__partTop = t - hh;
+				this.examine(obj, ind+"3")
+			}
+			else{
+				// spans in both vertical regions
+				obj.__partLeft = l - wh;
+				obj.__partHeight = hh - t;
+				this.examine(obj, ind+"4", halve+1);
+				obj.__partLeft = l - wh;
+				obj.__partHeight = b - hh;
+				obj.__partTop = hh
+				this.examine(obj, ind+"3", halve+1);
+			}
+
+		}else if(b < hh){
+			//top panel
+			// console.log("top");
+			if(r < wh){
+				// console.log("top left");
+				this.examine(obj, ind+"1")
+			}else if(l > wh){
+				// console.log("top right");
+				this.examine(obj, ind+"4")
+			}else{
+				// top both left and right
+				obj.__partWidth = wh - l;
+				this.examine(obj, ind+"1", halve+1);
+				obj.__partLeft = wh;
+				obj.__partWidth = r - wh;
+				this.examine(obj, ind+"4", halve+1);
+			}
+
+
+		}else if(t > hh){
+			// bottom panel
+			// console.log("bottom");
+			if(r < wh){
+				// console.log("bottom left");
+				this.examine(obj, ind+"2")
+			}else if(l > wh){
+				// console.log("bottom right");
+				this.examine(obj, ind+"3")
+			}else{
+				// bottom both left and right
+				obj.__partTop = t - hh
+				obj.__partWidth = wh - l;
+				this.examine(obj, ind+"2", halve+1);
+				obj.__partTop = t - hh
+				obj.__partLeft = wh;
+				obj.__partWidth = r - wh;
+				this.examine(obj, ind+"3", halve+1);
+
+
+			}
+		}
+		function addToIndex(obj, ind){
+			var ind = ind == "" ? "0":ind;
+			if(!this.list[ind]) 
+				this.list[ind] = [];
+			this.list[ind].push(obj);
+			// console.log("index added: ", ind);
+		}
+	}
 
 	/**
 	 * @author Ehsan

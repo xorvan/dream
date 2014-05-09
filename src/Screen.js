@@ -230,6 +230,8 @@ Screen$.paintWithClippingRedrawRegion = function(origin, renderRect) {
 	var rgCount = 0;
 	var scene = this.scenes.current;
 	var planes = scene.planes;
+	var completeRender = false;
+	if(renderRect.area == this.width * this.height) completeRender = true;
 	scene.step(this.fc);
 	var rg;
 	for(pi in planes){
@@ -237,7 +239,11 @@ Screen$.paintWithClippingRedrawRegion = function(origin, renderRect) {
 		// console.log("painting pi: ", pi, pl.redrawRegions.length);
 		for(var i = 0, ll = pl.redrawRegions.length; i < ll; i++){
 			var rr = pl.redrawRegions[i];
-			if(rg = rr.getIntersectWith(renderRect)){
+			if(completeRender) rg = rr;
+			else{
+				rg = rr.getIntersectWith(renderRect)
+				if(!rg) continue
+			}		
 				var l = (rg.left | 0), t = (rg.top | 0), w = (rg.width | 0) , h = (rg.height | 0);
 				pl.ctx.save();
 				pl.ctx.beginPath();
@@ -246,9 +252,7 @@ Screen$.paintWithClippingRedrawRegion = function(origin, renderRect) {
 				pl.ctx.closePath();
 				pl.ctx.clearRect(l, t, w, h);
 				scene.render(pl, origin, new dream.geometry.Rect(l, t, w, h));
-				pl.ctx.restore();
-				//console.log(rr+"");
-			}
+				pl.ctx.restore();	
 		}
 		pl.redrawRegions.clear();
 		
