@@ -224,6 +224,121 @@
 		}
 	});
 
+
+	var Quad = function(){
+		this.subs = [];
+		this.uniqueSubs = [];
+		this.own = [];
+	}
+
+	Quad$ = Quad.prototype;
+
+	Quad$.put = function(path, obj){
+		if(path.length == 0){
+			this.own.push(obj)
+		}else{
+			if(!this[path[0]])
+				this[path[0]] = new Quad();
+			this.subs.push(obj);
+			if(!~this.uniqueSubs.indexOf(obj)) this.uniqueSubs.push(obj);
+			this[path[0]].put(path.substr(1), obj)
+		}
+		
+	};
+
+	Quad$.get = function(path){
+		var res = this;
+		for(var i=0; i< path.length; i++){
+			res=res[path[i]]
+			if(!res){
+				console.error("NO SUCH A PATH IN QUAD", path);
+				break
+			}
+		}
+		return res;
+	};
+
+	Quad$.remove = function(path){
+		var s = this.get(path.substr(0,path.length-1))
+		delete s[path[path.length-1]];
+	}
+
+	Quad$.getSubs = function(path){
+		var res = this.get(path)
+		if(res) {
+			return res.subs;
+		}else{
+			console.error("NO such a path", path);
+		}
+	};
+
+	Quad$.getSubsArray = function(arr){
+		var rs = [];
+		for(var i=0; i<arr.length;i++){
+			var res = this.get(path)
+			if(res) {
+				rs.concat(res.subs);
+			}else{
+				console.error("NO such a path", path);
+			}
+			
+		}
+		return rs;
+	};
+
+	Quad$.getUniqueSubs = function(path){
+		var res = this.get(path)
+		if(res) {
+			return res.uniqueSubs;
+		}else{
+			console.error("NO such a path", path);
+		}
+	};
+
+	Quad$.getUniqueSubsArray = function(arr){
+		var rs = [];
+		for(var i=0; i<arr.length;i++){
+			var res = this.get(path)
+			if(res) {
+				for(var j=0; j< res.length; j++)
+					if(!~rs.indexOf(res[j])) rs.push(res[j]);
+			}else{
+				console.error("NO such a path", path);
+			}
+			
+		}
+		return rs;
+	};
+
+	Quad$.deletePathArray = function(obj, arr){
+		for(var i=0; i<arr.length;i++){
+			var path = arr[i];
+			var res = this;
+			var ind = res.subs.indexOf(obj);
+			if(ind != -1) res.subs.splice(ind,1);
+			var ind2 = res.uniqueSubs.indexOf(obj);
+			if(ind2 != -1) res.uniqueSubs.splice(ind2,1);
+			for(var j=0; j< path.length; j++){
+				res=res[path[j]]
+				if(!res){
+					console.error("NO SUCH A PATH IN QUAD", path);
+					break
+				}else{
+					ind = res.subs.indexOf(obj);
+					if(ind != -1) res.subs.splice(ind,1);
+					ind2 = res.uniqueSubs.indexOf(obj);
+					if(ind2 != -1) res.uniqueSubs.splice(ind2,1);
+				}
+			}
+			res.own.splice(res.own.indexOf(obj),1);
+			if(res.own.length = 0){
+				this.remove(path);
+			}
+			
+		}
+	};
+
+
 	/**
 	 * @author Mehdi
 	 * @constructor
@@ -231,17 +346,34 @@
 	var QuadTree = function(width, height){
 		this.width = width;
 		this.height = height;
-		this.list = {};
+		this.list = new Quad();
+		this.keys = [];
 
 	};
 
 	QuadTree$ = QuadTree.prototype;
 
 	QuadTree$.clear = function(){
-		this.list = {};
+		this.list = new Quad();
+		this.keys = [];
 	};
 
-	QuadTree$.examine = function(obj, ind, halve){
+	QuadTree$.examine = function(obj){
+		var q = new QuadTree(this.width, this.height);
+		q.add(obj);
+		return q.keys;
+	}
+
+
+	QuadTree$.add = function(obj, ind){
+		var rs = this.doAdd(obj, ind);
+		delete obj.__partTop
+		delete obj.__partLeft
+		delete obj.__partWidth
+		delete obj.__partHeight
+	};
+
+	QuadTree$.doAdd = function(obj, ind, halve){
 		var halve =  halve || 0;
 		var ind = ind || "";
 		var lv = ind.length+1;
@@ -264,20 +396,20 @@
 			// console.log("left");
 			if(b < hh){
 				// console.info("left top");
-				this.examine(obj, ind+"1")
+				this.doAdd(obj, ind+"1")
 			}
 			else if(t > hh){
 				// console.log("left bottom");
 				obj.__partTop = t - hh
-				this.examine(obj, ind+"2")
+				this.doAdd(obj, ind+"2")
 			}
 			else{
 				// spans in both vertical regions
 				obj.__partHeight = hh - t;
-				this.examine(obj, ind+"1", halve+1);
+				this.doAdd(obj, ind+"1", halve+1);
 				obj.__partHeight = b - hh;
 				obj.__partTop = hh
-				this.examine(obj, ind+"2", halve+1);
+				this.doAdd(obj, ind+"2", halve+1);
 
 			}
 
@@ -287,23 +419,23 @@
 			if(b < hh){
 				// console.log("right top");
 				obj.__partLeft = l - wh
-				this.examine(obj, ind+"4")
+				this.doAdd(obj, ind+"4")
 			}
 			else if(t > hh){
 				// console.log("right bottom");
 				obj.__partLeft = l - wh;
 				obj.__partTop = t - hh;
-				this.examine(obj, ind+"3")
+				this.doAdd(obj, ind+"3")
 			}
 			else{
 				// spans in both vertical regions
 				obj.__partLeft = l - wh;
 				obj.__partHeight = hh - t;
-				this.examine(obj, ind+"4", halve+1);
+				this.doAdd(obj, ind+"4", halve+1);
 				obj.__partLeft = l - wh;
 				obj.__partHeight = b - hh;
 				obj.__partTop = hh
-				this.examine(obj, ind+"3", halve+1);
+				this.doAdd(obj, ind+"3", halve+1);
 			}
 
 		}else if(b < hh){
@@ -311,17 +443,17 @@
 			// console.log("top");
 			if(r < wh){
 				// console.log("top left");
-				this.examine(obj, ind+"1")
+				this.doAdd(obj, ind+"1")
 			}else if(l > wh){
 				// console.log("top right");
-				this.examine(obj, ind+"4")
+				this.doAdd(obj, ind+"4")
 			}else{
 				// top both left and right
 				obj.__partWidth = wh - l;
-				this.examine(obj, ind+"1", halve+1);
+				this.doAdd(obj, ind+"1", halve+1);
 				obj.__partLeft = wh;
 				obj.__partWidth = r - wh;
-				this.examine(obj, ind+"4", halve+1);
+				this.doAdd(obj, ind+"4", halve+1);
 			}
 
 
@@ -330,28 +462,26 @@
 			// console.log("bottom");
 			if(r < wh){
 				// console.log("bottom left");
-				this.examine(obj, ind+"2")
+				this.doAdd(obj, ind+"2")
 			}else if(l > wh){
 				// console.log("bottom right");
-				this.examine(obj, ind+"3")
+				this.doAdd(obj, ind+"3")
 			}else{
 				// bottom both left and right
 				obj.__partTop = t - hh
 				obj.__partWidth = wh - l;
-				this.examine(obj, ind+"2", halve+1);
+				this.doAdd(obj, ind+"2", halve+1);
 				obj.__partTop = t - hh
 				obj.__partLeft = wh;
 				obj.__partWidth = r - wh;
-				this.examine(obj, ind+"3", halve+1);
+				this.doAdd(obj, ind+"3", halve+1);
 
 
 			}
 		}
 		function addToIndex(obj, ind){
-			var ind = ind == "" ? "0":ind;
-			if(!this.list[ind]) 
-				this.list[ind] = [];
-			this.list[ind].push(obj);
+			this.list.put(ind, obj);
+			this.keys.push(ind);
 			// console.log("index added: ", ind);
 		}
 	}
@@ -572,6 +702,7 @@ dream.util = {
 	RedrawRegionList: RedrawRegionList,
 	AssetLibrary: AssetLibrary,
 	QuadTree: QuadTree,
+	Quad: Quad,
 	Selector: Selector,
 	assert: assert,
 	getId: getId,
