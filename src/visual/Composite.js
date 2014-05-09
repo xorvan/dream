@@ -39,7 +39,6 @@
 				a.onBoundaryChange.add(composite.addToRect.bind(composite, a), composite);
 				
 				if(!composite._isDirty){
-					// a.onImageChange.add(composite.imageChangeHandle, composite);
 					a.onImageChange.add(function(arr){
 						composite.redrawRegions.addArray(arr);
 

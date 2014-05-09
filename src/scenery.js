@@ -59,26 +59,22 @@ dream.scenery.Scene = function(){
 			scene.planes[0].z.push(z);
 		}
 		a.isImageChanged = true;
-
-		a.onImageChange.add(function(arr){
-			var z = a.z || 0;
-			for(var pi in scene.planes){
-				var pl = scene.planes[pi];
-				if(~pl.z.indexOf(z)){
-					pl.redrawRegions.addArray(arr)
+		if(!scene._isDirty)
+			a.onImageChange.add(function(arr){
+				var z = a.z || 0;
+				for(var pi in scene.planes){
+					var pl = scene.planes[pi];
+					if(~pl.z.indexOf(z)){
+						pl.redrawRegions.addArray(arr)
+					}
 				}
-			}
-		})
+			})
 		
 		a.onBoundaryChange.add(function(){
 			scene.addToRect(this);
 			scene.checkPresence(this);
 		}, scene);
 		
-		// if(!scene._isDirty)
-		// 	a.onImageChange.add(function(rects){
-		// 		scene.redrawRegions.addArray(rects);
-		// 	}, scene);
 	});
 	
 	
