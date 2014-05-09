@@ -75,10 +75,10 @@ dream.scenery.Scene = function(){
 			scene.checkPresence(this);
 		}, scene);
 		
-		if(!scene._isDirty)
-			a.onImageChange.add(function(rects){
-				scene.redrawRegions.addArray(rects);
-			}, scene);
+		// if(!scene._isDirty)
+		// 	a.onImageChange.add(function(rects){
+		// 		scene.redrawRegions.addArray(rects);
+		// 	}, scene);
 	});
 	
 	

@@ -244,7 +244,6 @@ Screen$.paintWithClippingRedrawRegion = function(origin, renderRect) {
 				pl.ctx.rect(l, t, w, h);
 				pl.ctx.clip();
 				pl.ctx.closePath();
-				rgCount++;
 				pl.ctx.clearRect(l, t, w, h);
 				scene.render(pl, origin, new dream.geometry.Rect(l, t, w, h));
 				pl.ctx.restore();
