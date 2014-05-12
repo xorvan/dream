@@ -6,8 +6,10 @@ block bench-script
 			test.frameRate = 250;
 
 			scene = new dream.scenery.Scene;
+
+			var seed = 10;
 			
-			for(var i = 0; i < 200; i++ ){
+			for(var i = 0; i < 200*seed; i++ ){
 				var c = new Poly1(Math.random() * 900, Math.random() * 600);
 				c.z=1;
 				scene.assets.add(c);
@@ -15,14 +17,14 @@ block bench-script
 			
 			var mcr = new CompositeRect(0, 0, 50, 50);
 			mcr.useBuffer = true;
-			for(var i = 0; i < 12; i++ ){
+			for(var i = 0; i < 12*seed; i++ ){
 				//- Math.random() * 50 + 50, Math.random() * 50 + 50
 				var cr = new dream.visual.Mirror(Math.random() * 700, Math.random() * 300, mcr);
 				cr.z=3
 				scene.assets.add(cr);
 			}
 			
-			for(var i = 0; i < 100; i++ ){
+			for(var i = 0; i < 100*seed; i++ ){
 				var f = new Fire(Math.random() * 700 + 100, Math.random() * 600);
 				f.z=2
 				scene.assets.add(f);

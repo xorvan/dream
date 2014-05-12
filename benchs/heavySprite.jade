@@ -7,27 +7,28 @@ block bench-script
 			
 			scene = new dream.scenery.Scene;
 			
-			
-			for(var i = 0; i < 250; i++ ){
+			var seed = 10;
+
+			for(var i = 0; i < 250*seed; i++ ){
 				var c = new Poly1(Math.random() * 900, Math.random() * 600);
 				c.z=1;
 				scene.assets.add(c);
 			}
 			
-			for(var i = 0; i < 250; i++ ){
+			for(var i = 0; i < 250*seed; i++ ){
 				var cr = new Aj(Math.random() * 900, Math.random() * 800 - 200);
 				cr.z=2;
 				scene.assets.add(cr);
 			}
 			
-			for(var i = 0; i < 250; i++ ){
+			for(var i = 0; i < 250*seed; i++ ){
 				var cc = new Cube(Math.random() * 700 + 100, Math.random() * 600);
 				cc.z=3;
 				scene.assets.add(cc);
 			}
 
 			
-			for(var i = 0; i < 250; i++ ){
+			for(var i = 0; i < 250*seed; i++ ){
 				var cf = new Fire(Math.random() * 900, Math.random() * 800 - 200);
 				cf.z=4;
 				scene.assets.add(cf);

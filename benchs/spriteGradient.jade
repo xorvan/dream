@@ -6,8 +6,9 @@ block bench-script
 			test.frameRate = 250;
 
 			scene = new dream.scenery.Scene;
+			var seed = 10;
 			
-			for(var i = 0; i < 200; i++ ){
+			for(var i = 0; i < 200*seed; i++ ){
 				var c = new Poly1(Math.random() * 900, Math.random() * 600);
 				c.z=1;
 				scene.assets.add(c);
@@ -15,13 +16,13 @@ block bench-script
 			
 			var mcr = new Paper2(0, 0);
 			mcr.useBuffer = true;
-			for(var i = 0; i < 16; i++ ){
+			for(var i = 0; i < 16*seed; i++ ){
 				var cr = new dream.visual.Mirror(Math.random() * 900, Math.random() * 800 - 200, mcr);
 				cr.z=2;
 				scene.assets.add(cr);
 			}
 			
-			for(var i = 0; i < 100; i++ ){
+			for(var i = 0; i < 100*seed; i++ ){
 				var c = new Cube(Math.random() * 700 + 100, Math.random() * 600);
 				c.z=4
 				scene.assets.add(c);
