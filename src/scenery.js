@@ -172,9 +172,9 @@ Scene$.prepare = function(callBack){
 };
 
 
-
 Scene$.paint = function(plane, origin, renderRect){
 	var pp = plane.perf;
+
 	// console.log("plane is ", plane)
 	if(!renderRect || renderRect.covers(this.boundary)){
 		for(var zi in this.renderList){
@@ -200,54 +200,54 @@ Scene$.paint = function(plane, origin, renderRect){
 					if(isNaN(pp.rgProfile[zi])) 
 						pp.rgProfile[zi]=0;
 					pp.rgProfile[zi] += 1;
-					
 					this.doRender(g, plane.ctx, origin, ldr);
 				}
 			}
 		}
-		pp.paintCount ++;
-		// console.log("ppaint ", plane.z, pp.paintCount);
-
-		// take useful data out of profiling
-		if(pp.paintCount >= 60){
-			var maxrg = 0;
-			var maxrgIndex
-			var layers = 0;
-			for(var i in pp.rgProfile){
-				pp.rgProfile[i] = (pp.rgProfile[i]*100/pp.rgCount) | 0;
-				if(pp.rgProfile[i] > 0){
-					layers++;
-					if(pp.rgProfile[i] > maxrg){
-						maxrg = pp.rgProfile[i];
-						maxrgIndex = i*1;
-						
-					}
-				}
-			}
-			// now the aftermath makes the decision
-			// console.log("the aftermath of profiling: layers, maxrg, maxrgIndex, rgcount", layers, maxrg, maxrgIndex, pp.rgCount)
-			// if(this.config.autoLayering && layers > 1 && maxrg > 20 && pp.rgCount > this.config.autoLayeringThreshold){
-			if(this.config.autoLayering && layers > 1 && maxrg > 20 && pp.rgCount > 1000){
-				this.postRenderQueue.push(function(){
-					this.addPlane([maxrgIndex]);
-				})
-				
-			}
-
-			// console.log("total count of rr for plane: ",plane.z, pp.rgCount);	
-			// console.log("z profle for plane: ", plane.z, pp.rgProfile);
-
-
-			// cleanup
-			for(var jj=0; jj < pp.rgProfile.length; jj++){
-				pp.rgProfile[jj] = 0;
-			}
-			pp.paintCount = 0
-			pp.rgCount = 0;
-		}
 			
 	}
 };
+
+Scene$.postPlaneRender = function(plane){
+	var pp = plane.perf;
+	pp.paintCount ++;
+	if(pp.paintCount > 7){
+		var maxrg = 0;
+		var maxrgIndex
+		var layers = 0;
+		for(var i in pp.rgProfile){
+			pp.rgProfile[i] = (pp.rgProfile[i]*100/pp.rgCount) | 0;
+			if(pp.rgProfile[i] > 0){
+				layers++;
+				if(pp.rgProfile[i] > maxrg){
+					maxrg = pp.rgProfile[i];
+					maxrgIndex = i*1;
+					
+				}
+			}
+		}
+		// now the aftermath makes the decision
+		// console.log("the aftermath of profiling: layers, maxrg, maxrgIndex, rgcount", layers, maxrg, maxrgIndex, pp.rgCount)
+		// if(this.config.autoLayering && layers > 1 && maxrg > 20 && pp.rgCount > this.config.autoLayeringThreshold){
+		if(this.config.autoLayering && layers > 1 && maxrg > 20 && maxrg < 95 && pp.rgCount > 1000){
+			this.postRenderQueue.push(function(){
+				this.addPlane([maxrgIndex]);
+			})
+			
+		}
+
+		// console.log("total count of rr for plane: ",plane.z, pp.rgCount);	
+		// console.log("z profle for plane: ", plane.z, pp.rgProfile);
+
+
+		// cleanup
+		for(var jj=0; jj < pp.rgProfile.length; jj++){
+			pp.rgProfile[jj] = 0;
+		}
+		pp.paintCount = 0
+		pp.rgCount = 0;
+	}	
+}
 
 Scene$.postRender = function(){
 	for(var i=0;i < this.postRenderQueue.length; i++){

@@ -233,7 +233,7 @@ Screen$.paintWithClippingRedrawRegion = function(origin, renderRect) {
 	var completeRender = false;
 	if(renderRect.area == this.width * this.height) completeRender = true;
 	scene.step(this.fc);
-	var rg;
+	var rg, lastIter , newPlane = false;;
 	for(pi in planes){
 		pl = planes[pi]
 		// console.log("painting pi: ", pi, pl.redrawRegions.length);
@@ -255,7 +255,7 @@ Screen$.paintWithClippingRedrawRegion = function(origin, renderRect) {
 				pl.ctx.restore();	
 		}
 		pl.redrawRegions.clear();
-		
+		scene.postPlaneRender(pl);
 	}
 	scene.postRender();
 
