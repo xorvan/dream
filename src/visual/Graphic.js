@@ -3,12 +3,12 @@
  * @namespace dream.visual
  */
 (function(){
-		
+
 /**
  * superclass for all viewable objects on the screen. note no direct instance of *Graphic* could be displayed
  * on screen. any class that is subclassing *Graphic* should implement a *paint* method to which the context
- * and origin *Point* will be sent in render loop. 
- *@class Graphic 
+ * and origin *Point* will be sent in render loop.
+ *@class Graphic
  *@param {Number} left
  *the left position of Graphic
  *@param {Number} top
@@ -18,23 +18,23 @@
 var Graphic = function(left, top){
 	this.a = 1;
 	this._z = 0;
-	
+
 	this.anchor = new dream.geometry.Point();
 	this.origin = new dream.geometry.Point(left, top);
 	this.boundary = new dream.geometry.Rect(left, top);
 	this.rect = new dream.geometry.Rect(0, 0, 0, 0, new dream.geometry.transform.Generic(left, top));
 	this._matrix = this.rect.transformation.matrix;
-	 
+
 	var self = this;
-	
+
 	this.rect.transformation.onChange.buffer();
 	this.rect.transformation.onChange.propagateFlagged(this, "isBoundaryChanged");
-	
+
 	this.visible = true;
-	
+
 	this.isImageChanged = true;
 	this.isBoundaryChanged = true;
-	
+
 	this.behavior = new dream.behavior.selector.Concurrent();
 	this.behavior.init(this);
 
@@ -42,22 +42,22 @@ var Graphic = function(left, top){
 	this.behaviors.onAdd.add(function(behavior){
 		behavior.init(self);
 	});
-	
+
 	this.behaviours = new dream.collection.Dict();
 	this.behaviours.onAdd.add(function(behaviour){
 		behaviour.obj = self;
 		behaviour.enable();
 	});
-	
+
 	this.behaviours.onRemove.add(function(behaviour){
 		behaviour.disable();
 	});
-	
+
 	self.filters = new dream.visual.filter.FilterList;
 	self.filters.onChange.add(function(){
 		self.isImageChanged = true;
 	});
-	
+
 }.inherits(dream.VisualAsset);
 
 var Graphic$ = Graphic.prototype;
@@ -81,7 +81,7 @@ Graphic$.paintFromBuffer = function(ctx, origin, renderRect){
 
 Graphic$.render = function(ctx, origin, renderRect) {
 	if(!this.visible) return 0;
-	ctx.save();	
+	ctx.save();
 	if(this.a != 1) ctx.globalAlpha = this.alpha;
 //	var m = this.rect.transformation.matrix;
 //	ctx.transform(m.x0, m.y0, m.x1, m.y1, m.dx|0, m.dy |0);
@@ -109,9 +109,9 @@ Graphic$.step = function (fc, post){
 	// console.log(fc, this.fc);
 	if(fc == this.fc) return false;
 	this.fc = fc;
-	
+
 	var self = this;
-	
+
 	if (this.behavior && !post) this.behavior.step();
 
 	this.rect.transformation.onChange.flush(function(q){
@@ -124,7 +124,7 @@ Graphic$.step = function (fc, post){
 	if(this.isBoundaryChanged){
 		this.resetBoundary();
 		this.boundary = this.rect.boundary;
-				
+
 		if(!this.boundary.isEqualWith(oldBoundary)){
 			dream.event.dispatch(this, "onBoundaryChange", oldBoundary);
 			this.isImageChanged = true;
@@ -134,15 +134,15 @@ Graphic$.step = function (fc, post){
 			dream.event.dispatch(this, "onImageChange", this.boundary.hasIntersectWith(oldBoundary) ? [this.boundary.add(oldBoundary)] : [this.boundary, oldBoundary]);
 			this.isImageChanged = false;
 		}
-		
+
 		oldBoundary = this.boundary.clone();
 		this.isBoundaryChanged = false;
 	}else if(this.isImageChanged){
 		dream.event.dispatch(this, "onImageChange", [this.boundary]);
 		this.isImageChanged = false;
 	}
-	
-}; 
+
+};
 
 Graphic$.checkHover = function (event){
 	var pl;
@@ -162,7 +162,7 @@ Object.defineProperty(Graphic$, "useBuffer", {
 	set:function(v){
 		if(this.buffer && !v){
 			this.onImageChange.removeByOwner(this.buffer);
-			this.buffer = null; 
+			this.buffer = null;
 		}
 		else if(!this.buffer && v){
 			this._updateBuffer();
@@ -172,6 +172,7 @@ Object.defineProperty(Graphic$, "useBuffer", {
 
 Graphic$._updateBuffer = function(){
 	if (this.buffer == null){
+    this.resetBoundary();
 		this.buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
 		this.onImageChange.add(function(){
 			this._updateBuffer();
@@ -244,7 +245,7 @@ Object.defineProperty(Graphic$, "left", {
 	},
 	set : function(v) {
 		this.origin.left = v;
-		this.rect.transformation.left = v;		
+		this.rect.transformation.left = v;
 	}
 });
 
@@ -329,7 +330,7 @@ Object.defineProperty(Graphic$, "z", {
 	},
 	set : function(v) {
 		dream.util.assert(v >= 0, "Z Index couldn't be negative!");
-		var oldZ = this._z;  
+		var oldZ = this._z;
 		this._z = v|0;
 		if(oldZ != v){
 			this.isImageChanged = true;
@@ -340,8 +341,12 @@ Object.defineProperty(Graphic$, "z", {
 
 Object.defineProperty(Graphic$, "image", {
 	get: function() {
-		var buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
-		this.paint(buffer.context, new dream.geometry.Point(-this.rect.left, -this.rect.top));
+    if(this.buffer){
+      var buffer = this.buffer;
+    }else{
+  		var buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
+  		this.paint(buffer.context, new dream.geometry.Point(-this.rect.left, -this.rect.top));
+    }
 
 		return buffer.canvas;
 	}
@@ -349,8 +354,12 @@ Object.defineProperty(Graphic$, "image", {
 
 Object.defineProperty(Graphic$, "imageData", {
 	get: function() {
-		var buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
-		this.paint(buffer.context, new dream.geometry.Point(-this.rect.left, -this.rect.top));
+    if(this.buffer){
+      var buffer = this.buffer;
+    }else{
+  		var buffer = new dream.util.BufferCanvas(this.rect.width, this.rect.height);
+  		this.paint(buffer.context, new dream.geometry.Point(-this.rect.left, -this.rect.top));
+    }
 		return buffer.context.getImageData(0, 0, this.rect.width, this.rect.height);
 	}
 });
@@ -363,7 +372,7 @@ Object.defineProperty(Graphic$, "mask", {
 		if (v instanceof dream.visual.drawing.Shape){
 			this._mask = v;
 			this.render = function(context, origin, renderRect){
-				context.save();	
+				context.save();
 				if(this.a != 1) context.globalAlpha = this.alpha;
 				var o = this.rect.transformation.apply(context, origin);
 // TODO change it to reverse matrix and thus reducing one save/restore after rectangology optimization
@@ -409,7 +418,7 @@ Object.defineProperty(Graphic$, "shadow", {
 				gfx.isBoundaryChanged = true;
 			})
 			handleChange();
-			
+
 		}
 	}
 });

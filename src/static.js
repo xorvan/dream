@@ -1,16 +1,16 @@
 /**
- * 
+ *
  */
 (function(window){
-	
+
 
 /**
- * 
+ *
  */
 var cache = {};
 
 /**
- * 
+ *
  */
 var normalizeUrl = function(url){
     var a = document.createElement('a');
@@ -25,7 +25,7 @@ var normalizeUrl = function(url){
 var Loader = function(resources){
 	this.loadedCount = 0;
 	this.resources = resources || [];
-	
+
 	this.isRequestSent = false;
 };
 var $ = Loader.prototype;
@@ -34,22 +34,22 @@ dream.event.create($, "onLoad");
 dream.event.create($, "onProgress");
 
 $.load = function(callBack){
-	
+
 	if(this.isRequestSent || this.resources.length == 0){
 		callBack.call(this);
 	}else{
 		this.onLoad.addTemp(callBack);
 		this.isRequestSent = true;
 		this.loadedCount = 0;
-		
+
 		var loader = this;
-		
+
 		for(var i = 0, res; res = this.resources[i]; i++){
 			res.load(function(){
 				loader.loadedCount++;
-				
+
 				dream.event.dispatch(loader, "onProgress");
-				
+
 				if(loader.loadedCount == loader.resources.length){
 					dream.event.dispatch(loader, "onLoad");
 				}
@@ -59,7 +59,7 @@ $.load = function(callBack){
 };
 
 $.reload = function(callBack){
-	this.abort();	
+	this.abort();
 	this.load(callBack);
 };
 
@@ -78,7 +78,7 @@ var Resource = function(url){
 	this.dependencies = [];
 	this.isLoaded = false;
 	this.isRequestSent = false;
-	
+
 	if(url){
 		var option, options = url.split(";");
 		this.url = normalizeUrl(options[0]);
@@ -102,13 +102,13 @@ $.load = function(callBack){
 };
 
 $.reload = function(callBack){
-	this.abort();	
+	this.abort();
 	this.load(callBack);
 };
 
 $.abort = function(){
 	this.isRequestSent = false;
-	
+
 	if(this.xhr){
 		this.xhr.abort();
 		delete this.xhr;
@@ -117,39 +117,39 @@ $.abort = function(){
 			delete this.depLoader;
 		}
 	}
-	
+
 	for(var i = 0, res; res = this.dependencies[i]; i++ )
 		res.abort();
 };
 
 $.doLoad = function(callBack){
 	var res = this;
-	
+
 	if(callBack) this.onLoad.addTemp(callBack);
-	
+
 	var xhr = this.xhr = new XMLHttpRequest();
-	
+
 	if (xhr.overrideMimeType && this.forcedMimeType)
 		xhr.overrideMimeType(this.forcedMimeType);
-	
+
 	xhr.onprogress = function(e){
 		dream.event.dispatch(res, "onProgress", e);
 	};
-	
+
 	xhr.onreadystatechange = function(){
 		if(this.readyState == this.HEADERS_RECEIVED) {
 			var mime = res.forcedMimeType || this.getResponseHeader("Content-Type"),
 				loaderClass = ResourceLoader.getResourceLoader(mime);
-			
+
 			if(!loaderClass) throw new Error("Cannot load resource with Content-Type '"+ mime + "'!");
-			
+
 			res.loader = new loaderClass(this, res.url, function(){
 				res.content = res.loader.content;
 				res.dependencies = res.loader.dependencies;
-				
+
 				if(!res.isLoaded )
 					dream.event.dispatch(res, "onSelfLoad");
-				
+
 				if(res.dependencies && res.dependencies.length > 0){
 					var l = this.depLoader = new Loader(res.dependencies);
 					l.onLoad.add(function(){
@@ -169,29 +169,38 @@ $.doLoad = function(callBack){
 };
 
 /**
- * 
+ *
  * @constructor
  * @extends dream.preload.Resource
  */
 Fragment = function(url){
 	Fragment._superClass.call(this);
-	
+
 	var s = url.split("#");
 	this.resource = new Resource(s[0]);
 	this.hash = s[1];
-	
+
 }.inherits(Resource);
 var $ = Fragment.prototype;
 
 $.doLoad = function(callBack){
-	this.isLoaded = true;
 	dream.event.dispatch(this, "onSelfLoad");
-	
+
+
 	var fragment = this;
-	this.resource.load(function(){
-		fragment.content = this.loader.getContent(fragment.hash);
-		callBack && callBack.call(this);
-	});
+  var onLoad = function(){
+    fragment.content = fragment.resource.loader.getContent(fragment.hash);
+    fragment.isLoaded = true;
+    callBack && callBack.call(this);
+    dream.event.dispatch(fragment, "onLoad");
+  }
+  if(this.resource.isLoaded){
+    onLoad();
+  }else{
+    this.resource.onLoad.add(onLoad);
+	  this.resource.load();
+
+  }
 };
 
 Object.defineProperty($, "dependencies", {
@@ -239,12 +248,12 @@ ResourceLoader.Type = {
  */
 var BlobResourceLoader = function(xhr, url){
 	BlobResourceLoader._superClass.call(this, xhr, url);
-	
+
 	try{
 		if(xhr && xhr.responseType != undefined)
 			xhr.responseType = ResourceLoader.Type.BLOB;
 	}catch(e){console.log(e);}
-	
+
 }.inherits(ResourceLoader);
 
 /**
@@ -253,7 +262,7 @@ var BlobResourceLoader = function(xhr, url){
  */
 var ImageResourceLoader = function(xhr, url, onLoad){
 	ImageResourceLoader._superClass.call(this, xhr, url);
-	
+
 	var rl = this;
 
 	if(xhr.responseType == ResourceLoader.Type.BLOB){
@@ -278,10 +287,10 @@ var ImageResourceLoader = function(xhr, url, onLoad){
 			onLoad();
 		};
 		img.src = url;
-		
+
 	}
-	
-		
+
+
 }.inherits(BlobResourceLoader);
 
 ImageResourceLoader.mimeType = /image\/(.+)/;
@@ -293,11 +302,11 @@ ResourceLoader.register(ImageResourceLoader);
  */
 var DocumentResourceLoader = function(xhr, url, onLoad){
 	DocumentResourceLoader._superClass.call(this, xhr, url);
-	
+
 	if(xhr){
-		if(xhr.responseType != undefined) 
+		if(xhr.responseType != undefined)
 			xhr.responseType = ResourceLoader.Type.DOCUMENT;
-		
+
 		var rl = this;
 
 		xhr.onload = function(ev) {
@@ -305,22 +314,27 @@ var DocumentResourceLoader = function(xhr, url, onLoad){
 			onLoad && onLoad();
 		};
 	}
-	
+
 }.inherits(ResourceLoader);
 
 DocumentResourceLoader.mimeType = /(text\/xml)/;
 ResourceLoader.register(DocumentResourceLoader);
 
 var XmlSheetResourceLoader = function(xhr, url, onLoad){
-	XmlSheetResourceLoader._superClass.call(this, xhr, url, onLoad);
-	
+	XmlSheetResourceLoader._superClass.call(this, xhr, url);
+  var rl = this;
+  xhr.onload = function(ev) {
+    rl.content = new dream.visual.XmlSpriteSheet(this.responseType == ResourceLoader.Type.DOCUMENT ? this.response : this.responseXML);
+    onLoad && onLoad();
+  };
+
 }.inherits(DocumentResourceLoader);
 
 Object.defineProperty(XmlSheetResourceLoader.prototype, "dependencies", {
 	get : function () {
 
 		if(this.content){
-			var imgpath = this.content.getElementsByTagName('TextureAtlas')[0].getAttribute('imagePath');
+			var imgpath = this.content.document.getElementsByTagName('TextureAtlas')[0].getAttribute('imagePath');
 			// console.log("xml content: ", this.content, imgpath);
 			return [new Resource(dream.util.resolveUrl(imgpath, this.url))]
 		}else{
@@ -332,6 +346,17 @@ Object.defineProperty(XmlSheetResourceLoader.prototype, "dependencies", {
 XmlSheetResourceLoader.mimeType = /application\/xml/;
 ResourceLoader.register(XmlSheetResourceLoader);
 
+XmlSheetResourceLoader.prototype.getContent = function(fragment){
+  var sheet = this.content;
+  var arr = fragment.split('*')
+  if(arr.length > 1){
+    return sheet.getTextureArray(arr[0])
+  }else{
+    return sheet.getTextureByName(arr[0])
+  }
+}
+
+
 /**
 
  * @constructor
@@ -339,11 +364,11 @@ ResourceLoader.register(XmlSheetResourceLoader);
  */
 var JsonResourceLoader = function(xhr, url, onLoad){
 	JsonResourceLoader._superClass.call(this, xhr, url);
-	
+
 	if(xhr){
-		if(xhr.responseType != undefined) 
+		if(xhr.responseType != undefined)
 			xhr.responseType = ResourceLoader.Type.TEXT;
-		
+
 		var rl = this;
 
 		xhr.onload = function(ev) {
@@ -351,7 +376,7 @@ var JsonResourceLoader = function(xhr, url, onLoad){
 			onLoad && onLoad();
 		};
 	}
-	
+
 }.inherits(ResourceLoader);
 
 JsonResourceLoader.mimeType = /(text\/plain)/;
@@ -363,7 +388,7 @@ ResourceLoader.register(JsonResourceLoader);
  */
 var TiledMapResourceLoader = function(xhr, url, onLoad){
 	TiledMapResourceLoader._superClass.call(this, xhr, onLoad);
-	
+
 }.inherits(DocumentResourceLoader);
 
 TiledMapResourceLoader.mimeType = /application\/tiled-map+xml/;
@@ -390,7 +415,7 @@ ResourceLoader.register(TiledMapResourceLoader);
 
 var JsonSheetResourceLoader = function(xhr, url, onLoad){
 	JsonSheetResourceLoader._superClass.call(this, xhr, url, onLoad);
-	
+
 }.inherits(JsonResourceLoader);
 
 Object.defineProperty(JsonSheetResourceLoader.prototype, "dependencies", {

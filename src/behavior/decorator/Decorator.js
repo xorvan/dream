@@ -11,9 +11,9 @@
  */
 var Decorator = function(action, fn, initFn){
 	dream.behavior.Action.call(this, fn, initFn);
-	
+
 	this.action = action;
-	
+
 }.inherits(dream.behavior.Action);
 var Decorator$ = Decorator.prototype;
 
@@ -25,5 +25,5 @@ Decorator$.init = function(host){
 
 //exports
 dream.behavior.decorator.Decorator = Decorator;
-	
+
 })(window);

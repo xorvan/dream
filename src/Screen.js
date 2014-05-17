@@ -3,17 +3,17 @@
  */
 dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleMode){
 	var screen = this;
-	
+
 	this.scaleMode = dream.Screen.ScaleMode.SHOW_ALL;
 	if(scaleMode != undefined) this.scaleMode = scaleMode;
 
 	this.fc = 0;
 	this._frameRate = 0;
 	this.frameRate = this._frameRate;
-	
+
 	this.canvas = canvas;
 	this.context = this.canvas.getContext("2d");
-	
+
 	this.minWidth = minWidth || this.canvas.width;
 	this.minHeight = minHeight || this.canvas.height;
 	this.maxWidth = maxWidth || this.minWidth;
@@ -21,12 +21,12 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 
 	this.width = this.canvas.width;
 	this.height = this.canvas.height;
-	
+
 	this.rect = new dream.geometry.Rect(0, 0, this.width, this.height, new dream.geometry.transform.Scale);
-	
+
 	this.redrawRegions = new dream.util.RedrawRegionList();
 	this.rerenderBuffer = new dream.util.BufferCanvas(0, 0);
-	
+
 	this.input = new dream.input.InputHandler(this);
 	this.scenes = new dream.collection.Selector;
 
@@ -34,12 +34,12 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 		scene.screenBoundary.width = screen.width;
 		scene.screenBoundary.height = screen.height;
 		screen.hovered = null;
-		
+
 		screen.redrawRegions.add(new dream.geometry.Rect(0,0, screen.width, screen.height));
 		scene.onBoundaryChange.add(function(oldRect){
 			screen.redrawRegions.add(new dream.geometry.Rect(0, 0, this.viewport.width, this.viewport.height));
 		}, screen);
-		
+
 		scene.onImageChange.add(function(rects){
 			screen.redrawRegions.addArray(rects/*.map(function(r){return r.clone();})*/);
 		}, screen);
@@ -51,9 +51,9 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 		// console.log(scene.screenBoundary);
 		dream.event.dispatch(scene, "onResize");
 		// console.log(scene.viewport);
-		
+
 	});
-	
+
 	this.scenes.onDeselect.add(function(scene){
 		scene.onBoundaryChange.removeByOwner(screen);
 		scene.onImageChange.removeByOwner(screen);
@@ -62,9 +62,9 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 		dream.event.dispatch(scene, "onResize");
 		prevScene = scene
 	});
-	
+
 	this.updateSize();
-	
+
 	window.addEventListener("resize", function(){
 		screen.updateSize();
 	},false);
@@ -72,7 +72,7 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 	window.addEventListener("orientationchange ", function(){
 		screen.updateSize();
 	},false);
-		
+
 }.inherits(dream.VisualAsset);
 
 dream.event.create(dream.VisualAsset.prototype, "onResize");
@@ -87,12 +87,12 @@ dream.Screen.prototype.resume = function(){
 	this.render();
 };
 
-dream.Screen.prototype.render = function(){		
+dream.Screen.prototype.render = function(){
 	this.fc++;
 	dream.fc ++;
-	
+
 	var checkInput = this.fc % this.input.interval == 0;
-	
+
 	if(checkInput){
 		var kbs;
 		for(var k in this.input.downKeys){
@@ -102,17 +102,17 @@ dream.Screen.prototype.render = function(){
 			this.input.downKeys[k]++;
 		}
 	}
-	
+
 	this.paint(this.context, new dream.geometry.Point, new dream.geometry.Rect(0,0, this.width, this.height));
-	
-	if(checkInput){
-		this.checkHover(new dream.input.MouseEvent(null, this.input.mouse.position, this));
-		if(this.input.mouse.isDown) this.raiseDrag(new dream.input.MouseEvent(null, this.input.mouse.position, this));
-	}
-	
+
+	// if(checkInput){
+	// 	this.checkHover(new dream.input.MouseEvent(null, this.input.mouse.position, this));
+	// 	if(this.input.mouse.isDown) this.raiseDrag(new dream.input.MouseEvent(null, this.input.mouse.position, this));
+	// }
+
 	if(!this.isdrawing){
 		this.isdrawing = true;
-		var screen = this, raf = this.requestAnimationFrameFunction; 
+		var screen = this, raf = this.requestAnimationFrameFunction;
 		this._AFID = raf(function(){screen.isdrawing = false;screen.render();});
 	}
 };
@@ -153,10 +153,10 @@ dream.Screen.prototype.paintWithClippingRedrawRegion = function(ctx, origin, ren
 
 dream.Screen.prototype.paintWithBufferdRedrawRegion = function(ctx, rect, renderRect) {
 	var rgCount = 0;
-	
+
 	var scene = this.scenes.current;
 	scene.step();
-		
+
 	var rg;
 	for(var i = 0, l = this.redrawRegions.length; i < l; i++){
 		var rr = this.redrawRegions[i];
@@ -192,56 +192,56 @@ dream.Screen.prototype.checkHover = function (event){
 dream.Screen.prototype.updateSize = function() {
 	var ow = this.canvas.offsetWidth;
 	var oh = this.canvas.offsetHeight;
-	
+
 	if(ow < this.minWidth)
 		this.width = this.minWidth;
 	else if (ow > this.maxWidth)
 		this.width = this.maxWidth;
 	else
 		this.width = ow;
-	
+
 	if(oh < this.minHeight)
 		this.height = this.minHeight;
 	else if (oh > this.maxHeight)
 		this.height = this.maxHeight;
 	else
 		this.height = oh;
-	
-	
+
+
 	this.scaleX = this.canvas.offsetWidth / this.width;
 	this.scaleY = this.canvas.offsetHeight / this.height;
-	
+
 	if(this.scaleMode && this.scaleX != this.scaleY){
 		if(this.scaleMode == dream.Screen.ScaleMode.SHOW_ALL){
 			if(this.scaleX < this.scaleY){
-				this.height = this.canvas.offsetHeight / this.scaleX; 
+				this.height = this.canvas.offsetHeight / this.scaleX;
 			}else{
 				this.width = this.canvas.offsetWidth / this.scaleY;
 			}
 		}else{
 			if(this.scaleX > this.scaleY){
-				this.height = this.canvas.offsetHeight / this.scaleX; 
+				this.height = this.canvas.offsetHeight / this.scaleX;
 			}else{
 				this.width = this.canvas.offsetWidth / this.scaleY;
 			}
 		}
-		
+
 		this.scaleX = this.canvas.offsetWidth / this.width;
 		this.scaleY = this.canvas.offsetHeight / this.height;
 	}
-	
+
 	this.canvas.width = this.rect.width = this.width = this.width | 0;
 	this.canvas.height = this.rect.height = this.height = this.height | 0;
-	
+
 	this.rect.transformation.x = this.scaleX;
 	this.rect.transformation.y = this.scaleY;
-	
+
 	if(this.scenes.current){
 		this.scenes.current.screenBoundary.width = this.width;
 		this.scenes.current.screenBoundary.height = this.height;
 		dream.event.dispatch(this.scenes.current, "onResize");
 	}
-	
+
 	this.redrawRegions.add(new dream.geometry.Rect(0,0, screen.width, screen.height));
 
 	dream.event.dispatch(this, "onResize");

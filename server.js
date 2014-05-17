@@ -12,26 +12,26 @@ app.configure(function() {
   var hourMs = 1000*60*60;
   app.set('views', __dirname);
   app.set('view engine', 'jade');
-  app.use(express.static(__dirname , { maxAge: hourMs }));
+  app.use(express.static(__dirname , { maxAge: 0 }));
   app.use(express.directory(__dirname, {icons:true} ));
   app.use(express.errorHandler());
 });
 
 app.get("/benchs/:name", function (req, res) {
-  var name = req.params.name, 
-  	scripts = req.query.built != undefined ? 
-  			["/build/dream." + appInfo.version + ".min.js"] : 
+  var name = req.params.name,
+  	scripts = req.query.built != undefined ?
+  			["/build/dream." + appInfo.version + ".min.js"] :
   			srcSeq.files.map(function(s){return "/"+s;});
-  
+
   res.render('benchs/' + name, {scripts:scripts});
 });
 
 app.get("/examples/:name/run", function (req, res) {
-	var name = req.params.name, 
-	scripts = req.query.built != undefined ? 
-			["/build/dream." + appInfo.version + ".min.js"] : 
+	var name = req.params.name,
+	scripts = req.query.built != undefined ?
+			["/build/dream." + appInfo.version + ".min.js"] :
 				srcSeq.files.map(function(s){return "/"+s;});
-			
+
 			res.render('examples/' + name+"/index.jade", {scripts:scripts});
 });
 

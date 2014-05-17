@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 dream.visual = {};
 
@@ -25,17 +25,17 @@ var Texture = function(img, name, left, top, width, height, anchorX, anchorY){
 				})
 			}
 		}
-		
+
 	}else{
 		this.img = {content: img, isLoaded: true};
 		height = img.height;
 		width = img.width;
 	}
-	this.anchorX = anchorX == undefined ? 0:anchorX; 
+	this.anchorX = anchorX == undefined ? 0:anchorX;
 	this.anchorY = anchorY == undefined ? 0:anchorY;
 	this.rect = new dream.geometry.Rect(left, top, width, height);
 };
-	
+
 var SpriteSheet = function(data){
 	this.textures = new dream.collection.List();
 	data && this.textures.addJson(data);
@@ -46,6 +46,7 @@ var SpriteSheet$ = SpriteSheet.prototype;
 SpriteSheet$.getTextureArray =function(name){
 	var res = new SpriteSheet();
 	if(this.isLoaded){
+    res.isLoaded = true;
 		console.log("adding current tx");
 		var len = name.length;
 		for (var i = 0, texture;texture = this.textures[i]; i++)
@@ -63,13 +64,37 @@ SpriteSheet$.getTextureArray =function(name){
 					res.textures.push(texture);
 		})
 	}
-	
+
 	return res;
+};
+
+SpriteSheet$.getTextureByName = function(name){
+  var self = this;
+
+	if(this.isLoaded){
+    var len = name.length;
+    for (var i = 0, texture; texture = self.textures[i]; i++)
+      if (texture.name == name)
+        return texture;
+	}else{
+    var texture = new Texture();
+    this.sheet.load();
+  	this.sheet.onLoad.add(function(){
+  		var len = name.length;
+  		for (var i = 0, t; t = self.textures[i]; i++)
+  			if (t.name == name){
+          texture.img = t.img;
+          texture.rect = t.rect;
+        }
+  	})
+    return texture;
+	}
+
 };
 
 
 /**
- * 
+ *
  */
 
 var SequentialSpriteSheet = function(img, data){
@@ -121,8 +146,8 @@ var JsonSpriteSheet = function(uri){
 				tx.img =  {content: buff.canvas, isLoaded: true};
 				document.body.appendChild(buff.canvas)
 				ccttxx = buff.canvas;
-				
-				
+
+
 			}else{
 				self.textures.add(new Texture(self.imageUrl , i.split('.')[0], fr.x, fr.y, fr.w, fr.h));
 			}
@@ -133,63 +158,77 @@ var JsonSpriteSheet = function(uri){
 
 var XmlSpriteSheet = function(uri){
 	SpriteSheet.call(this);
-	this.sheetUri = uri;
 	var self = this;
-	this.sheet = new dream.static.Resource(uri);
-	this.sheet.onLoad.add(function(){
-		var cont = self.sheet.content
-		self.isLoaded = true;
-		var subs= cont.getElementsByTagName('SubTexture')
-		for(var ii=0; ii < subs.length; ii++){
-			var maxX=0;
-			var maxY =0;
-			var tmpx = (subs[ii].getAttribute('x') * 1) + (subs[ii].getAttribute('width') * 1);
-			var tmpy = (subs[ii].getAttribute('y') * 1) + (subs[ii].getAttribute('height') * 1);
-			if(tmpx > maxX) maxX = tmpx;
-			if(tmpy > maxY) maxY = tmpy;
-		}
-		self.width = maxX;
-		self.height = tmpy;
-		self.imageUrl = dream.util.resolveUrl(cont.getElementsByTagName('TextureAtlas')[0].getAttribute('imagePath'),self.sheetUri);
-		var fe,fr;
-		for(var jj=0; jj < subs.length; jj++){
-			fe = subs[jj];
-			fr={
-				x: fe.getAttribute('x') * 1,
-				y: fe.getAttribute('y') * 1,
-				w: fe.getAttribute('width') * 1,
-				h: fe.getAttribute('height') * 1,
-				rotated: !!fe.getAttribute('rotated'),
-				name: fe.getAttribute('name')
-			}
-			// the textureAtlas does not support rotated elements
-			// if(fr.rotated){
-			// 	if(!buff){
-			// 		var buff = new dream.util.BufferCanvas(self.height, self.width);
-			// 		buff.context.translate(self.height/2, self.width/2)
-			// 		buff.context.rotate(Math.PI/-2);
-			// 	}
-			// 	var imm = new dream.static.Resource(self.imageUrl);
-			// 	if(imm.isLoaded){
-			// 		buff.context.drawImage(imm.content, 0, 0, self.width, self.height, self.width/-2, self.height/-2, self.width, self.height);
-			// 	}else{
-			// 		imm.onLoad.add(function(){
-			// 			buff.context.drawImage(imm.content, 0, 0, self.width, self.height, self.width/-2, self.height/-2, self.width, self.height);
-			// 		})
-			// 	}
-			// 	var tx = new  Texture(self.imageUrl , fr.name.split('.')[0], fr.y, self.width - fr.x - fr.h, fr.w, fr.h);
-			// 	self.textures.add(tx)
-			// 	tx.img =  {content: buff.canvas, isLoaded: true};
-			// 	document.body.appendChild(buff.canvas)
-			// 	ccttxx = buff.canvas;
-				
-				
-			// }else{
-			// 	self.textures.add(new Texture(self.imageUrl , fr.name.split('.')[0], fr.x, fr.y, fr.w, fr.h));
-			// }
-			self.textures.add(new Texture(self.imageUrl , fr.name.split('.')[0], fr.x, fr.y, fr.w, fr.h));
-		}
-	})
+  var apply = function(doc){
+    self.isLoaded = true;
+    self.document = doc;
+    var subs = doc.getElementsByTagName('SubTexture')
+    for(var ii=0; ii < subs.length; ii++){
+      var maxX=0;
+      var maxY =0;
+      var tmpx = (subs[ii].getAttribute('x') * 1) + (subs[ii].getAttribute('width') * 1);
+      var tmpy = (subs[ii].getAttribute('y') * 1) + (subs[ii].getAttribute('height') * 1);
+      if(tmpx > maxX) maxX = tmpx;
+      if(tmpy > maxY) maxY = tmpy;
+    }
+    self.width = maxX;
+    self.height = tmpy;
+    self.imageUrl = dream.util.resolveUrl(doc.getElementsByTagName('TextureAtlas')[0].getAttribute('imagePath'), doc.documentURI);
+    var fe,fr;
+    for(var jj=0; jj < subs.length; jj++){
+      fe = subs[jj];
+      fr={
+        x: fe.getAttribute('x') * 1,
+        y: fe.getAttribute('y') * 1,
+        w: fe.getAttribute('width') * 1,
+        h: fe.getAttribute('height') * 1,
+        rotated: !!fe.getAttribute('rotated'),
+        name: fe.getAttribute('name')
+      }
+      // the textureAtlas does not support rotated elements
+      // if(fr.rotated){
+      // 	if(!buff){
+      // 		var buff = new dream.util.BufferCanvas(self.height, self.width);
+      // 		buff.context.translate(self.height/2, self.width/2)
+      // 		buff.context.rotate(Math.PI/-2);
+      // 	}
+      // 	var imm = new dream.static.Resource(self.imageUrl);
+      // 	if(imm.isLoaded){
+      // 		buff.context.drawImage(imm.content, 0, 0, self.width, self.height, self.width/-2, self.height/-2, self.width, self.height);
+      // 	}else{
+      // 		imm.onLoad.add(function(){
+      // 			buff.context.drawImage(imm.content, 0, 0, self.width, self.height, self.width/-2, self.height/-2, self.width, self.height);
+      // 		})
+      // 	}
+      // 	var tx = new  Texture(self.imageUrl , fr.name.split('.')[0], fr.y, self.width - fr.x - fr.h, fr.w, fr.h);
+      // 	self.textures.add(tx)
+      // 	tx.img =  {content: buff.canvas, isLoaded: true};
+      // 	document.body.appendChild(buff.canvas)
+      // 	ccttxx = buff.canvas;
+
+
+      // }else{
+      // 	self.textures.add(new Texture(self.imageUrl , fr.name.split('.')[0], fr.x, fr.y, fr.w, fr.h));
+      // }
+      self.textures.add(new Texture(self.imageUrl , fr.name.split('.')[0], fr.x, fr.y, fr.w, fr.h));
+    }
+  }
+
+  if(typeof uri == "string"){
+  	this.sheet = new dream.static.Resource(uri);
+    var onLoadHandler;
+  	this.sheet.onLoad.add(onLoadHandler = function(){
+      apply(self.sheet.content.document);
+    })
+
+    if(this.sheet.isLoaded){
+      onLoadHandler()
+    }else{
+      this.sheet.load();
+    }
+  }else{
+    apply(uri);
+  }
 
 }.inherits(SpriteSheet)
 
@@ -200,8 +239,8 @@ dream.visual = {
 		SequentialSpriteSheet: SequentialSpriteSheet,
 		JsonSpriteSheet: JsonSpriteSheet,
 		XmlSpriteSheet: XmlSpriteSheet
-		
-		
+
+
 };
 
 })();

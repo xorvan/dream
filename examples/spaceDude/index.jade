@@ -1,12 +1,12 @@
 extends ../layout
-block title 
+block title
 	| Space Dude
 prepend head
 	meta(name="viewport", content="initial-scale=1, minimum-scale=1, maximum-scale=1")
 	meta(name="mobile-web-app-capable", content="yes")
 	meta(name="apple-mobile-web-app-capable", content="yes")
 	meta(name="apple-mobile-web-app-status-bar-style", content="black-translucent")
-	
+
 block style
 	style.
 		html, body {
@@ -16,36 +16,25 @@ block style
 			height: 100%;
 			min-height: 100% !important;
 			overflow:hidden;
+			background: black;
 		}
-		
+
 		.content {
 			height: 100%;
-			width: 640px;
+			width: 100%;
 			margin:0 auto;
-			border-left: 1px solid #eee;
-			border-right: 1px solid #eee;
+			max-width: 1440px;
 		}
-		
+
 		#mainCanvas {
 			height: 100%;
 			width: 100%;
 			display: block;
 		}
-		
-		@media only screen and (device-width: 320px) {
-			.content {
-				width: 320px;
-			}
-		}
-		
-		@media only screen and (device-width: 640px) {
-			/* rules for iPhone Retina */
-			.content {
-				width: 320px;
-			}
-		}
-		
+
+
 block example-script
+	audio#sndShot(src="res/shot.wav")
 	script(src="model.js")
 	script(src="logic.js")
 	script.
@@ -55,8 +44,4 @@ block example-script
 			stats.getDomElement().style.left = '0px';
 			stats.getDomElement().style.top = '0px';
 			document.body.appendChild(stats.getDomElement() );
-			var stp=new dream.behavior.Action(function(){stats.update();});
-			gameScreen.scenes.current.behavior.actions.add(stp);
 		}
-
-	

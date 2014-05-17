@@ -14,57 +14,57 @@ var drawing = dream.visual.drawing,
 width = 640;
 
 init = function(){
-	
+
 	gameScreen = new dream.Screen(document.getElementById("mainCanvas"), width, 400, width, 1200);
-	
+
 	jumper = new Jumper();
 	jumper.behaviours.add(new dream.behaviour.LeftBounded(0 + jumper.radius, width - jumper.radius), "leftBounded");
 	gameScene = null;
-	
+
 	menuScene = gameScreen.scenes.add(new MenuScene);
 	gameScreen.scenes.current = menuScene;
-	
+
 	if(window.initStat) initStat();
 	//startGame();
-	
+
 };
 
 
 startGame = function(){
-	
+
 	gameScene = gameScreen.scenes.current = new GameScene(jumper, gameScreen);
 	gameScene.onGameOver.add(function(){
 		console.log("Game Over!");
 		menuScene.score.text = "Score: " + gameScene.score.text;
 		gameScreen.scenes.current = menuScene;
-		
+
 	});
 };
 
 MenuScene = function(jumper, gameScreen){
 	dream.scenery.Scene.call(this);
-	
-	this.title = this.assets.add(new Text(width/2, 100, "Well Jump"));	
+
+	this.title = this.assets.add(new Text(width/2, 100, "Well Jump"));
 	this.title.fontSize = 60;
 	this.title.align = drawing.Align.CENTER;
 
-	this.score = this.assets.add(new Text(width/2, 200, ""));	
+	this.score = this.assets.add(new Text(width/2, 200, ""));
 	this.score.fontSize = 40;
 	this.score.align = drawing.Align.CENTER;
-	
+
 	this.startButton = this.assets.add(new StartGameButton((width - 200)/2, 400));
 	this.startButton.onClick.add(function(){
 		startGame();
 	});
-	
-	
+
+
 }.inherits(dream.scenery.Scene);
 
 GameScene = function(jumper, gameScreen){
 	dream.scenery.Scene.call(this);
 
 	this.rate = 50000;
-	
+
 	this.top = gameScreen.height;
 	this.onResize.add(function(){
 		this.top = gameScreen.height;
@@ -80,7 +80,7 @@ GameScene = function(jumper, gameScreen){
 	//this.score.fillStyle = "#000";
 	this.providers.add(new BarProvider, "bars");
 	this.bars = new List;
-	
+
 	var scene = this;
 	this.pool.onAdd.add(function(obj){
 		if(obj instanceof Bar)
@@ -90,7 +90,7 @@ GameScene = function(jumper, gameScreen){
 	this.pool.onRemove.add(function(obj){
 		scene.bars.remove(obj);
 	});
-	
+
 	var tree = new bt.selector.Priority([
 		new bt.selector.Sequence([
 			new bt.Condition(function(){
@@ -109,7 +109,7 @@ GameScene = function(jumper, gameScreen){
 								return false;
 								break;
 							}
-						}			
+						}
 					}
 					if(jumper.boundary.top > this.anchorY){
 						console.log("go");
@@ -137,10 +137,10 @@ GameScene = function(jumper, gameScreen){
 			],1, true)
 		])
 	]);
-	
+
 	this.behavior.actions.add(tree);
-	
-	
+
+
 //	this.dynamics.add(new Dynamic(function(){
 //		if(jumper.dynamics.motion.velocity[0] > 0){
 //			for(var i=0, bar; bar = this.bars[i]; i++){
@@ -151,7 +151,7 @@ GameScene = function(jumper, gameScreen){
 //						jumper.jump(t);
 //						break;
 //					}
-//				}			
+//				}
 //			}
 //			if(jumper.boundary.top > this.anchorY){
 //				console.log("go")
@@ -168,7 +168,7 @@ GameScene = function(jumper, gameScreen){
 //			}
 //		}
 //	})).play();
-	
+
 }.inherits(dream.scenery.Scene);
 var $ = GameScene.prototype;
 
@@ -179,21 +179,21 @@ var BarProvider = function(){
 	Provider.call(this);
 	this.lastArea = new dream.geometry.Rect;
 	this.lastH = 0;
-	
+
 	this.difficulty = 0;
-	
+
 }.inherits(Provider);
-	
+
 var $ = BarProvider.prototype;
 
 $.provide = function(area){
 
 	var step = 50,
 		jumpHeight = 200;
-	
+
 	var y = area.bottom,
 		c = area.height / step;
-	
+
 	for(var i=0; i<=c; i++){
 		var h = y - i*step;
 		if (h < this.lastArea.top){
@@ -208,9 +208,9 @@ $.provide = function(area){
 				if(Math.random() > 0.5)
 					this.pool.add(new BreakableBar(Math.random()*540, h));
 			}
-			
+
 		}
-		
+
 	}
 	this.lastArea = area;
 };

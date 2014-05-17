@@ -10,14 +10,14 @@
  * @extends dream.behavior.decorator.Decorator
  */
 var Not = function(action){
-	Not._superClass.apply(this, action);
-	
+  Not._superClass.call(this, action);
+
 }.inherits(dream.behavior.decorator.Decorator);
 var Not$ = Not.prototype;
 
 Not$.step = function(){
-	var r = this.action.step();
-	return r == undefined ? undefined : !r;
+  var r = this.action.step();
+  return r == undefined ? undefined : !r;
 };
 
 //exports

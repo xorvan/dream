@@ -3,11 +3,11 @@
  * @namespace dream.behavior.animation
  */
 (function(window){
-	
+
 var Animation = dream.behavior.animation.Animation;
 
 /**
- * 
+ *
  */
 var Interpolator = function(){};
 
@@ -22,19 +22,19 @@ var WithReverse = function(int){
 		if (t < 0.5)
 			return int.fn(t * 2);
 		else
-			return int.fn((1 - t) * 2); 
+			return int.fn((1 - t) * 2);
 	};
 }.inherits(Interpolator);
 
 
 /**
- * 
+ *
  */
 var Linear = function(){}.inherits(Interpolator);
 Linear.prototype.fn = function(x){return x;};
 
 /**
- * 
+ *
  */
 var Sine = function(freq){
 	var f = freq == undefined ? 1 : freq;
@@ -42,7 +42,7 @@ var Sine = function(freq){
 }.inherits(Interpolator);
 
 /**
- * 
+ *
  */
 var HalfSine = function(freq){
 	var f = freq == undefined ? 1 : freq;
@@ -50,7 +50,7 @@ var HalfSine = function(freq){
 }.inherits(Interpolator);
 
 /**
- * 
+ *
  */
 var Cosine = function(freq){
 	var f = freq == undefined ? 1 : freq;
@@ -58,7 +58,7 @@ var Cosine = function(freq){
 }.inherits(Interpolator);
 
 /**
- * 
+ *
  */
 var Exp = function(pow){
 	var pow = pow || 1;
@@ -67,7 +67,7 @@ var Exp = function(pow){
 
 
 /**
- * 
+ *
  */
 var PowerIn = function(pow){
 	var pow = pow || 1;
@@ -75,7 +75,7 @@ var PowerIn = function(pow){
 }.inherits(Interpolator);
 
 /**
- * 
+ *
  */
 var PowerOut = function(pow){
 	var pow = pow || 1;
@@ -84,14 +84,14 @@ var PowerOut = function(pow){
 
 
 /**
- * 
+ *
  */
 var PowerInOut = function(pow){
 	var pow = pow || 1;
 	this.fn = function(x){
 	if ((x *= 2) < 1) return 0.5 * Math.pow(x, pow);
 	return 1 - 0.5 * Math.abs(Math.pow(2-x,pow));};
-	};
+}.inherits(Interpolator);
 
 var bounceoutfn = function(x){
 	{if (x < 1/2.75) {
@@ -103,26 +103,26 @@ var bounceoutfn = function(x){
 	} else {
 		return (7.5625*(x-=2.625/2.75)*x +0.984375);
 	}};
-};	
+};
 
 var baouneinfn = function(x){return 1 - bounceoutfn(1-x);};
-	
+
 /**
- * 
+ *
  */
 var BounceOut = function(){
 	this.fn = bounceoutfn;
 }.inherits(Interpolator);
 
 /**
- * 
+ *
  */
 var BounceIn = function(){
 	this.fn = baouneinfn;
 }.inherits(Interpolator);
 
 /**
- * 
+ *
  */
 var BounceInOut = function(){
 	this.fn = function(x){
@@ -132,7 +132,7 @@ var BounceInOut = function(){
 }.inherits(Interpolator);
 
 /**
- * 
+ *
  */
 var BackIn = function(param){
 	var param = param || 1;
@@ -142,7 +142,7 @@ var BackIn = function(param){
 }.inherits(Interpolator);
 
 /**
- * 
+ *
  */
 var BackOut = function(param){
 	var param = param || 1;
@@ -152,14 +152,14 @@ var BackOut = function(param){
 }.inherits(Interpolator);
 
 /**
- * 
+ *
  */
 var CircleIn = function(){
 	this.fn = function(x) {return Math.sqrt(1-(--x)*x);};
 }.inherits(Interpolator);
 
 /**
- * 
+ *
  */
 var CircleOut = function(){
 	this.fn = function(x) {
@@ -170,7 +170,7 @@ var CircleOut = function(){
 
 
 /**
- * 
+ *
  */
 var ElasticIn = function(amplitude, period){
 	var pi2 = Math.PI*2;
@@ -184,7 +184,7 @@ var ElasticIn = function(amplitude, period){
 }.inherits(Interpolator);
 
 /**
- * 
+ *
  */
 var ElasticOut = function(amplitude, period){
 	var pi2 = Math.PI*2;
@@ -198,7 +198,7 @@ var ElasticOut = function(amplitude, period){
 }.inherits(Interpolator);
 
 /**
- * 
+ *
  */
 var ElasticInOut = function(amplitude, period){
 	var pi2 = Math.PI*2;
@@ -260,5 +260,5 @@ dream.behavior.animation.interpolator = {
 	PathY : PathY,
 	PathX : PathX
 };
-	
+
 })(window);

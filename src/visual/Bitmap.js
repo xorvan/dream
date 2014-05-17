@@ -5,12 +5,12 @@
 	 */
 	var Bitmap = function(left, top, data) {
 		Bitmap._superClass.call(this, left, top);
-		
+
 		if(data)
 			if (data instanceof dream.behavior.Action){
 				this.behavior.actions.add(this.behaviors.add(data, "main"));
 			}else if(typeof data == "string"){
-				this.texture = new dream.visual.Texture(data);
+				this.texture = new dream.static.Resource(data);//new dream.visual.Texture(data);
 			}else if(data instanceof ImageData){
 				var buff = new dream.util.BufferCanvas(data.width, data.height);
 				buff.context.putImageData(data,0 ,0);
@@ -20,7 +20,7 @@
 			}else{
 				this.behaviors.addJson(data);
 			}
-		
+
 	}.inherits(dream.visual.Graphic);
 
 	var Bitmap$ = Bitmap.prototype;
@@ -49,17 +49,33 @@
 							|| this.rect.top != -v.anchorY) {
 						this.isBoundaryChanged = true;
 					}
-					this.isImageChanged = true;				
+					this.isImageChanged = true;
+					this.step(this.fc+1);
 				}else{
 					var self = this;
 					v.img.onLoad.add(function(){
 						self.isBoundaryChanged = true;
 						self.isImageChanged = true;
+						this.step(this.fc+1);
 					})
 				}
+			}else if(v instanceof dream.static.Resource){
+				if(v.isLoaded){
+					this.texture = v.content;
+					console.log("loadedddddd")
+				}else{
+					var self = this;
+					v.onLoad.add(function(){
+						self.texture = v.content;
+					})
+					// v.load();
+					this._reqRes = v;
+				}
+
+			}else if(v){
+				this.texture = new dream.visual.Texture(v);
 			}
-				
-			}
+		}
 	});
 
 	Bitmap$.paint = function(ctx, origin, renderRect) {
@@ -72,16 +88,17 @@
 						(origin.top - f.anchorY), f.rect.width, f.rect.height);
 			}
 		};
-		
+
 Object.defineProperty(Bitmap$, "requiredResources", {
 	get : function () {
-		var r = new dream.collection.List;
+		var r = new dream.collection.Set;
 		if(this.texture &&  this.texture.img instanceof dream.static.Resource) r.add(this.texture.img)
+		if(this._reqRes) r.add(this._reqRes)
 		for(var i=0, sa; sa = this.behaviors[i]; i++){
 			if (sa instanceof dream.behavior.decorator.Decorator){
 				while(sa.action) sa = sa.action;
 			}
-		
+
 			if (sa instanceof dream.behavior.animation.Sprite){
 				if(sa.sheetUri){
 					r.add(new dream.static.Resource(sa.sheetUri));
@@ -93,7 +110,7 @@ Object.defineProperty(Bitmap$, "requiredResources", {
 		}
 		return r;
 	}
-	
+
 });
 
 // exports
