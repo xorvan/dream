@@ -22,8 +22,9 @@
 			if(a instanceof dream.visual.Graphic){
 				
 				composite.pool.add(a);
-				var z = a.z;
+				var z = a.z || 0;
 				(composite.renderList[z] || (composite.renderList[z] = [])).push(a);
+
 				a.onZChange.add(function(oldZ){
 					var ol = composite.renderList[oldZ];
 					ol.splice(ol.indexOf(this), 1);
@@ -37,8 +38,13 @@
 				
 				a.onBoundaryChange.add(composite.addToRect.bind(composite, a), composite);
 				
-				if(!composite._isDirty)
-					a.onImageChange.add(composite.redrawRegions.addArray.bind(composite.redrawRegions), composite);
+				if(!composite._isDirty){
+					a.onImageChange.add(function(arr){
+						composite.redrawRegions.addArray(arr);
+
+					}, composite);
+					
+				}
 				
 			};
 		});
@@ -53,7 +59,7 @@
 		});
 	}.inherits(dream.visual.Graphic);
 
-	var Composite$ = Composite.prototype;
+	var Composite$ = Composite.prototype;	
 
 	Object.defineProperty(Composite$, "isDirty", {
 		set: function(v){
@@ -106,12 +112,23 @@
 		}
 
 		dream.visual.Composite._superClass.prototype.step.call(this, fc, true);
-		
-		if(this._isDirty){
-			dream.event.dispatch(this, "onImageChange", [this.boundary]);
-		}else if(this.redrawRegions.length){
-			dream.event.dispatch(this, "onImageChange", this.redrawRegions.map(function(r){return this.rect.transformation.projectRect(r).boundary;}, this) );
-			this.redrawRegions.clear();
+
+
+		if(this.planes){
+			for(var pi in this.planes){
+				var pl = this.planes[pi]
+				var rgs = pl.redrawRegions.map(function(r){return this.rect.transformation.projectRect(r).boundary;}, this);
+				pl.redrawRegions.clear();
+				pl.redrawRegions.addArray(rgs);
+				// console.info("plane rgs is accounted for: ", pi, rgs.length);
+			}
+			dream.event.dispatch(this, "onImageChange", this.planes)
+		}else{
+			if(this._isDirty){
+				dream.event.dispatch(this, "onImageChange", [this.boundary]);
+			}else{
+				dream.event.dispatch(this, "onImageChange", this.redrawRegions.map(function(r){return this.rect.transformation.projectRect(r).boundary;}, this));
+			}
 		}
 		
 	}; 
@@ -146,7 +163,7 @@
 						this.doRender(g, ctx, origin, ldr);
 					}
 				}
-			}		
+			}
 		}
 	};
 

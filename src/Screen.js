@@ -12,7 +12,8 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 	this.frameRate = this._frameRate;
 
 	this.canvas = canvas;
-	this.context = this.canvas.getContext("2d");
+
+	this.planeSurfaces = [{ctx: this.canvas.getContext("2d"), canvas: this.canvas}];
 
 	this.minWidth = minWidth || this.canvas.width;
 	this.minHeight = minHeight || this.canvas.height;
@@ -24,7 +25,6 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 
 	this.rect = new dream.geometry.Rect(0, 0, this.width, this.height, new dream.geometry.transform.Scale);
 
-	this.redrawRegions = new dream.util.RedrawRegionList();
 	this.rerenderBuffer = new dream.util.BufferCanvas(0, 0);
 
 	this.input = new dream.input.InputHandler(this);
@@ -33,16 +33,110 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 	this.scenes.onSelect.add(function(scene){
 		scene.screenBoundary.width = screen.width;
 		scene.screenBoundary.height = screen.height;
+		for(var pi in scene.planes){
+			scene.planes[pi].ctx = screen.planeSurfaces[pi].ctx;
+		}
+
 		screen.hovered = null;
 
-		screen.redrawRegions.add(new dream.geometry.Rect(0,0, screen.width, screen.height));
+		for(var pi in scene.planes){
+			scene.planes[pi].redrawRegions.add(new dream.geometry.Rect(0,0, screen.width, screen.height));
+		}
 		scene.onBoundaryChange.add(function(oldRect){
-			screen.redrawRegions.add(new dream.geometry.Rect(0, 0, this.viewport.width, this.viewport.height));
+			for(var pi in scene.planes){
+				scene.planes[pi].redrawRegions.add(new dream.geometry.Rect(0,0, this.viewport.width, this.viewport.height));
+			}
 		}, screen);
 
 		scene.onImageChange.add(function(rects){
-			screen.redrawRegions.addArray(rects/*.map(function(r){return r.clone();})*/);
+			// console.log("rects is ", rects);
+			// screen.redrawRegions.addArray(rects/*.map(function(r){return r.clone();})*/);
 		}, screen);
+
+		scene.onCorrectPlane.add(function(old, neww){
+			screen.planeSurfaces[neww] = screen.planeSurfaces[old];
+			delete screen.planeSurfaces[old];
+		});
+		scene.onCreatePlane.add(function(planeIndex, zarr, top){
+			var min = zarr[0];
+			var max = min;
+			for(var i=1; i<zarr.length; i++){
+				if(zarr[i] >= max)
+					max = zarr[i]
+				if(zarr[i] <= min)
+					min = zarr[i];
+			}
+			// console.log("got a create plane: ", planeIndex, zarr, min,max, top);
+			var oldcanv = screen.planeSurfaces[planeIndex].canvas;
+			var parent =  oldcanv.parentElement || oldcanv.parentNode;
+			var canv = document.createElement("canvas");
+			canv.width = screen.width;
+			canv.height = screen.height;
+
+			var ind = min;
+			// check if separating plane is at the bottom of old plane, if so we change the index of it.
+			if(planeIndex == ind){
+				var zz = scene.planes[ind].z;
+				for(var k=0; k < zz.length; k++){
+					if(zz[k] > max){
+						scene.planes[zz[k]] = scene.planes[ind];
+						screen.planeSurfaces[zz[k]]=screen.planeSurfaces[ind];
+						delete scene.planes[ind];
+						delete screen.planeSurfaces[ind];
+						break;
+					}
+				}
+			}
+
+			var surface = {canvas:canv, ctx: canv.getContext('2d')};
+			screen.planeSurfaces[ind] = surface
+			scene.planes[ind] = new dream.util.Plane(zarr);
+			scene.planes[ind].ctx = surface.ctx;
+			console.info("plane created: ", ind);
+
+			var oldZ = oldcanv.style.zIndex * 1;
+			canv.style.zIndex = top ? oldZ+ind:oldZ-ind;
+
+			// position layers
+			if(!screen.DIVstacked){
+				var divstack = document.createElement("span");
+				parent.appendChild(divstack);
+				divstack.style.position = "relative";
+				divstack.style.width = oldcanv.width;
+				divstack.style.height = oldcanv.height;
+				divstack.appendChild(oldcanv);
+				divstack.appendChild(canv);
+				oldcanv.style.position = "absolute";
+				canv.style.position = "absolute";
+				oldcanv.style.top = oldcanv.style.left = "0px";
+				canv.style.top = canv.style.left = "0px";
+				screen.DIVstacked = true;
+			}else{
+				//parent is div stack
+				canv.style.position = "absolute";
+				canv.style.top = canv.style.left = "0px";
+				parent.appendChild(canv);
+			}
+
+			// remove from old plane
+			for(var i in zarr){
+				scene.planes[planeIndex].z.splice(scene.planes[planeIndex].z.indexOf(zarr[i]),1)
+				scene.planes[planeIndex].perf.rgProfile.splice(scene.planes[planeIndex].perf.rgProfile.indexOf(zarr[i]),1)
+			}
+
+			//clean profiling of ols plane
+			scene.planes[planeIndex].perf.rgCount = 0;
+			scene.planes[planeIndex].perf.paintCount = 0;
+			for(i in scene.planes[planeIndex].perf.rgProfile)
+				scene.planes[planeIndex].perf.rgProfile[i] = 0;
+
+			// add new redraw regon for all planes
+			for(var pi in scene.planes){
+				scene.planes[pi].redrawRegions.add(new dream.geometry.Rect(0,0, screen.width, screen.height));
+			}
+
+
+		})
 
 		scene.prepare(function(){
 			console.log("prepared")
@@ -59,6 +153,9 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 		scene.onImageChange.removeByOwner(screen);
 		scene.screenBoundary.width = 0;
 		scene.screenBoundary.height = 0;
+		for(var pl in scene.planes){
+			delete scene.planes[pl].ctx;
+		}
 		dream.event.dispatch(scene, "onResize");
 		prevScene = scene
 	});
@@ -75,19 +172,21 @@ dream.Screen = function(canvas, minWidth, minHeight, maxWidth, maxHeight, scaleM
 
 }.inherits(dream.VisualAsset);
 
+var Screen$ = dream.Screen.prototype;
+
 dream.event.create(dream.VisualAsset.prototype, "onResize");
 
-dream.Screen.prototype.pause = function(){
+Screen$.pause = function(){
 	var craf = this.cancelRequestAnimationFrameFunction;
 	craf(this._AFID);
 	this.isdrawing = false;
 };
 
-dream.Screen.prototype.resume = function(){
+Screen$.resume = function(){
 	this.render();
 };
 
-dream.Screen.prototype.render = function(){
+Screen$.render = function(){
 	this.fc++;
 	dream.fc ++;
 
@@ -103,7 +202,7 @@ dream.Screen.prototype.render = function(){
 		}
 	}
 
-	this.paint(this.context, new dream.geometry.Point, new dream.geometry.Rect(0,0, this.width, this.height));
+	this.paint(new dream.geometry.Point, new dream.geometry.Rect(0,0, this.width, this.height));
 
 	// if(checkInput){
 	// 	this.checkHover(new dream.input.MouseEvent(null, this.input.mouse.position, this));
@@ -117,41 +216,51 @@ dream.Screen.prototype.render = function(){
 	}
 };
 
-dream.Screen.prototype.paintWithoutRedrawRegion = function(ctx, rect, renderRect) {
+Screen$.paintWithoutRedrawRegion = function(ctx, rect, renderRect) {
 	var scene = this.scenes.current;
 	scene.step();
 	ctx.clearRect(0,0,renderRect.width, renderRect.height);
 	scene.render(ctx, new dream.geometry.Point, renderRect);
 };
 
-dream.Screen.prototype.paintWithClippingRedrawRegion = function(ctx, origin, renderRect) {
+Screen$.paintWithClippingRedrawRegion = function(origin, renderRect) {
 	origin.left = origin.left | 0;
 	origin.top = origin.top | 0;
 	var rgCount = 0;
 	var scene = this.scenes.current;
+	var planes = scene.planes;
+	var completeRender = false;
+	if(renderRect.area == this.width * this.height) completeRender = true;
 	scene.step(this.fc);
-	var rg;
-	for(var i = 0, ll = this.redrawRegions.length; i < ll; i++){
-		var rr = this.redrawRegions[i];
-		if(rg = rr.getIntersectWith(renderRect)){
-			var l = (rg.left | 0), t = (rg.top | 0), w = (rg.width | 0) , h = (rg.height | 0);
-			ctx.save();
-			ctx.beginPath();
-			ctx.rect(l, t, w, h);
-			ctx.clip();
-			ctx.closePath();
-			rgCount++;
-			ctx.clearRect(l, t, w, h);
-			scene.render(ctx, origin, new dream.geometry.Rect(l, t, w, h));
-			ctx.restore();
-			//console.log(rr+"");
+	var rg, lastIter , newPlane = false;;
+	for(pi in planes){
+		pl = planes[pi]
+		// console.log("painting pi: ", pi, pl.redrawRegions.length);
+		for(var i = 0, ll = pl.redrawRegions.length; i < ll; i++){
+			var rr = pl.redrawRegions[i];
+			if(completeRender) rg = rr;
+			else{
+				rg = rr.getIntersectWith(renderRect)
+				if(!rg) continue
+			}
+				var l = (rg.left | 0), t = (rg.top | 0), w = (rg.width | 0) , h = (rg.height | 0);
+				pl.ctx.save();
+				pl.ctx.beginPath();
+				pl.ctx.rect(l, t, w, h);
+				pl.ctx.clip();
+				pl.ctx.closePath();
+				pl.ctx.clearRect(l, t, w, h);
+				scene.render(pl, origin, new dream.geometry.Rect(l, t, w, h));
+				pl.ctx.restore();
 		}
+		pl.redrawRegions.clear();
+		scene.postPlaneRender(pl);
 	}
-	this.redrawRegions.clear();
-	//if(rgCount) console.log(rgCount +" rerender regions." );
+	scene.postRender();
+
 };
 
-dream.Screen.prototype.paintWithBufferdRedrawRegion = function(ctx, rect, renderRect) {
+Screen$.paintWithBufferdRedrawRegion = function(ctx, rect, renderRect) {
 	var rgCount = 0;
 
 	var scene = this.scenes.current;
@@ -175,11 +284,11 @@ dream.Screen.prototype.paintWithBufferdRedrawRegion = function(ctx, rect, render
 	//if(rgCount) console.log(rgCount +" rerender regions." );
 };
 
-dream.Screen.prototype.paint = dream.Screen.prototype.paintWithClippingRedrawRegion;
-//dream.Screen.prototype.paint = dream.Screen.prototype.paintWithBufferdRedrawRegion;
-//dream.Screen.prototype.paint = dream.Screen.prototype.paintWithoutRedrawRegion;
+Screen$.paint = Screen$.paintWithClippingRedrawRegion;
+//Screen$.paint = Screen$.paintWithBufferdRedrawRegion;
+//Screen$.paint = Screen$.paintWithoutRedrawRegion;
 
-dream.Screen.prototype.checkHover = function (event){
+Screen$.checkHover = function (event){
 	if( this.isHovered ){
 		if(!this.hovered){
 			this.hovered = this.scenes.current;
@@ -189,7 +298,7 @@ dream.Screen.prototype.checkHover = function (event){
 	}
 };
 
-dream.Screen.prototype.updateSize = function() {
+Screen$.updateSize = function() {
 	var ow = this.canvas.offsetWidth;
 	var oh = this.canvas.offsetHeight;
 
@@ -237,21 +346,24 @@ dream.Screen.prototype.updateSize = function() {
 	this.rect.transformation.y = this.scaleY;
 
 	if(this.scenes.current){
+		var scene = this.scenes.current
 		this.scenes.current.screenBoundary.width = this.width;
 		this.scenes.current.screenBoundary.height = this.height;
+
+		for(var pl in scene.planes){
+			scene.planes[pl].redrawRegions.add(new dream.geometry.Rect(0,0, screen.width, screen.height));
+		}
 		dream.event.dispatch(this.scenes.current, "onResize");
 	}
-
-	this.redrawRegions.add(new dream.geometry.Rect(0,0, screen.width, screen.height));
 
 	dream.event.dispatch(this, "onResize");
 };
 
-dream.Screen.prototype.highlight = function(rect) {
-	this.context.strokeStyle = "#f00";this.context.strokeRect(rect.left, rect.top, rect.width, rect.height);
+Screen$.highlight = function(rect) {
+	this.planes[0].ctx.strokeStyle = "#f00";this.planes[0].ctx.strokeRect(rect.left, rect.top, rect.width, rect.height);
 };
 
-Object.defineProperty(dream.Screen.prototype, "frameRate", {
+Object.defineProperty(Screen$, "frameRate", {
 	get : function() {
 		return this._frameRate;
 	},
@@ -261,6 +373,7 @@ Object.defineProperty(dream.Screen.prototype, "frameRate", {
 		this._frameRate = v;
 	}
 });
+
 
 dream.Screen.ScaleMode = {
 	EXACT_FIT: 0,
