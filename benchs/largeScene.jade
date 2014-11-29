@@ -6,52 +6,45 @@ block bench-script
 			test.frameRate = 250;
 
 			scene = new dream.scenery.Scene;
-			var seed = 1;
+			
 			var assets = scene.providers.add(new dream.provider.OfflineProvider, "allAssets").assets;
 			
 			console.log("init");
 			
-			for(var i = 0; i < 3000*seed; i++ ){
+			for(var i = 0; i < 3000; i++ ){
 				var c = new Poly1(Math.random() * 6000, Math.random() * 6000);
-				c.z=1
 				assets.add(c);
 			}
 			console.log("poly loaded");
 			
-			for(var i = 0; i < 50*seed; i++ ){
+			for(var i = 0; i < 50; i++ ){
 				var cr = new Aj(Math.random() * 6000, Math.random() * 6000 - 200);
-				cr.z=2;
 				assets.add(cr);
 			}
 			
 			
-			for(var i = 0; i < 200*seed; i++ ){
+			for(var i = 0; i < 200; i++ ){
 				var c = new Cube(Math.random() * 6000 + 100, Math.random() * 6000);
-				c.z=3
 				assets.add(c);
 			}
 
-			for(var i = 0; i < 250*seed; i++ ){
+			for(var i = 0; i < 250; i++ ){
 				var cr = new Fire(Math.random() * 6000, Math.random() * 6000 - 200);
-				cr.z=3
 				assets.add(cr);
 			}
 
-			for(var i = 0; i < 1*seed; i++ ){
+			for(var i = 0; i < 1; i++ ){
 				var cr = new Paper2(Math.random() * 6000, Math.random() * 6000 - 200);
-				cr.z=5
 				assets.add(cr);
 			}
 
-			for(var i = 0; i < 10*seed; i++ ){
+			for(var i = 0; i < 10; i++ ){
 				var cr = new CompositeRect(Math.random() * 6000, Math.random() * 6000 - 200, 150, 150);
-				cr.z=5
 				assets.add(cr);
 			}
 
-			for(var i = 0; i < 100*seed; i++ ){
+			for(var i = 0; i < 100; i++ ){
 				var cr = new Enemy(Math.random() * 6000, Math.random() * 6000);
-				cr.z=4
 				assets.add(cr);
 			}
 

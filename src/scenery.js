@@ -18,23 +18,14 @@ dream.scenery.Scene = function(){
 	
 	this.areaChangeRate = .5;
 	
-	this.planes = [new dream.util.Plane()];
-
-	this.postRenderQueue = [];
-
+	
 	this.loader = new dream.static.Loader();
 	
 	this.assets = new dream.util.AssetLibrary();
-
-	this.config={};
-	this.config.autoLayering = true;
-	this.config.autoLayeringThreshold = 10000;
-
-	var scene = this;
 	
-	this.assets.onAdd.add(function(a){
-		a.__IS_PERSIST = true;
-		scene.pool.add(a);
+	this.assets.onAdd.add(function(o){
+		o.__IS_PERSIST = true;
+		scene.pool.add(o);
 	});
 	this.assets.onRemove.add(this.pool.remove.bind(this.pool));
 	
@@ -46,35 +37,18 @@ dream.scenery.Scene = function(){
 	this.pool.onAdd.add(function(a){
 				
 		scene.addToRect(a);
-		// add proper z to planes
-		var z = a.z || 0;
-		var zPlaneExist = false
-		for(var pi in scene.planes){
-			var pl = scene.planes[pi];
-			if(~pl.z.indexOf(z)){
-				var zPlaneExist = true;
-			}
-		}
-		if(!zPlaneExist){
-			scene.planes[0].z.push(z);
-		}
+		
 		a.isImageChanged = true;
-		if(!scene._isDirty)
-			a.onImageChange.add(function(arr){
-				var z = a.z || 0;
-				for(var pi in scene.planes){
-					var pl = scene.planes[pi];
-					if(~pl.z.indexOf(z)){
-						pl.redrawRegions.addArray(arr)
-					}
-				}
-			})
 		
 		a.onBoundaryChange.add(function(){
 			scene.addToRect(this);
 			scene.checkPresence(this);
 		}, scene);
 		
+		if(!scene._isDirty)
+			a.onImageChange.add(function(rects){
+				scene.redrawRegions.addArray(rects);
+			}, scene);
 	});
 	
 	
@@ -129,13 +103,9 @@ dream.scenery.Scene = function(){
 	this.camera = new dream.scenery.Camera(this);
 }.inherits(dream.visual.Composite);
 
-var Scene$ = dream.scenery.Scene.prototype;
+dream.event.create(dream.scenery.Scene.prototype, "onResize");
 
-dream.event.create(Scene$, "onResize");
-dream.event.create(Scene$, "onCreatePlane");
-dream.event.create(Scene$, "onCorrectPlane");
-
-Scene$.checkPresence = function(o){
+dream.scenery.Scene.prototype.checkPresence = function(o){
 	var scene = this;
 	if(!o.isPresent && scene.viewport.hasIntersectWith(o.boundary)){
 		o.isPresent = true;
@@ -154,7 +124,7 @@ Scene$.checkPresence = function(o){
 	}
 };
 
-Object.defineProperty(Scene$, "requiredResources", {
+Object.defineProperty(dream.scenery.Scene.prototype, "requiredResources", {
 	get : function () {
 		var r = this.assets.requiredResources;
 		for(var i=0; i<this.providers.length; i++)
@@ -163,157 +133,12 @@ Object.defineProperty(Scene$, "requiredResources", {
 	}
 });
 
-Scene$.prepare = function(callBack){
+dream.scenery.Scene.prototype.prepare = function(callBack){
 	if(this.loader.isRequestSent){
 		this.loader.abort();
 	}
 	this.loader.resources = this.requiredResources;
 	this.loader.load(callBack);
-};
-
-
-Scene$.paint = function(plane, origin, renderRect){
-	var pp = plane.perf;
-
-	// console.log("plane is ", plane)
-	if(!renderRect || renderRect.covers(this.boundary)){
-		for(var zi in this.renderList){
-			// console.log("plane and z check", plane, zi);
-			if(!~plane.z.indexOf(zi*1)) continue;
-			// console.log("plane and z", plane, zi);
-			var rl = this.renderList[zi];
-			for(var i = 0, l = rl.length; i < l; i++){
-				this.doRender(rl[i], plane.ctx, origin, this.rect)
-			}		
-		}		
-	}else{
-		var ldr = this.rect.transformation.unprojectRect(renderRect).boundary;
-		for(var zi in this.renderList){
-			// console.log("checking" , plane.z, zi , plane.z.indexOf(zi));
-			if(!~plane.z.indexOf(zi*1)) continue;
-			var rl = this.renderList[zi];
-			for(var i = 0, l = rl.length; i < l; i++){
-				var g = rl[i];
-				if(g.boundary.hasIntersectWith(ldr)){
-					// profiling
-					pp.rgCount ++;
-					if(isNaN(pp.rgProfile[zi])) 
-						pp.rgProfile[zi]=0;
-					pp.rgProfile[zi] += 1;
-					this.doRender(g, plane.ctx, origin, ldr);
-				}
-			}
-		}
-			
-	}
-};
-
-Scene$.postPlaneRender = function(plane){
-	var pp = plane.perf;
-	pp.paintCount ++;
-	if(pp.paintCount > 7){
-		var maxrg = 0;
-		var maxrgIndex
-		var layers = 0;
-		for(var i in pp.rgProfile){
-			pp.rgProfile[i] = (pp.rgProfile[i]*100/pp.rgCount) | 0;
-			if(pp.rgProfile[i] > 0){
-				layers++;
-				if(pp.rgProfile[i] > maxrg){
-					maxrg = pp.rgProfile[i];
-					maxrgIndex = i*1;
-					
-				}
-			}
-		}
-		// now the aftermath makes the decision
-		// console.log("the aftermath of profiling: layers, maxrg, maxrgIndex, rgcount", layers, maxrg, maxrgIndex, pp.rgCount)
-		// if(this.config.autoLayering && layers > 1 && maxrg > 20 && pp.rgCount > this.config.autoLayeringThreshold){
-		if(this.config.autoLayering && layers > 1 && maxrg > 20 && maxrg < 95 && pp.rgCount > 1000){
-			this.postRenderQueue.push(function(){
-				this.addPlane([maxrgIndex]);
-			})
-			
-		}
-
-		// console.log("total count of rr for plane: ",plane.z, pp.rgCount);	
-		// console.log("z profle for plane: ", plane.z, pp.rgProfile);
-
-
-		// cleanup
-		for(var jj=0; jj < pp.rgProfile.length; jj++){
-			pp.rgProfile[jj] = 0;
-		}
-		pp.paintCount = 0
-		pp.rgCount = 0;
-	}	
-}
-
-Scene$.postRender = function(){
-	for(var i=0;i < this.postRenderQueue.length; i++){
-		this.postRenderQueue[i].call(this);
-	}
-	this.postRenderQueue = [];
-}
-
-
-Scene$.addPlane = function(zarray){
-	var scene = this;
-	var min = zarray[0];
-	var max = min;
-	for(var i=1; i<zarray.length; i++){
-		if(zarray[i] >= max){
-			max = zarray[i]
-		}
-		if(zarray[i] <= min){
-			min = zarray[i];
-		}
-	}
-	var planeIndex = null;
-	var hasPlane = false;
-	var greaters = [];
-	var lessers = [];
-	for(var pi in scene.planes){
-		var pl = scene.planes[pi];
-		if(~pl.z.indexOf(min) && ~pl.z.indexOf(max)){
-			hasPlane = true;
-			planeIndex = pi * 1;
-			console.log("z and pl.z is ", min, max , pl.z);
-			for(var j in pl.z){
-				if(pl.z[j] > max){
-					greaters.push(pl.z[j]);
-				}else if(pl.z[j] < min){
-					lessers.push(pl.z[j]);
-				}
-			}
-		}
-	}
-	if(!hasPlane){
-		console.error("no common plane for input array");
-		return false;
-	}
-	// //correct index of planeIndex if not correct specially in 0 plane
-	// var zzz = scene.planes[planeIndex].z;
-	// var correctIndex = zzz[0]
-	// for(var kk=0; kk<zzz.length;kk++){
-	// 	if(zzz[kk] < correctIndex)
-	// 		correctIndex = zzz[kk]
-
-	// }
-	// if(correctIndex != planeIndex){
-	// 	scene.planes[correctIndex] = scene.planes[planeIndex];
-	// 	delete scene.planes[planeIndex];
-	// 	dream.event.dispatch(scene, "onCorrectPlane", planeIndex, correctIndex);
-	// 	planeIndex = correctIndex;
-	// }
-
-	// console.info("addplane result ", planeIndex, lessers, greaters );
-	if(greaters.length){
-		dream.event.dispatch(scene, "onCreatePlane", planeIndex, greaters, top);
-	}
-	if(lessers.length){
-		dream.event.dispatch(scene, "onCreatePlane", planeIndex, lessers);
-	}
 };
 
 /**

@@ -5,34 +5,29 @@ block bench-script
 			test = new dream.Screen(document.getElementById("mainCanvas"), 320, 240, 1200, 900);
 			test.frameRate = 250;
 
-			var seed = 1;
-
 			scene = new dream.scenery.Scene;
 			
-			for(var i = 0; i < 100*seed; i++ ){
+			for(var i = 0; i < 100; i++ ){
 				var c = new Cube(Math.random() * 700 + 100, Math.random() * 200 + 200);
-				c.z = 4;
+				c.z = 3;
 				scene.assets.add(c);
 			}
 			
-			for(var i = 0; i < 200*seed; i++ ){
+			for(var i = 0; i < 200; i++ ){
 				var c = new Poly1(Math.random() * 900, Math.random() * 200);
-				c.z = 1
 				scene.assets.add(c);
 			}
 			
 			var crm = new CompositeRect(0, 0, 100, 100);
 			crm.useBuffer = true;
 			ooo = {};
-			for(var i = 0; i < 5*seed; i++ ){
+			for(var i = 0; i < 5; i++ ){
 				var cr = ooo[i] = new dream.visual.Mirror(Math.random() * 900, Math.random() * 200 + 200, crm)
 				cr.scale = Math.random();
-				cr.z=2
 				scene.assets.add(cr);
 			}
 			
 			en=new Enemy(0,0);
-			en.z=2
 			en.behavior.actions.add(new dream.behavior.animation.Tween({left:900,top:300,alpha:0.1,rotation:355}, 300, new dream.behavior.animation.interpolator.Sine));
 			scene.assets.add(en);
 
