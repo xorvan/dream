@@ -10,7 +10,7 @@ module.exports = function(grunt) {
       },
       build: {
         src: srcSeq,
-        dest: 'build/dream.<%= pkg.version %>.min.js'
+        dest: 'build/dream.min.js'
       }
     },
 	
