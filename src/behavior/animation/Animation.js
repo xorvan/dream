@@ -46,7 +46,7 @@ Animation$.step = function() {
 	var action;
 	if(action = this.actions[this._counter])
 		action.fn.call(this.host, 1);
-	if(this._counter == this.duration){
+	if(this._counter >= this.duration){
 		this._counter = 0;
 		return true;
 	}

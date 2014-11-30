@@ -19,7 +19,7 @@ width = 960;
 init = function(){
 	console.log("init")
 	gameScreen = new dream.Screen(document.getElementById("mainCanvas"), 960, 640, 1440, 1200);
-	gameScreen.frameRate = 400;
+	// gameScreen.frameRate = 400;
 	// menuScene = gameScreen.scenes.add(new MenuScene);
 	// gameScreen.scenes.current = menuScene;
 

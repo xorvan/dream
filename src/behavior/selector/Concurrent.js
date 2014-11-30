@@ -22,7 +22,7 @@ Concurrent$.step = function(){
 	var sCount = 0 , fCount = 0, rCount = 0;
 		
 	for(var i = 0, l = this.actions.length; i < l; i++){
-		r = this.actions[i].step();
+		var r = this.actions[i].step();
 		if(r){
 			sCount++;
 		}else if(r == false){

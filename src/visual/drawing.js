@@ -701,7 +701,7 @@ Text$.paint = function(context, origin){
  */
 var Freehand = function(left, top, path){
 	Shape.call(this, left, top);
-	this.path = path;
+	if(path) this.path = path;
 }.inherits(Shape);
 
 var Freehand$ = Freehand.prototype;

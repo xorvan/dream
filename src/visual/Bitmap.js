@@ -50,13 +50,13 @@
 						this.isBoundaryChanged = true;
 					}
 					this.isImageChanged = true;
-					this.step(this.fc+1);
+					// this.step(this.fc+1);
 				}else{
 					var self = this;
 					v.img.onLoad.add(function(){
 						self.isBoundaryChanged = true;
 						self.isImageChanged = true;
-						this.step(this.fc+1);
+						// this.step(this.fc+1);
 					})
 				}
 			}else if(v instanceof dream.static.Resource){
