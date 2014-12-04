@@ -69,6 +69,8 @@ function init(){
 //			steps.add(new dream.visual.animation.Step(function(){this.rotation+=2;}));
 //		}
 //	}
+
+	dude = world.assets.add(new dream.visual.Bitmap(0, 0, new dream.behavior.animation.Sprite("../common_res/the-dude.json")));
 	
 	p= world.assets.add(new dream.visual.Bitmap(0, 0, "../common_res/star.png"));
 	enemy = world.assets.add(new Enemy(100,10));

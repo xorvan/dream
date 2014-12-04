@@ -129,30 +129,30 @@ var JsonSpriteSheet = function(uri){
 
 		for(i in ff){
 			fr = ff[i].frame;
-			// if(ff[i].rotated){
-			// 	if(!buff){
-			// 		var buff = new dream.util.BufferCanvas(self.height, self.width);
-			// 		buff.context.translate(self.height/2, self.width/2)
-			// 		buff.context.rotate(Math.PI/-2);
-			// 	}
-			// 	var imm = new dream.static.Resource(self.imageUrl);
-			// 	if(imm.isLoaded){
-			// 		buff.context.drawImage(imm.content, 0, 0, self.width, self.height, self.width/-2, self.height/-2, self.width, self.height);
-			// 	}else{
-			// 		imm.onLoad.add(function(){
-			// 			buff.context.drawImage(imm.content, 0, 0, self.width, self.height, self.width/-2, self.height/-2, self.width, self.height);
-			// 		})
-			// 	}
-			// 	var tx = new  Texture(self.imageUrl , i.split('.')[0], fr.y, self.width - fr.x - fr.h, fr.w, fr.h);
-			// 	self.textures.add(tx)
-			// 	tx.img =  {content: buff.canvas, isLoaded: true};
-			// 	document.body.appendChild(buff.canvas)
-			// 	ccttxx = buff.canvas;
+			if(ff[i].rotated){
+				if(!buff){
+					var buff = new dream.util.BufferCanvas(self.height, self.width);
+					buff.context.translate(self.height/2, self.width/2)
+					buff.context.rotate(Math.PI/-2);
+				}
+				var imm = new dream.static.Resource(self.imageUrl);
+				if(imm.isLoaded){
+					buff.context.drawImage(imm.content, 0, 0, self.width, self.height, self.width/-2, self.height/-2, self.width, self.height);
+				}else{
+					imm.onLoad.add(function(){
+						buff.context.drawImage(imm.content, 0, 0, self.width, self.height, self.width/-2, self.height/-2, self.width, self.height);
+					})
+				}
+				var tx = new  Texture(self.imageUrl , i.split('.')[0], fr.y, self.width - fr.x - fr.h, fr.w, fr.h);
+				self.textures.add(tx)
+				tx.img =  {content: buff.canvas, isLoaded: true};
+				document.body.appendChild(buff.canvas)
+				ccttxx = buff.canvas;
 
 
-			// }else{
+			}else{
 				self.textures.add(new Texture(self.imageUrl , i.split('.')[0], fr.x, fr.y, fr.w, fr.h));
-			// }
+			}
 		}
 		
 	}
