@@ -382,6 +382,16 @@ var JsonResourceLoader = function(xhr, url, onLoad){
 JsonResourceLoader.mimeType = /(text\/plain)/;
 ResourceLoader.register(JsonResourceLoader);
 
+JsonResourceLoader.prototype.getContent = function(fragment){
+  var sheet = this.content;
+  var arr = fragment.split('*')
+  if(arr.length > 1){
+    return sheet.getTextureArray(arr[0])
+  }else{
+    return sheet.getTextureByName(arr[0])
+  }
+}
+
 /**
  * @constructor
  * @extends dream.static.DocumentResourceLoader
@@ -416,13 +426,22 @@ ResourceLoader.register(TiledMapResourceLoader);
 var JsonSheetResourceLoader = function(xhr, url, onLoad){
 	JsonSheetResourceLoader._superClass.call(this, xhr, url, onLoad);
 
+	var rl = this;
+
+	xhr.onload = function(ev) {
+		var content = JSON.parse(this.response);
+		content.sheetUri = rl.url;
+		rl.content = new dream.visual.JsonSpriteSheet(content);
+		onLoad && onLoad();
+	};
+
 }.inherits(JsonResourceLoader);
 
 Object.defineProperty(JsonSheetResourceLoader.prototype, "dependencies", {
 	get : function () {
 
 		if(this.content){
-			return [new Resource(dream.util.resolveUrl(this.content.meta.image, this.url))]
+			return [new Resource(dream.util.resolveUrl(this.content.document.meta.image, this.url))]
 		}else{
 			return null;
 		}

@@ -112,47 +112,67 @@ var SequentialSpriteSheet = function(img, data){
 
 
 var JsonSpriteSheet = function(uri){
-	SpriteSheet.call(this);
-	this.sheetUri = uri;
+	console.log("ssss", uri)
 	var self = this;
-	this.sheet = new dream.static.Resource(uri);
-	this.sheet.onLoad.add(function(){
-		self.isLoaded = true;
-		self.width = self.sheet.content.meta.size.w;
-		self.height = self.sheet.content.meta.size.h;
-		self.imageUrl = dream.util.resolveUrl(self.sheet.content.meta.image,self.sheetUri);
+	SpriteSheet.call(this);
 
-		var ff = self.sheet.content.frames;
+	var apply = function(doc){
+		self.document = doc;
+
+		self.isLoaded = true;
+		self.width = doc.meta.size.w;
+		self.height = doc.meta.size.h;
+		self.imageUrl = dream.util.resolveUrl(doc.meta.image, doc.sheetUri);
+
+		var ff = doc.frames;
 		var fr;
 
 		for(i in ff){
 			fr = ff[i].frame;
-			if(ff[i].rotated){
-				if(!buff){
-					var buff = new dream.util.BufferCanvas(self.height, self.width);
-					buff.context.translate(self.height/2, self.width/2)
-					buff.context.rotate(Math.PI/-2);
-				}
-				var imm = new dream.static.Resource(self.imageUrl);
-				if(imm.isLoaded){
-					buff.context.drawImage(imm.content, 0, 0, self.width, self.height, self.width/-2, self.height/-2, self.width, self.height);
-				}else{
-					imm.onLoad.add(function(){
-						buff.context.drawImage(imm.content, 0, 0, self.width, self.height, self.width/-2, self.height/-2, self.width, self.height);
-					})
-				}
-				var tx = new  Texture(self.imageUrl , i.split('.')[0], fr.y, self.width - fr.x - fr.h, fr.w, fr.h);
-				self.textures.add(tx)
-				tx.img =  {content: buff.canvas, isLoaded: true};
-				document.body.appendChild(buff.canvas)
-				ccttxx = buff.canvas;
+			// if(ff[i].rotated){
+			// 	if(!buff){
+			// 		var buff = new dream.util.BufferCanvas(self.height, self.width);
+			// 		buff.context.translate(self.height/2, self.width/2)
+			// 		buff.context.rotate(Math.PI/-2);
+			// 	}
+			// 	var imm = new dream.static.Resource(self.imageUrl);
+			// 	if(imm.isLoaded){
+			// 		buff.context.drawImage(imm.content, 0, 0, self.width, self.height, self.width/-2, self.height/-2, self.width, self.height);
+			// 	}else{
+			// 		imm.onLoad.add(function(){
+			// 			buff.context.drawImage(imm.content, 0, 0, self.width, self.height, self.width/-2, self.height/-2, self.width, self.height);
+			// 		})
+			// 	}
+			// 	var tx = new  Texture(self.imageUrl , i.split('.')[0], fr.y, self.width - fr.x - fr.h, fr.w, fr.h);
+			// 	self.textures.add(tx)
+			// 	tx.img =  {content: buff.canvas, isLoaded: true};
+			// 	document.body.appendChild(buff.canvas)
+			// 	ccttxx = buff.canvas;
 
 
-			}else{
+			// }else{
 				self.textures.add(new Texture(self.imageUrl , i.split('.')[0], fr.x, fr.y, fr.w, fr.h));
-			}
+			// }
 		}
-	})
+		
+	}
+
+	if(typeof uri == "string"){
+		this.sheet = new dream.static.Resource(uri);
+		var onLoadHandler;
+		this.sheet.onLoad.add(onLoadHandler = function(){
+			console.log("loaded", self.sheet)
+			apply(self.sheet.content);
+		})
+
+	  if(this.sheet.isLoaded){
+	    onLoadHandler()
+	  }else{
+	    this.sheet.load();
+	  }
+	}else{
+	  apply(uri);
+	}
 
 }.inherits(SpriteSheet)
 
