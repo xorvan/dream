@@ -49,6 +49,7 @@
 				a.onZChange.removeByOwner(composite);
 				composite.renderList[a.z].splice(composite.renderList[a.z].indexOf(a),1);
 				composite.pool.remove(a);
+				dream.event.dispatch(composite, "onImageChange", [composite.rect.transformation.projectRect(a.boundary).boundary]);
 			}
 		});
 	}.inherits(dream.visual.Graphic);

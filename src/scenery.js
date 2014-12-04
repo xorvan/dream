@@ -56,8 +56,11 @@ dream.scenery.Scene = function(){
 		o.onBoundaryChange.removeByOwner(scene);
 		o.onImageChange.removeByOwner(scene);
 		o.onZChange.removeByOwner(scene);
+		if(o.isPresent){
+			scene.renderList[o.z].splice(scene.renderList[o.z].indexOf(o),1);
+			dream.event.dispatch(scene, "onImageChange", [scene.rect.transformation.projectRect(o.boundary).boundary]);
+		} 
 		o.isPresent = false;
-		if(o.isPresent) scene.renderList[o.z].splice(scene.renderList[o.z].indexOf(o),1);
 	});
 	
 	this.area = new dream.geometry.Rect;

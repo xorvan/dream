@@ -105,10 +105,10 @@ dream.Screen.prototype.render = function(){
 
 	this.paint(this.context, new dream.geometry.Point, new dream.geometry.Rect(0,0, this.width, this.height));
 
-	// if(checkInput){
-	// 	this.checkHover(new dream.input.MouseEvent(null, this.input.mouse.position, this));
-	// 	if(this.input.mouse.isDown) this.raiseDrag(new dream.input.MouseEvent(null, this.input.mouse.position, this));
-	// }
+	if(checkInput){
+		this.checkHover(new dream.input.MouseEvent(null, this.input.mouse.position, this));
+		if(this.input.mouse.isDown) this.raiseDrag(new dream.input.MouseEvent(null, this.input.mouse.position, this));
+	}
 
 	if(!this.isdrawing){
 		this.isdrawing = true;
