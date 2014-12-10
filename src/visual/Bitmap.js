@@ -41,8 +41,10 @@
 			return this._texture;
 		},
 		set : function(v) {
+			console.log("setting ttt", v)
 			if(v instanceof dream.visual.Texture){
 				this._texture = v;
+
 				if(v.img.isLoaded){
 					if (this.rect.width != v.rect.width || this.rect.height != v.rect.height
 							|| this.rect.left != -v.anchorX
@@ -50,19 +52,18 @@
 						this.isBoundaryChanged = true;
 					}
 					this.isImageChanged = true;
-					// this.step(this.fc+1);
+					this.resetBoundary();
 				}else{
 					var self = this;
 					v.img.onLoad.add(function(){
 						self.isBoundaryChanged = true;
 						self.isImageChanged = true;
-						// this.step(this.fc+1);
+						this.resetBoundary();
 					})
 				}
 			}else if(v instanceof dream.static.Resource){
 				if(v.isLoaded){
 					this.texture = v.content;
-					console.log("loadedddddd")
 				}else{
 					var self = this;
 					v.onLoad.add(function(){

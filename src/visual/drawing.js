@@ -1385,9 +1385,9 @@ Pattern$ = Pattern.prototype;
 
 Pattern.repeatType = {
 		'REPEAT': "repeat",
-		'REPEAT-X': "repeat-x",
-		'REPEAT-Y': "repeat-y",
-		'NO-REPEAT': "no-repeat"
+		'REPEAT_X': "repeat-x",
+		'REPEAT_Y': "repeat-y",
+		'NO_REPEAT': "no-repeat"
 	};
 
 
@@ -1435,10 +1435,13 @@ Object.defineProperty(Pattern$, "bitmap", {
 });
 
 Pattern$.createStyle = function(context, rect){
-  context.translate(rect.left, rect.top)
+  context.translate(rect.left, rect.top);
   var img = this._bitmap.image;
-  if(!img.width) return "red";
-	var r = context.createPattern(this._bitmap.image, this._repeatType);
+  if(!img.width){
+  	console.warn("Pattern image has no width!");
+  	return "";
+  } 
+  var r = context.createPattern(this._bitmap.image, this._repeatType);
   // context.translate(rect.left * -1, rect.top * -1);
   return r;
 };

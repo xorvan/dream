@@ -1,18 +1,19 @@
 {
   "name": "DreamJS",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "private": true,
   "description": "Game engine for web",
   "homepage": "http://www.dreamjs.com",
   "dependencies": {
-  	"express": "*",
+    "express": "*",
     "jade": ">= 0.0.1"
   },
   "devDependencies": {
     "grunt": "*",
+    "grunt-contrib-jasmine": "*",
     "grunt-contrib-jshint": "*",
     "grunt-contrib-uglify": "*",
     "grunt-contrib-yuidoc": "*",
-    "grunt-contrib-jasmine": "*"
+    "gulp": "^3.8.10"
   }
 }
