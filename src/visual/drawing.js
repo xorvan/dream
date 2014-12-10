@@ -53,6 +53,22 @@ Object.defineProperty(Shape$, "requiredResources", {
 
 });
 
+Shape$.step = function (fc){
+	if(this.fc == fc) return false;
+
+	if (this.behavior) this.behavior.step();
+	
+	if(this._fs && this._fs.bitmap)
+		this._fs.bitmap.step(fc);
+
+	if(this._ss && this._ss.bitmap)
+		this._ss.bitmap.step(fc);
+
+	dream.visual.Composite._superClass.prototype.step.call(this, fc, true);
+	
+	
+}; 
+
 
 /**
  * setter/getter property, it's value is/should be an instance of *Style* (and it's subclasses like *Color* or *Gradient*)
