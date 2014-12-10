@@ -41,7 +41,6 @@
 			return this._texture;
 		},
 		set : function(v) {
-			console.log("setting ttt", v)
 			if(v instanceof dream.visual.Texture){
 				this._texture = v;
 

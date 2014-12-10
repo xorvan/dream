@@ -47,7 +47,6 @@ SpriteSheet$.getTextureArray =function(name){
 	var res = new SpriteSheet();
 	if(this.isLoaded){
     res.isLoaded = true;
-		console.log("adding current tx");
 		var len = name.length;
 		for (var i = 0, texture;texture = this.textures[i]; i++)
 			if (texture.name.substring(0, len) == name)
@@ -57,7 +56,6 @@ SpriteSheet$.getTextureArray =function(name){
 		res.sheet = this.sheet;
 		res.sheetUri = this.sheetUri;
 		this.sheet.onLoad.add(function(){
-			console.log("adding later tx");
 			var len = name.length;
 			for (var i = 0, texture;texture = self.textures[i]; i++)
 				if (texture.name.substring(0, len) == name)
@@ -112,7 +110,6 @@ var SequentialSpriteSheet = function(img, data){
 
 
 var JsonSpriteSheet = function(uri){
-	console.log("ssss", uri)
 	var self = this;
 	SpriteSheet.call(this);
 
@@ -146,9 +143,6 @@ var JsonSpriteSheet = function(uri){
 				var tx = new  Texture(self.imageUrl , i.split('.')[0], fr.y, self.width - fr.x - fr.h, fr.w, fr.h);
 				self.textures.add(tx)
 				tx.img =  {content: buff.canvas, isLoaded: true};
-				document.body.appendChild(buff.canvas)
-				ccttxx = buff.canvas;
-
 
 			}else{
 				self.textures.add(new Texture(self.imageUrl , i.split('.')[0], fr.x, fr.y, fr.w, fr.h));
@@ -161,7 +155,6 @@ var JsonSpriteSheet = function(uri){
 		this.sheet = new dream.static.Resource(uri);
 		var onLoadHandler;
 		this.sheet.onLoad.add(onLoadHandler = function(){
-			console.log("loaded", self.sheet)
 			apply(self.sheet.content);
 		})
 
