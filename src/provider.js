@@ -17,8 +17,8 @@ $.provide = function(area){
 Object.defineProperty($, "area", {
 	set: function(v){
 		if(this._area == v) return v;
+		this.provide(v, this._area);
 		this._area = v;
-		this.provide(v);
 	},
 	get : function () {
 		return this._area;
