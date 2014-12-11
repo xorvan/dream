@@ -1,15 +1,5 @@
 (function(){
 
-var Filter = function(){
-	
-};
-var $ = Filter.prototype;
-dream.event.create($, "onChange");
-
-var GrayScale = function(){
-	
-}.inherits(Filter);
-
 var createChangeProperty = function(obj, name){
 	var _name = "_"+name;
 	Object.defineProperty(obj, name, {
@@ -22,15 +12,41 @@ var createChangeProperty = function(obj, name){
 		}
 	});
 };
+
+var Filter = function(){
 	
-GrayScale.prototype.filter = function(img){
+};
+var $ = Filter.prototype;
+dream.event.create($, "onChange");
+
+
+var Desaturation = function(intensity){
+	if(intensity ===undefined){
+		var intensity = 1;
+	}
+	this.intensity = intensity;
+	
+}.inherits(Filter);
+
+var Desaturation$ = Desaturation.prototype;
+
+createChangeProperty(Desaturation$, "intensity");
+	
+Desaturation$.filter = function(img){
 	var d = img.data;
 	  for (var i=0; i != d.length; i+=4) {
 	    var r = d[i];
 	    var g = d[i+1];
 	    var b = d[i+2];
+	    var intensity = this.intensity
 	    var v = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-	    d[i] = d[i+1] = d[i+2] = v;
+	    if(i == 1){
+	    	d[i] = d[i+1] = d[i+2] = v;
+	    }else{
+	    	d[i] = v * intensity + r * (1-intensity);
+	    	d[i+1] = v * intensity + g * (1-intensity);
+	    	d[i+2] = v * intensity + b * (1-intensity);
+	    }
 	  }
 	  return img;
 };
@@ -352,7 +368,7 @@ $.apply = function(img){
 dream.visual.filter = {
 		Filter: Filter,
 		FilterList: FilterList,
-		GrayScale: GrayScale,
+		Desaturation: Desaturation,
 		Brighten: Brighten,
 		Threshold: Threshold,
 		Noise: Noise,

@@ -19,7 +19,7 @@ $.enable = function(){
 	var d = new dream.behavior.Action(function(){
 		if(isDown) b.fn.call(this, ++b.counter);
 	});
-	if(this.interval != 1) d = new dream.behavior.decorator.Interval(d, interval); 
+	if(this.interval != 1) d = new dream.behavior.decorator.Interval(d, this.interval); 
 	this.d = this.obj.behavior.actions.add(d);
 	this._kdl = dream.input.onKeyDown.add(function(e){if(!isDown && e.keyCode == b.key) b.counter = 0, isDown = true; });
 	this._kul = dream.input.onKeyUp.add(function(e){if(e.keyCode == b.key) isDown = false; });
