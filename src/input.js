@@ -194,11 +194,67 @@ var Key = {
 	'Z' : 90
 };
 
+var KeyMap = {
+	37 : 'LEFT',
+	9 : 'TAB',
+	38 : 'UP',
+	39 : 'RIGHT',
+	40 : 'DOWN',
+	13 : 'ENTER',
+	16 : 'SHIFT',
+	17 : 'CTRL',
+	18 : 'ALT',
+	19 : 'PAUSE',
+	27 : 'ESC',
+	32 : 'SPACE',
+	48 : 'NUM0',
+	49 : 'NUM1',
+	50 : 'NUM2',
+	51 : 'NUM3',
+	52 : 'NUM4',
+	53 : 'NUM5',
+	54 : 'NUM6',
+	55 : 'NUM7',
+	56 : 'NUM8',
+	57 : 'NUM9',
+	107 : 'PLUS',
+	109 : 'MINUS',
+	106 : 'ASTERISK',
+	111 : 'SLASH',
+	65 : 'A',
+	66 : 'B',
+	67 : 'C',
+	68 : 'D',
+	69 : 'E',
+	70 : 'F',
+	71 : 'G',
+	72 : 'H',
+	73 : 'I',
+	74 : 'J',
+	75 : 'K',
+	76 : 'L',
+	77 : 'M',
+	78 : 'N',
+	79 : 'O',
+	80 : 'P',
+	81 : 'Q',
+	82 : 'R',
+	83 : 'S',
+	84 : 'T',
+	85 : 'U',
+	86 : 'V',
+	87 : 'W',
+	88 : 'X',
+	89 : 'Y',
+	90 : 'Z'
+};
+
 dream.input = {
 		InputEvent: InputEvent,
 		MouseEvent: MouseEvent,
 		InputHandler: InputHandler,
-		Key: Key
+		Key: Key,
+		KeySate: {},
 };
 
 dream.event.create(dream.input, "onKeyDown");
@@ -209,6 +265,7 @@ dream.event.create(dream.input, "onDeviceMotion");
 
 window.addEventListener("keydown",function(e){
 	dream.event.dispatch(dream.input, "onKeyDown", e);
+	dream.input.KeySate[KeyMap[e.keyCode]] = true;
 }, false);
 
 window.addEventListener("keypress",function(e){
@@ -217,6 +274,7 @@ window.addEventListener("keypress",function(e){
 
 window.addEventListener("keyup",function(e){
 	dream.event.dispatch(dream.input, "onKeyUp", e);
+	dream.input.KeySate[KeyMap[e.keyCode]] = false;
 }, false);
 
 window.addEventListener(window.onwheel ? "wheel" : "mousewheel",function(e){

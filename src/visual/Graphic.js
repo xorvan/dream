@@ -30,7 +30,7 @@ var Graphic = function(left, top){
 	this.rect.transformation.onChange.buffer();
 	this.rect.transformation.onChange.propagateFlagged(this, "isBoundaryChanged");
 
-	this.visible = true;
+	this._visible = true;
 
 	this.isImageChanged = true;
 	this.isBoundaryChanged = true;
@@ -80,7 +80,7 @@ Graphic$.paintFromBuffer = function(ctx, origin, renderRect){
 };
 
 Graphic$.render = function(ctx, origin, renderRect) {
-	if(!this.visible) return 0;
+	if(!this._visible) return 0;
 	ctx.save();
 	if(this.a != 1) ctx.globalAlpha = this.alpha;
 //	var m = this.rect.transformation.matrix;
@@ -236,6 +236,16 @@ Graphic$.raiseDragStop = function(event){
 Object.defineProperty(Graphic$, "bitmap", {
 	get : function() {
 		return new dream.visual.Bitmap(this.imageData, 0, 0, this.rect.width, this.rect.height);
+	}
+});
+
+Object.defineProperty(Graphic$, "visible", {
+	get : function() {
+		return this._visible;
+	},
+	set : function(v) {
+		this._visible = v;
+		this.isImageChanged = true;
 	}
 });
 
